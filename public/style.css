@@ -27,7 +27,8 @@ h1 {
   padding-bottom: 1rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  height: 80%;
+  max-height: 90vh; /* sets a limit, but allows shrinking */
+  height: auto;      /* lets it shrink to content */
 }
 
 #sidebarContent {
@@ -375,10 +376,11 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height:50%;
-  overflow-y:scroll;
-  overflow-x: hidden;
+  overflow: visible;
+  max-height: none;
+  color: auto;
 }
+
 
 .recent-cards-column img {
   width: auto;
@@ -392,6 +394,20 @@ h1 {
 .recent-cards-column img:hover {
   transform: scale(1.05);
 }
+
+.recent-card-name {
+  color: #444;               
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.recent-card-name:hover {
+  text-decoration: underline;
+  color: #fff;
+}
+
 
 
 /* DASHBOARD GRID */

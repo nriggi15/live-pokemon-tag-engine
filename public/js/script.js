@@ -418,11 +418,14 @@ function loadRecentCards() {
   }
 
   cards.forEach(card => {
-    const img = document.createElement('img');
-    img.src = card.image;
-    img.alt = card.name;
-    img.title = card.name;
-    img.addEventListener('click', async () => {
+    const div = document.createElement('div');
+    div.textContent = card.name;
+    div.classList.add('recent-card-name');
+    div.style.cursor = 'pointer';
+    div.style.marginBottom = '0.25rem';
+    div.style.fontSize = '0.9rem';
+    
+    div.addEventListener('click', async () => {
       try {
         const res = await fetch(`https://api.pokemontcg.io/v2/cards/${card.id}`);
         const data = await res.json();
@@ -432,7 +435,7 @@ function loadRecentCards() {
       }
     });
 
-    container.appendChild(img);
+    container.appendChild(div);
   });
 }
 
