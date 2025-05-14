@@ -150,6 +150,7 @@ function createTagCloud() {
       .then(cardIds => {
         if (cardIds.length === 0) {
           cardResults.innerHTML = '<p>No tagged cards found.</p>';
+          document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
           return;
         }
         const cardPromises = cardIds.map(async (id) => {
@@ -167,6 +168,7 @@ function createTagCloud() {
       .catch(err => {
         console.error('Error fetching tagged cards:', err);
         cardResults.innerHTML = '<p>Error loading tagged cards.</p>';
+        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
       });
   });
   rarityRow.appendChild(showAllBtn);
@@ -176,6 +178,7 @@ function createTagCloud() {
 
   function showCards(cards, append = false) {
     if (!append) {
+      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
       cardResults.innerHTML = '';
       window.searchResults = cards; // ✅ set the global search result array
     }
@@ -183,6 +186,7 @@ function createTagCloud() {
     if (cards.length === 0) {
       if (!append) {
         cardResults.innerHTML = '<p>No cards found.</p>';
+        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
       }
       return;
     }
@@ -336,6 +340,20 @@ async function loadRandomCards() {
   const cardResults = document.getElementById('cardResults');
   if (!cardResults) return;
 
+  // First, ensure no old header
+  document.getElementById('featuredHeader')?.remove();
+
+  // Create new header
+  const header = document.createElement('h3');
+  header.id = 'featuredHeader';
+  header.textContent = '🌟 Featured Cards';
+  header.style.marginTop = '1rem';
+  header.style.textAlign = 'center';
+
+  // Insert before cardResults
+  cardResults.parentNode.insertBefore(header, cardResults);
+
+
   try {
     // Step 1: get total card count
     const countRes = await fetch('https://api.pokemontcg.io/v2/cards?pageSize=1', {
@@ -357,11 +375,13 @@ async function loadRandomCards() {
     const data = await res.json();
     if (!data?.data?.length) {
       cardResults.innerHTML = '<p>⚠️ Could not load featured cards.</p>';
+      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
       return;
     }
 
     // Add header
     const header = document.createElement('h3');
+    header.id = 'featuredHeader'; // ✅ unique identifier
     header.textContent = '🌟 Featured Cards';
     header.style.marginTop = '1rem';
     header.style.textAlign = 'center';
@@ -371,6 +391,7 @@ async function loadRandomCards() {
   } catch (err) {
     console.error('Failed to load random cards:', err);
     cardResults.innerHTML = '<p>⚠️ Failed to load featured cards.</p>';
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
   }
 }
 

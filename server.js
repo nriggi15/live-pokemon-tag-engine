@@ -191,14 +191,14 @@ app.get('/search', async (req, res) => {
 
 app.get('/all-tagged-cards', async (req, res) => {
   try {
-    const allTagged = await Tag.find({});
-    const cardIds = allTagged.map(entry => entry.cardId);
-    res.json(cardIds);
+    const uniqueCardIds = await NewTag.distinct('cardId', { status: 'approved' });
+    res.json(uniqueCardIds);
   } catch (err) {
     console.error('Error fetching all tagged cards:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 app.post('/api/newtags/:cardId', tagSubmissionLimiter, async (req, res) => {
