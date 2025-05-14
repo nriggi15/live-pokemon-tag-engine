@@ -17,6 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const tagStatsList = document.getElementById('tagStatsList');
   const closeStatsBtn = tagStatsPopup?.querySelector('.close-button');
 
+
+  // ✅ Auto-hide sidebar on page load if on mobile
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('sidebar');
+    const reopenBtn = document.getElementById('reopenSidebarBtn');
+    if (sidebar && reopenBtn) {
+      sidebar.classList.add('hidden');
+      reopenBtn.classList.remove('hidden');
+    }
+  }
+
+
   if (minimizeBtn && sidebar && reopenBtn) {
     minimizeBtn.addEventListener('click', () => {
       sidebar.classList.add('hidden');
@@ -496,7 +508,7 @@ async function searchCards(query, page = 1) {
   } catch (err) {
     console.error('Error fetching cards:', err);
     cardResults.innerHTML = '<p>Error loading cards.</p>';
-    document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
   }
 }
 
@@ -549,7 +561,7 @@ async function searchCustomTags(tag) {
 
       if (realTags.length === 0) {
         cardResults.innerHTML = `<p>None of the provided tags are recognized. Try using valid custom tags.</p>`;
-        document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
         return;
       }
 
@@ -561,11 +573,11 @@ async function searchCustomTags(tag) {
     const ids = await res.json();
     if (ids.length === 0) {
       cardResults.innerHTML = `<p>No cards found for tag: ${tag}</p>`;
-      document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
       return;
     }
     cardResults.innerHTML = ''; // clear old results
-    document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
 
       const cardData = [];
 
@@ -602,7 +614,7 @@ async function searchCustomTags(tag) {
 
       if (filteredCards.length === 0) {
         cardResults.innerHTML = `<p>No cards matched both the tags and fallback keywords.</p>`;
-        document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
         return;
       }
 
@@ -615,7 +627,7 @@ async function searchCustomTags(tag) {
   } catch (err) {
     console.error('Custom tag search failed:', err);
     cardResults.innerHTML = '<p>Error searching tags.</p>';
-    document.querySelector('h3')?.remove(); // remove "🌟 Featured Cards" if present
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
   }
 }
 

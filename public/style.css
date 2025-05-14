@@ -426,6 +426,29 @@ h1 {
   }
 }
 
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+  }
+
+  #reopenSidebarBtn {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+}
+
+
 
 /* Popup container */
 .popup {
