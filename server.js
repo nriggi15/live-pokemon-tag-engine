@@ -298,7 +298,9 @@ app.get('/api/tag-stats', async (req, res) => {
 
     await EmailVerification.deleteOne({ _id: record._id });
 
-    res.send(`<h2>Email verified successfully!</h2><a href="/login">Go to Login</a>`);
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    res.send(`<h2>Email verified successfully!</h2><a href="${baseUrl}/login">Go to Login</a>`);
+
 
   } catch (err) {
     console.error('❌ Verification error:', err);

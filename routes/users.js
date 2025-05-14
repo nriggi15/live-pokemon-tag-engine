@@ -85,8 +85,6 @@ router.post('/register', registerLimiter, async (req, res) => {
     });
 
     // ✅ Save the token for Step 3 (send it by email)
-    //const verificationLink = `http://localhost:3000/verify?token=${token}`; // or your real domain
-
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
     const verificationLink = `${baseUrl}/verify?token=${token}`;
 
@@ -621,7 +619,9 @@ router.post('/forgot-password', async (req, res) => {
       expiresAt: new Date(Date.now() + 1000 * 60 * 60) // 1 hour
     });
 
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
     console.log(`📩 Reset link: ${resetLink}`);
 
     await sendPasswordResetEmail(user.email, resetLink); // ✅ correct

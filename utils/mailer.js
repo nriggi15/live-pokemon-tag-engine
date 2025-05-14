@@ -12,7 +12,9 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendVerificationEmail(to, token) {
-  const verificationLink = `http://localhost:3000/verify?token=${token}`;
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const verificationLink = `${baseUrl}/verify?token=${token}`;
+
 
   const mailOptions = {
     from: `"Pokémon Tag Engine" <${process.env.EMAIL_USER}>`,
