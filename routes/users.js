@@ -85,7 +85,12 @@ router.post('/register', registerLimiter, async (req, res) => {
     });
 
     // ✅ Save the token for Step 3 (send it by email)
-    const verificationLink = `http://localhost:3000/verify?token=${token}`; // or your real domain
+    //const verificationLink = `http://localhost:3000/verify?token=${token}`; // or your real domain
+
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const verificationLink = `${baseUrl}/verify?token=${token}`;
+
+
     console.log(`📩 Send this link via email: ${verificationLink}`);
 
     await sendVerificationEmail(user.email, token);
