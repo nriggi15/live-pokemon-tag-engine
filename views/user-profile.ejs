@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+  <link rel="stylesheet" href="/style.css" />
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f4f8;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .profile-container {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      max-width: 1000px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 3px solid #ccc;
+    }
+
+    .username {
+      font-size: 1.75rem;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 0.5rem;
+    }
+
+    .bio {
+      font-style: italic;
+      color: #555;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-heading {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 2rem 0 0.5rem;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.25rem;
+    }
+
+    #collections,
+    #recent-tags {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-areas:
+        "header header header"
+        "left center right";
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .profile-header {
+      grid-area: header;
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile-left {
+      grid-area: left;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-center {
+      grid-area: center;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-right {
+      grid-area: right;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 900px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "left"
+          "center"
+          "right";
+      }
+    }
+
+  </style>
+
+  
+</head>
+<body>
+
+  <%- include('partials/sidebar') %>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- NEW PROFILE GRID -->
+
+
+
+<div class="profile-grid">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <!-- Avatar, Username, Bio, Edit Button -->
+    <img class="profile-avatar" src="" alt="Avatar" />
+    <div class="username"></div>
+
+    <!-- Bio display section -->
+    <div id="bioDisplay" class="bio"></div>
+
+    <!-- Edit bio input (hidden by default) -->
+    <textarea id="bioEdit" class="hidden" rows="4" style="width: 100%; max-width: 400px;"></textarea>
+
+    <!-- Button row -->
+    <div id="bioButtons" class="hidden">
+    <button id="saveBioBtn">💾 Save</button>
+    <button id="cancelBioBtn">❌ Cancel</button>
+    </div>
+    <span id="saveSuccessMessage" class="hidden">✅ Saved!</span>
+
+    <!-- Edit Bio trigger (only shown if it's their own profile) -->
+    <button id="editBioBtn" class="hidden">✏️ Edit Bio</button>
+  </div>
+
+  <!-- Left: Public Collections -->
+  <div class="profile-left">
+    <div class="section-heading">Public Collections</div>
+    <div id="collections">
+      <ul id="publicCollectionsList">Loading...</ul>
+    </div>
+  </div>
+
+  <!-- Center: Recent Tags -->
+  <div class="profile-center">
+    <div class="section-heading">Recent Tags</div>
+    <div id="recent-tags">Coming soon...</div>
+  </div>
+
+  <!-- Right: Favorite Searches -->
+  <div class="profile-right">
+    <h3>⭐ Favorite Searches</h3>
+    <ul id="publicFavoritesList">
+      <li>Loading...</li>
+    </ul>
+    <div class="profile-section" id="publicFavoriteSearches">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- END NEW PROFILE GRID -->
+
+<script>
+    async function loadProfile() {
+      const pathParts = window.location.pathname.split('/');
+      const username = pathParts[pathParts.length - 1];
+  
+      try {
+        const res = await fetch(`/api/user-profile/${username}`);
+        const data = await res.json();
+  
+        if (res.ok) {
+          loadPublicFavorites(data.username);
+          document.querySelector('.username').textContent = '@' + data.username;
+          document.querySelector('#bioDisplay').textContent = data.bio || 'This user has not written a bio yet.';
+          document.querySelector('.profile-avatar').src = data.avatarUrl || '/images/default-avatar.png';
+  
+          // 🧠 Save reference to loaded profile ID
+          window.loadedProfileUserId = data.userId || null;
+          window.loadedBio = data.bio || '';
+  
+          // Pre-fill the textarea
+          document.getElementById('bioEdit').value = window.loadedBio;
+  
+          checkIfOwnProfile();
+          const sessionRes = await fetch('/api/whoami');
+          const session = await sessionRes.json();
+          const isSelf = session?.userId === data.userId;
+
+          loadPublicCollections(data.userId, isSelf);
+
+
+          return Promise.resolve();
+        } else {
+          document.body.innerHTML = '<h2>Profile not found</h2>';
+        }
+      } catch (err) {
+        console.error('Error loading profile:', err);
+        document.body.innerHTML = '<h2>Failed to load user profile.</h2>';
+      }
+    }
+
+    async function loadPublicCollections(userId, isSelf = false) {
+    const list = document.getElementById('publicCollectionsList');
+    list.innerHTML = '<li>Loading collections...</li>';
+
+    try {
+      let publicCollections = [];
+
+      if (isSelf) {
+        const res = await fetch(`/api/collections/me`);
+        const all = await res.json();
+        publicCollections = all.filter(c => String(c.userId) === String(userId) && c.visibility === 'public');
+      } else {
+        // fallback public-only fetch for guest viewers
+        const res = await fetch(`/api/user-profile/${userId}/collections/public`);
+        publicCollections = await res.json();
+      }
+
+
+      if (!publicCollections.length) {
+        list.innerHTML = '<li>No public collections found.</li>';
+        return;
+      }
+
+      list.innerHTML = '';
+
+      for (const col of publicCollections) {
+        const li = document.createElement('li');
+        li.style.marginBottom = '1rem';
+
+        const preview = await Promise.all(
+          col.cards.slice(0, 3).map(async cardId => {
+            try {
+              const res = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+              const data = await res.json();
+              return data.data?.images?.small || null;
+            } catch {
+              return null;
+            }
+          })
+        );
+
+        const cardImgs = preview.filter(Boolean).map(url => `<img src="${url}" style="height: 70px; margin-right: 5px;" />`).join('');
+
+        li.innerHTML = `
+          <strong>${col.name}</strong> – ${col.cards.length} card${col.cards.length !== 1 ? 's' : ''}
+          <br />
+          ${cardImgs || '<em>No preview available</em>'}
+          <br />
+          <a href="/collections/${col._id}">🔍 View Full Collection</a>
+        `;
+
+        list.appendChild(li);
+      }
+    } catch (err) {
+      console.error('❌ Failed to load public collections:', err);
+      list.innerHTML = '<li>Error loading collections.</li>';
+    }
+  }
+
+
+      async function loadRecentTags() {
+        if (!window.loadedProfileUserId) return;
+
+        try {
+          const res = await fetch(`/api/user-profile/${window.loadedProfileUserId}/recent-tags`);
+          const tags = await res.json();
+          const container = document.getElementById('recent-tags');
+
+          if (!Array.isArray(tags) || tags.length === 0) {
+            container.textContent = 'No recent tags.';
+            return;
+          }
+
+          // Step 1: Fetch all cards in parallel
+          const tagCardPairs = await Promise.all(tags.map(async (tag) => {
+            try {
+              const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${tag.cardId}`);
+              const cardData = await cardRes.json();
+              return { tag: tag.tag, card: cardData.data };
+            } catch (err) {
+              console.error('Error loading card:', tag.cardId, err);
+              return null;
+            }
+          }));
+
+          // Filter out any nulls from failed fetches
+          const validPairs = tagCardPairs.filter(pair => pair && pair.card);
+
+          // Step 2: Render them
+          renderRecentTagCards(validPairs, container);
+        } catch (err) {
+          console.error('Failed to load recent tags:', err);
+          document.getElementById('recent-tags').textContent = 'Error loading tags.';
+        }
+      }
+
+      function renderRecentTagCards(pairs, container) {
+        container.innerHTML = ''; // Clear old content
+        const outer = document.createElement('div');
+        outer.style.display = 'flex';
+        outer.style.flexDirection = 'column';
+        outer.style.gap = '1rem';
+        outer.style.alignItems = 'center';
+
+        function createRow(pairs) {
+          const row = document.createElement('div');
+          row.style.display = 'grid';
+          row.style.gridTemplateColumns = 'repeat(5, 1fr)';
+          row.style.gap = '1rem';
+          row.style.width = '100%';
+          row.style.maxWidth = '900px';
+
+          const cardCount = pairs.length;
+          const blanks = 5 - cardCount;
+          const padStart = Math.floor(blanks / 2);
+          const padEnd = blanks - padStart;
+
+          for (let i = 0; i < padStart; i++) {
+            const dummy = document.createElement('div');
+            row.appendChild(dummy);
+          }
+
+          pairs.forEach(({ tag, card }) => {
+            const box = document.createElement('div');
+            box.style.textAlign = 'center';
+            box.style.cursor = 'pointer';
+
+            const tagLabel = document.createElement('div');
+            tagLabel.textContent = tag;
+            tagLabel.style.fontSize = '0.9rem';
+            tagLabel.style.fontWeight = 'bold';
+            tagLabel.style.marginBottom = '0.5rem';
+
+            const img = document.createElement('img');
+            img.src = card.images.small;
+            img.alt = card.name;
+            img.style.width = '140px';
+            img.style.borderRadius = '8px';
+            img.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+
+            img.addEventListener('click', () => openCardPopup(card, { mode: 'view' }));
+
+            box.appendChild(tagLabel);
+            box.appendChild(img);
+            row.appendChild(box);
+          });
+
+          for (let i = 0; i < padEnd; i++) {
+            const dummy = document.createElement('div');
+            row.appendChild(dummy);
+          }
+
+          return row;
+        }
+
+        // Split the 10 cards into 2 rows
+        const topRow = pairs.slice(0, 5);
+        const bottomRow = pairs.slice(5, 10);
+
+        outer.appendChild(createRow(topRow));
+        outer.appendChild(createRow(bottomRow));
+
+        container.appendChild(outer);
+
+              }
+
+  
+    async function checkIfOwnProfile() {
+      try {
+        const res = await fetch('/api/whoami');
+        const session = await res.json();
+  
+        if (session?.userId && session.userId === window.loadedProfileUserId) {
+          document.getElementById('editBioBtn').classList.remove('hidden');
+  
+          document.getElementById('editBioBtn').addEventListener('click', () => {
+            document.getElementById('bioDisplay').classList.add('hidden');
+            document.getElementById('bioEdit').classList.remove('hidden');
+            document.getElementById('bioButtons').classList.remove('hidden');
+          });
+  
+          document.getElementById('cancelBioBtn').addEventListener('click', () => {
+            document.getElementById('bioEdit').classList.add('hidden');
+            document.getElementById('bioButtons').classList.add('hidden');
+            document.getElementById('bioDisplay').classList.remove('hidden');
+          });
+  
+          document.getElementById('saveBioBtn').addEventListener('click', async () => {
+            const newBio = document.getElementById('bioEdit').value.trim();
+  
+            try {
+              const res = await fetch(`/api/user-profile/${session.userId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bio: newBio })
+              });
+  
+            if (res.ok) {
+              // ✅ Update the displayed bio first
+              document.getElementById('bioDisplay').textContent = newBio || 'This user has not written a bio yet.';
+
+              const bioDisplay = document.getElementById('bioDisplay');
+              bioDisplay.classList.remove('bio-flash-success'); // reset if already applied
+              void bioDisplay.offsetWidth;                      // force reflow
+              bioDisplay.classList.add('bio-flash-success');    // re-trigger animation
+
+
+              // ✅ Force success message to show before hiding the container
+              const successMsg = document.getElementById('saveSuccessMessage');
+              successMsg.textContent = "✅ Saved!";
+              successMsg.classList.remove('hidden');
+              successMsg.style.display = 'inline-block';
+              successMsg.style.visibility = 'visible';
+              successMsg.style.opacity = '1';
+              successMsg.style.animation = 'none'; // reset
+              void successMsg.offsetWidth;         // force reflow
+              successMsg.style.animation = 'fadeOut 2s ease-in-out forwards';
+
+              // ✅ Hide it again after animation ends
+              setTimeout(() => {
+                successMsg.classList.add('hidden');
+                successMsg.style.display = '';
+                successMsg.style.opacity = '';
+                successMsg.style.animation = '';
+              }, 2000);
+
+              // ✅ Clean up UI AFTER showing success
+              document.getElementById('bioEdit').classList.add('hidden');
+              document.getElementById('bioButtons').classList.add('hidden');
+              document.getElementById('bioDisplay').classList.remove('hidden');
+            }
+
+
+
+
+              else {
+                alert('Failed to update bio.');
+              }
+            } catch (err) {
+              console.error('Error saving bio:', err);
+              alert('Error saving bio.');
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
+      }
+    }
+
+    async function loadPublicFavorites(username) {
+      const list = document.getElementById('publicFavoritesList');
+      list.innerHTML = '<li>Loading...</li>';
+
+      try {
+        const res = await fetch(`/api/favorites/user/${username}`);
+        const favorites = await res.json();
+
+        if (!Array.isArray(favorites) || favorites.length === 0) {
+          list.innerHTML = '<li>No favorite searches.</li>';
+          return;
+        }
+
+        list.innerHTML = '';
+        favorites.forEach(fav => {
+          const li = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = fav.type === 'tag'
+            ? `/?tags=${encodeURIComponent(fav.term.replace(/^#/, ''))}`
+            : `/?search=${encodeURIComponent(fav.term)}`;
+          link.textContent = fav.term;
+          li.appendChild(link);
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error('❌ Failed to load public favorites:', err);
+        list.innerHTML = '<li>Error loading favorites.</li>';
+      }
+    }
+
+  
+window.onload = async () => {
+  await loadProfile();      // wait until userId is set
+  await loadRecentTags();  // now it's safe to use it
+};
+
+  </script>
+  
+  
+  <script src="/js/script.js"></script>
+
+</body>
+</html>

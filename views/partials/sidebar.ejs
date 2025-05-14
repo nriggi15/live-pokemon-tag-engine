@@ -1,0 +1,62 @@
+<!-- BEGIN SIDE BAR -->
+<div id="sidebar">
+
+  <div id="sidebarContent">
+
+    <a href="/" id="homeBtn" class="sidebar-button">Home</a>
+    <!-- Dropdown Section -->
+    <div class="dropdown-section">
+      <button id="toggleDropdownBtn">🔽 Account Tools</button>
+      <div id="dropdownContent">
+        <a href="/register" class="dropdown-link hidden" id="registerBtn">Register</a>
+        <a href="/login" class="dropdown-link hidden" id="loginBtn">Login</a>
+        <a href="/dashboard" class="dropdown-link hidden" id="dashboardBtn">Dashboard</a>
+        <a href="#" class="dropdown-link hidden" id="myProfileBtn">My Profile</a>
+        <a href="/moderator-hub" class="dropdown-link hidden" id="modLink">Moderator Hub</a>
+        <a href="/admin-panel" class="dropdown-link hidden" id="adminLink">Admin Panel</a>
+        <a href="#" class="dropdown-link hidden" id="logoutBtn">Logout</a>             
+      </div>      
+    </div>
+
+    <!--Dark Mode Button-->
+    <button class="toggle-theme" id="toggleDarkModeBtn">🌓 Toggle Dark Mode</button>
+
+    <!--Tag Usage Stats-->
+    <button id="openTagStats">📊 View Tag Usage</button>
+
+    <button onclick="window.location.href='/explore'">🔍 Explore</button>
+
+
+<% if (page === 'index') { %>
+    <!-- View Sets Button -->
+    <button id="viewSetsBtn">📦 View All Card Sets</button>
+    <div id="setsPopup" class="popup hidden">
+      <div class="popup-content">
+        <span class="close-button" id="closeSetsPopup">&times;</span>
+        <h2>All Pokémon Card Sets</h2>
+        <ul id="setsList"></ul>
+      </div>
+    </div>
+
+    <button id="surpriseBtn" class="sidebar-button">🎲 Surprise Me</button>
+<% } %>
+
+<!-- RECENT CARDS -->
+ <div class="recent-cards">
+  <h4 style="margin-top: 2rem; margin-bottom: 0.5rem;">🕵️ Recently Viewed</h4>
+  <div id="recentCardsList" class="recent-cards-column">
+    <p style="font-size: 0.85rem; color: #888;">None yet</p>
+  </div>
+</div>
+
+
+  </div>
+
+  <!-- Minimize/Maximize Button -->
+  <span id="minimizeSidebarBtn" class="sidebar-close-button">&#9866;</span>
+
+</div>
+
+<!-- Reopen Button -->
+<button id="reopenSidebarBtn" class="hidden">&#9776;</button>
+<!-- END SIDE BAR -->

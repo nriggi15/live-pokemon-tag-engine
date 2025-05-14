@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon Card Tagger</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+
+</head>
+<body>
+  <h1>Pokémon Card Tagger</h1>
+  <h2>Explore by Tag</h2> 
+
+<!-- BEGIN SIDE BAR -->
+<%- include('partials/sidebar') %>
+<!-- END SIDE BAR -->
+
+<!-- Tag Usage Stats POPUP ONLY, button is in #sidebar -->
+<div id="tagStatsPopup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close-button">&times;</span>
+    <h3>📊 Tag Usage Stats</h3>
+    <ul id="tagStatsList"></ul>
+  </div>
+</div>
+
+<!-- TAG CLOUD -->
+  <div id="tagCloud"></div>
+
+  <div id="topControls">
+    <button id="refreshBtn">🔄 Refresh / Clear Search</button>
+  </div>
+  
+  <div id="favoriteSearchControls" style="margin-bottom: 1rem;"></div>
+
+
+  <div id="searchContainer">
+    <div class="search-group">
+      <label for="tagSearchInput">Search by Custom Tags</label>
+      <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
+      <button id="tagSearchBtn">Tag Search</button>
+    </div>
+
+    <div class="search-group">
+      <label for="searchInput">Search by Pokémon or Keyword</label>
+      <input type="text" id="searchInput" placeholder="Search by name..." />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
+      <h3>🔎 Advanced Tag Search (currently 50% working)</h3>
+      <div id="queryTagList" style="margin-bottom: 0.5rem;"></div>
+      <div>
+        <label><input type="radio" name="queryMode" value="AND" checked /> AND</label>
+        <label style="margin-left: 1rem;"><input type="radio" name="queryMode" value="OR" /> OR</label>
+      </div>
+      <p id="queryPreview" style="margin: 0.5rem 0; font-style: italic; color: #555;"></p>
+      <button id="runQueryBtn">Search</button>
+    </div>
+
+  </div>
+
+  <div id="resultsCount" class="hidden"></div>
+  <div id="loadingSpinner" class="hidden">Loading...</div>
+  <div id="cardResults"></div>
+  <div id="loadMoreContainer"></div>
+
+  <!--Pagination Controls-->
+<!--   <div id="paginationControls" class="hidden">
+    <button id="prevPageBtn">⬅ Previous</button>
+    <span id="pageIndicator">Page 1</span>
+    <button id="nextPageBtn">Next ➡</button>
+  </div> -->
+
+  <!-- Card Detail Popup -->
+<div id="card-popup" class="popup hidden">
+  <div class="popup-content">
+    <span id="popup-close">&times;</span>
+    <img id="popup-image" src="" alt="Card image" />
+    <h2 id="popup-name"></h2>
+    <p id="popup-number"></p>
+    <p id="popup-supertype"></p>
+    <p id="popup-subtypes"></p>
+    <p id="popup-flavor-text"></p>
+  </div>
+</div>
+
+<div id="tagConfirmPopup" class="popup hidden">
+  <div class="popup-content">
+    <p id="tagConfirmMessage"></p>
+    <div class="confirm-buttons">
+      <button id="confirmTagSubmit">✅ Submit</button>
+      <button id="cancelTagSubmit">❌ Cancel</button>
+    </div>
+  </div>
+</div>
+
+<button id="backToTopBtn" class="hidden">⬆️ Back to Top</button>
+
+
+  <!-- User Role Identifier -->
+  <script>
+    fetch('/api/whoami')
+      .then(res => res.json())
+      .then(data => {
+        if (data.role === 'admin') {
+          document.getElementById('adminLink').style.display = 'block';
+        }
+      })
+      .catch(err => {
+        console.error('Could not check user role:', err);
+      });
+  </script> 
+  
+  <!-- Add Role-Aware Link Visibility -->
+  <script>
+
+  </script>
+  
+  
+  
+  
+      <!-- Run the JS Script file, put most things above this -->
+      <script src="/js/search.js"></script>
+
+      <!-- Shared utilities like sidebar, dark mode, back to top -->
+      <script src="/js/script.js"></script>
+
+</body>
+</html>

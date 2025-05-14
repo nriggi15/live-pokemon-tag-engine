@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+  <title>Admin Panel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: none;
+      margin: auto;
+    }
+    h2 {
+      color: darkblue;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background: white;
+  padding: 1rem;
+  border: 2px solid #444;
+  max-height: 80vh;
+  max-width: 90vw;
+  overflow: auto;
+  width: 700px;
+  position: relative;
+}
+
+.hidden {
+  display: none;
+}
+
+.body {
+  width: 100%;
+  margin: 0%;
+}
+
+
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+  <div id="admin-flex-container" style="display: flex; align-items: flex-start;">
+   <div id="admin-left" style="width: 260px; min-width: 260px; padding-right: 1rem;">
+    <div id="admin-container">
+  <h2>👑 Admin Panel</h2>
+  <p>Welcome, Admin! Manage tags, users, and view reports below.</p>
+
+  <!-- Admin Stats -->
+  <h2>📊 Admin Stats</h2>
+  <div id="adminStats">
+    <p><strong>Total Users:</strong> <span id="userCount">Loading...</span></p>
+    <p><strong>Total Tags:</strong> <span id="tagCount">Loading...</span></p>
+  </div>
+
+  <h3>📅 User Activity</h3>
+<button id="loadActivityBtn">📅 View Activity (Last 24 Hours)</button>
+
+
+  <!-- Most Used Tags -->
+<h3>🏷️ Most Used Tags</h3>
+<button id="loadTagStatsBtn">📈 View Most Used Tags</button>
+
+<h3>🔖 Tag Management</h3>
+<button id="loadTagManagerBtn">🔖 Manage Tags</button>
+
+
+  <br>
+  <!-- User Management -->
+<!-- 👥 Trigger Button -->
+<h3>👥 User Management</h3>
+<button id="loadUsersBtn">👥 Manage Users</button>
+
+
+<h3>🕓 Tagging Queue</h3>
+<button id="loadTagQueueBtn">📝 Review Tag Submissions</button>
+
+
+<!-- ADD MORE ADMIN FUNCTIONS ABOVE THIS -->
+
+
+    </div> <!-- end #admin-container -->
+  </div>
+
+      <div id="admin-workspace" style="
+        resize: horizontal;
+        overflow: auto;
+        min-width: 400px;
+        max-width: 100%;
+        max-height: 30%;
+        border-left: 2px solid #ccc;
+        padding-left: 1rem;
+        height: auto;
+      ">
+</div> <!-- end #admin-flex-container -->
+
+<div id="tagEditPopup" class="popup hidden">
+  <div class="popup-content" style="max-width: 500px;">
+    <button id="closeTagEditPopup" style="float: right;">❌</button>
+    <h3>Edit Tag</h3>
+    <form id="tagEditForm">
+      <label>Tag Text:</label>
+      <input type="text" id="editTagInput" required><br><br>
+
+      <label>Status:</label>
+      <select id="editStatusSelect">
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="denied">Denied</option>
+      </select><br><br>
+
+      <p><strong>Card ID:</strong> <span id="editCardId"></span></p>
+      <p><strong>Submitted By:</strong> <span id="editSubmittedBy"></span></p>
+      <p><strong>Reviewed By:</strong> <span id="editReviewedBy"></span></p>
+
+      <button type="submit">💾 Save Changes</button>
+      <button type="button" id="deleteTagBtn">🗑 Delete Tag</button>
+    </form>
+  </div>
+</div>
+<!-- 
+//
+//
+//
+// -->
+
+
+
+  <script src="/js/admin.js"></script>
+  <script src="/js/script.js"></script>
+
+
+  <script>
+  const loadUsersBtn = document.getElementById('loadUsersBtn');
+  const adminWorkspace = document.getElementById('admin-workspace');
+
+  loadUsersBtn?.addEventListener('click', () => {
+    adminWorkspace.innerHTML = `
+      <h3>👥 User Management</h3>
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Banned</th>
+            <th>Verified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+
+    // Re-run your user loader (already defined in admin.js)
+    if (typeof loadUserTable === 'function') {
+      loadUserTable();
+    }
+  });
+</script>
+
+<script>
+  const loadTagStatsBtn = document.getElementById('loadTagStatsBtn');
+
+  loadTagStatsBtn?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/admin/stats/most-used-tags', { credentials: 'include' });
+      const tags = await res.json();
+
+      const listHTML = tags.length
+        ? `<ul>${tags.map(tag => `<li><strong>${tag.name}</strong>: ${tag.count}</li>`).join('')}</ul>`
+        : `<p>No tags found.</p>`;
+
+      adminWorkspace.innerHTML = `
+        <h3>🏷️ Most Used Tags</h3>
+        <p>This list shows the top 10 most frequently used tags.</p>
+        ${listHTML}
+      `;
+    } catch (err) {
+      adminWorkspace.innerHTML = `<p>❌ Failed to load tag stats.</p>`;
+      console.error('Failed to load tags:', err);
+    }
+  });
+</script>
+
+<script>
+  const loadTagQueueBtn = document.getElementById('loadTagQueueBtn');
+
+  loadTagQueueBtn?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/tag-submissions/pending', { credentials: 'include' });
+      const submissions = await res.json();
+
+      if (!Array.isArray(submissions) || submissions.length === 0) {
+        adminWorkspace.innerHTML = `<h3>🕓 Tagging Queue</h3><p>No pending submissions.</p>`;
+        return;
+      }
+
+      const rows = submissions.map(sub => `
+        <tr>
+          <td>${sub.cardId}</td>
+          <td>${sub.tag}</td>
+          <td>${sub.submittedBy?.username || 'Unknown'}</td>
+          <td>
+            <button class="approve-tag" data-id="${sub._id}">✅ Approve</button>
+            <button class="deny-tag" data-id="${sub._id}">❌ Deny</button>
+          </td>
+        </tr>
+      `).join('');
+
+      adminWorkspace.innerHTML = `
+        <h3>🕓 Tagging Queue</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Card</th>
+              <th>Tag</th>
+              <th>Submitted By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      document.querySelectorAll('.approve-tag').forEach(btn => {
+        btn.addEventListener('click', () => handleTagAction(btn.dataset.id, 'approve'));
+      });
+
+      document.querySelectorAll('.deny-tag').forEach(btn => {
+        btn.addEventListener('click', () => handleTagAction(btn.dataset.id, 'deny'));
+      });
+
+    } catch (err) {
+      adminWorkspace.innerHTML = `<p>❌ Failed to load tagging queue.</p>`;
+      console.error(err);
+    }
+  });
+
+  async function handleTagAction(id, action) {
+    try {
+      const res = await fetch(`/api/mod/newtags/${id}/${action}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        // Refresh queue
+        document.getElementById('loadTagQueueBtn')?.click();
+      } else {
+        alert(`Failed to ${action} tag.`);
+      }
+    } catch (err) {
+      alert(`Error: ${action} failed.`);
+      console.error(err);
+    }
+  }
+</script>
+
+<script>
+  const loadActivityBtn = document.getElementById('loadActivityBtn');
+
+  loadActivityBtn?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/admin/activity-summary', { credentials: 'include' });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || 'Request failed');
+
+      const activityHTML = `
+        <h3>📅 User Activity (Last 24 Hours)</h3>
+        <ul>
+          <li>🆕 Users Registered: ${data.newUsers} <button data-type="new-users">View Details</button></li>
+          <li>✅ Users Verified: ${data.verifiedUsers} <button data-type="verified-users">View Details</button></li>
+          <li>🏷️ Tags Submitted: ${data.tagSubmissions} <button data-type="tag-submissions">View Details</button></li>
+          <li>✔️ Tags Approved: ${data.approvedTags} <button data-type="tag-approvals">View Details</button></li>
+          <li>❌ Tags Denied: ${data.deniedTags} <button data-type="tag-denials">View Details</button></li>
+        </ul>
+        <div id="activity-details"></div>
+      `;
+
+      adminWorkspace.innerHTML = activityHTML;
+
+      // (next step will wire up detail buttons)
+    } catch (err) {
+      adminWorkspace.innerHTML = `<p>❌ Failed to load activity summary.</p>`;
+      console.error(err);
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener('click', async (e) => {
+    if (!e.target.matches('button[data-type]')) return;
+
+    const type = e.target.dataset.type;
+    const detailsBox = document.getElementById('activity-details');
+    detailsBox.innerHTML = '<p>Loading...</p>';
+
+    try {
+      const res = await fetch(`/api/admin/activity-details?type=${type}`, {
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        detailsBox.innerHTML = `<p>No results for ${type}.</p>`;
+        return;
+      }
+
+      const list = data.map(item => `<li>${item}</li>`).join('');
+      detailsBox.innerHTML = `<h4>Details: ${type}</h4><ul>${list}</ul>`;
+
+    } catch (err) {
+      console.error('Failed to load details:', err);
+      detailsBox.innerHTML = `<p>❌ Failed to load detail list.</p>`;
+    }
+  });
+</script>
+
+<script>
+  const loadTagManagerBtn = document.getElementById('loadTagManagerBtn');
+
+  loadTagManagerBtn?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/admin/all-tags', { credentials: 'include' });
+      const tags = await res.json();
+
+      if (!Array.isArray(tags) || tags.length === 0) {
+        adminWorkspace.innerHTML = `<h3>🔖 Tag Management</h3><p>No tags found.</p>`;
+        return;
+      }
+
+      const rows = tags.map(tag => `
+        <tr>
+          <td>${tag.tag}</td>
+          <td>${tag.cardId}</td>
+          <td>${tag.status}</td>
+          <td>${tag.submittedBy?.username || '—'}</td>
+          <td>${tag.reviewedBy?.username || '—'}</td>
+          <td>${new Date(tag.createdAt).toLocaleString()}</td>
+          <td>
+            <button class="edit-tag-btn" data-id="${tag._id}">📝 Edit</button>
+          </td>
+        </tr>
+      `).join('');
+
+      adminWorkspace.innerHTML = `
+        <h3>🔖 Tag Management</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tag <button class="sort-btn" data-key="tag" data-order="asc">↑</button><button class="sort-btn" data-key="tag" data-order="desc">↓</button></th>
+              <th>Card ID <button class="sort-btn" data-key="cardId" data-order="asc">↑</button><button class="sort-btn" data-key="cardId" data-order="desc">↓</button></th>
+              <th>Status <button class="sort-btn" data-key="status" data-order="asc">↑</button><button class="sort-btn" data-key="status" data-order="desc">↓</button></th>
+              <th>Submitted By</th>
+              <th>Reviewed By</th>
+              <th>Created At <button class="sort-btn" data-key="createdAt" data-order="asc">↑</button><button class="sort-btn" data-key="createdAt" data-order="desc">↓</button></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      // Enable sorting functionality
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const key = btn.dataset.key;
+            const order = btn.dataset.order;
+
+            const sortedTags = [...tags].sort((a, b) => {
+              const valA = (a[key] || '').toString().toLowerCase();
+              const valB = (b[key] || '').toString().toLowerCase();
+              if (valA < valB) return order === 'asc' ? -1 : 1;
+              if (valA > valB) return order === 'asc' ? 1 : -1;
+              return 0;
+            });
+
+            // Re-render the table with sorted data
+            const newRows = sortedTags.map(tag => `
+              <tr>
+                <td>${tag.tag}</td>
+                <td>${tag.cardId}</td>
+                <td>${tag.status}</td>
+                <td>${tag.submittedBy?.username || '—'}</td>
+                <td>${tag.reviewedBy?.username || '—'}</td>
+                <td>${new Date(tag.createdAt).toLocaleString()}</td>
+                <td><button class="edit-tag-btn" data-id="${tag._id}">📝 Edit</button></td>
+              </tr>
+            `).join('');
+
+            document.querySelector('#admin-workspace tbody').innerHTML = newRows;
+          });
+        });
+
+
+    } catch (err) {
+      console.error('❌ Failed to load tags:', err);
+      adminWorkspace.innerHTML = `<p>❌ Failed to load tag data.</p>`;
+    }
+  });
+</script>
+
+<script>
+  const tagEditPopup = document.getElementById('tagEditPopup');
+  const closeTagEditPopup = document.getElementById('closeTagEditPopup');
+  const editTagInput = document.getElementById('editTagInput');
+  const editStatusSelect = document.getElementById('editStatusSelect');
+  const editCardId = document.getElementById('editCardId');
+  const editSubmittedBy = document.getElementById('editSubmittedBy');
+  const editReviewedBy = document.getElementById('editReviewedBy');
+  const tagEditForm = document.getElementById('tagEditForm');
+  const deleteTagBtn = document.getElementById('deleteTagBtn');
+
+  let currentEditingTagId = null;
+
+  document.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('edit-tag-btn')) {
+      const tagId = e.target.dataset.id;
+      const res = await fetch(`/api/admin/tag/${tagId}`, { credentials: 'include' });
+      const tag = await res.json();
+
+      currentEditingTagId = tag._id;
+
+      // Fill the form fields
+      editTagInput.value = tag.tag;
+      editStatusSelect.value = tag.status;
+      editCardId.textContent = tag.cardId;
+      editSubmittedBy.textContent = tag.submittedBy?.username || '—';
+      editReviewedBy.textContent = tag.reviewedBy?.username || '—';
+
+      tagEditPopup.classList.remove('hidden');
+    }
+  });
+
+  closeTagEditPopup.addEventListener('click', () => {
+    tagEditPopup.classList.add('hidden');
+  });
+
+  tagEditForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`/api/admin/tag/${currentEditingTagId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          tag: editTagInput.value,
+          status: editStatusSelect.value
+        })
+      });
+      if (res.ok) {
+        tagEditPopup.classList.add('hidden');
+        document.getElementById('loadTagManagerBtn')?.click(); // reload table
+      } else {
+        alert('Failed to save tag.');
+      }
+    } catch (err) {
+      alert('Error updating tag.');
+      console.error(err);
+    }
+  });
+
+  deleteTagBtn.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete this tag?')) return;
+
+    try {
+      const res = await fetch(`/api/admin/tag/${currentEditingTagId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        tagEditPopup.classList.add('hidden');
+        document.getElementById('loadTagManagerBtn')?.click(); // reload table
+      } else {
+        alert('Failed to delete tag.');
+      }
+    } catch (err) {
+      alert('Error deleting tag.');
+      console.error(err);
+    }
+  });
+</script>
+
+
+</body>
+</html>

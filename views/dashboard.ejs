@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      /* max-width: 600px; */
+      margin: auto;
+    }
+
+    .info-box {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+
+
+
+
+
+
+
+
+  <div id="dashboard-wrapper" class="dashboard-grid">
+  <div class="dashboard-left">
+    
+      <h2>👤 User Dashboard</h2>
+      <p id="registrationMsg" style="color: green; font-weight: bold;"></p>
+
+        <div class="info-box">
+          <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+          <p class="hidden"><strong>User ID:</strong> <span id="userId">Loading...</span></p>
+          <p><strong>Role:</strong> <span id="role">Loading...</span></p>
+        </div>
+
+        <div class="info-box" id="profileSection">
+          <img id="dashboardAvatar" src="https://cdn-icons-png.flaticon.com/512/188/188987.png" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.5rem;" />
+          <div id="dashboardBio" style="font-style: italic; color: #555;">Loading bio...</div>
+        </div>
+            <!-- Edit Buttons -->
+        <div id="editProfileControls">
+          <button id="editProfileBtn">✏️ Edit Profile</button>
+        </div>
+
+        <!-- Hidden edit fields -->
+        <div id="profileEditFields" class="hidden" style="margin-top: 1rem;">
+          <label>
+            Avatar URL:
+            <input type="text" id="editAvatarUrl" style="width: 100%;" />
+          </label>
+          <br /><br />
+          <label>
+            Bio:
+            <textarea id="editBio" rows="3" style="width: 100%;"></textarea>
+          </label>
+          <br /><br />
+          <button id="saveProfileBtn">💾 Save</button>
+          <button id="cancelProfileBtn">❌ Cancel</button>
+          <span id="saveProfileMsg" class="hidden" style="margin-left: 1rem;">✅ Saved!</span>
+        </div>
+
+        <div class="info-box" id="progressStats">
+          <h3>📊 Tag Progress</h3>
+          <ul id="statsList">
+            <li>Loading...</li>
+          </ul>
+        </div>
+
+
+  </div>
+
+  <div class="dashboard-main">
+      <h2>Your Tag Submissions</h2>
+      <table id="user-submissions-table">
+        <thead>
+          <tr>
+            <th>Tag</th>
+            <th>Card ID</th>
+            <th>Status</th>
+            <th>Submitted</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+  </div>
+
+  <div class="dashboard-right">
+    <div class="info-box" id="collectionsManager">
+      <h3>📁 Your Collections</h3>
+      <button id="createCollectionBtn">➕ New Collection</button>
+      <ul id="collectionList">Loading...</ul>
+    </div>
+    <div class="info-box" id="recentSearchesBox">
+      <h3>🕘 Recent Searches</h3>
+      <ul id="recentSearchesList">
+        <li>Loading...</li>
+      </ul>
+    </div>
+
+    <div class="info-box" id="favoriteSearchesBox">
+      <h3>⭐ Favorite Searches</h3>
+      <ul id="favoriteSearchesList">
+        <li>Loading...</li>
+      </ul>
+    </div>
+
+
+
+  </div>
+</div>
+
+
+
+<!-- DASHBOARD CONTAINER -->
+
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/script.js"></script>
+</body>
+</html>

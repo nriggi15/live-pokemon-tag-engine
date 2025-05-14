@@ -1,0 +1,20 @@
+General Updates:
+-Recent and favorite searches
+-user profiles updated
+
+Features Added:
+-Favorite searches
+-Recent searches
+-Explore page added with:
+-redesigned the profile
+
+Technical Updates:
+-favoritesearches db added
+
+Bugs Discovered:
+-swipe gesture break popup after a few
+
+Bug Fixes:
+-
+
+v1.5.45

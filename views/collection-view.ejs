@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Collection Viewer</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .collection-header {
+      max-width: 1000px;
+      margin: auto;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .card-grid img {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card-grid img:hover {
+      transform: scale(1.03);
+    }
+
+    #backBtn {
+      display: block;
+      margin: 2rem auto;
+      text-align: center;
+      color: #444;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+  </style>
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+
+  <div class="collection-header">
+    <h2 id="collectionName">Loading...</h2>
+    <p id="ownerInfo"></p>
+    <p id="cardCount"></p>
+  </div>
+
+  <div class="card-grid" id="cardGrid">Loading cards...</div>
+
+  <a href="javascript:history.back()" id="backBtn">← Back to Profile</a>
+
+  <script>
+    const collectionId = "<%= collectionId %>";
+    const sessionUserId = "<%= sessionUserId %>";
+
+
+    async function loadCollection() {
+      try {
+        const res = await fetch(`/api/collections/${collectionId}`);
+        const data = await res.json();
+
+        if (!res.ok || !data) {
+          document.body.innerHTML = '<h2>❌ Collection not found or is private.</h2>';
+          return;
+        }
+
+        document.getElementById('collectionName').textContent = data.name;
+        document.getElementById('ownerInfo').textContent = `Visibility: ${data.visibility}`;
+        document.getElementById('cardCount').textContent = `${data.cards.length} card${data.cards.length !== 1 ? 's' : ''}`;
+
+        const grid = document.getElementById('cardGrid');
+        grid.innerHTML = '';
+
+
+
+        for (const id of data.cards) {
+            try {
+                const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`);
+                const cardData = await cardRes.json();
+                const card = cardData.data;
+
+                // 🔳 Wrap card image and button in a container
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.textAlign = 'center';
+                wrapper.dataset.cardId = card.id;
+
+
+                const img = document.createElement('img');
+                img.src = card.images.small;
+                img.alt = card.name;
+                img.style.width = '100%';
+                img.addEventListener('click', () => openCardPopup(card, { mode: 'view' }));
+
+                wrapper.appendChild(img);
+
+                // 🗑 Add Remove Button only if owner
+                if (sessionUserId && sessionUserId === data.userId) {
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '🗑';
+                removeBtn.title = 'Remove from collection';
+                removeBtn.style.position = 'absolute';
+                removeBtn.style.bottom = '8px';
+                removeBtn.style.left = '50%';
+                removeBtn.style.transform = 'translateX(-50%)';
+                removeBtn.style.padding = '2px 6px';
+                removeBtn.style.fontSize = '0.9rem';
+                removeBtn.style.background = '#e74c3c';
+                removeBtn.style.color = 'white';
+                removeBtn.style.border = 'none';
+                removeBtn.style.borderRadius = '4px';
+                removeBtn.style.cursor = 'pointer';
+
+                removeBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation(); // prevent popup from opening
+                    const confirmed = confirm(`Remove "${card.name}" from this collection?`);
+                    if (!confirmed) return;
+
+                    try {
+                    const res = await fetch(`/api/collections/${collectionId}/remove/${card.id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
+                        wrapper.remove(); // remove whole card
+                    } else {
+                        alert('❌ Failed to remove card.');
+                    }
+                    } catch (err) {
+                    console.error('❌ Error removing card:', err);
+                    alert('Server error');
+                    }
+                });
+
+                wrapper.appendChild(removeBtn);
+                }
+
+                grid.appendChild(wrapper);
+            } catch (err) {
+                console.warn('❌ Failed to load card:', id);
+            }
+            } //FOR LOOP IS FINISHED HERE
+
+
+            // 🧲 Make the card grid sortable
+            new Sortable(document.getElementById('cardGrid'), {
+            animation: 150,
+            onEnd: () => {
+                const newOrder = Array.from(document.querySelectorAll('#cardGrid > div'))
+                .map(wrapper => wrapper.dataset.cardId)
+                .filter(Boolean);
+
+                console.log('📦 New order:', newOrder);
+                saveNewOrder(newOrder); // We'll write this in Step 3
+            }
+            });
+
+
+
+        
+
+// FINAL CATCH FOR LOADCOLLECTION()
+      } catch (err) {
+        console.error('❌ Error loading collection:', err);
+        document.body.innerHTML = '<h2>❌ Error loading collection.</h2>';
+      }
+    } // END loadCollection function
+
+    // New functions
+
+    async function saveNewOrder(newOrder) {
+        try {
+            const res = await fetch(`/api/collections/${collectionId}/reorder`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newOrder })
+            });
+
+            if (!res.ok) {
+            console.error('❌ Failed to save new order');
+            alert('Failed to update card order.');
+            } else {
+            console.log('✅ Card order saved.');
+            }
+        } catch (err) {
+            console.error('❌ Error saving order:', err);
+            alert('Server error while saving order.');
+        }
+        }
+
+
+
+
+    loadCollection();
+  </script>
+
+  <script src="/js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+</body>
+</html>

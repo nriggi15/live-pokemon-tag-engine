@@ -1,0 +1,364 @@
+import dotenv from 'dotenv';
+dotenv.config(); // Always first
+
+import express from 'express';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
+import EmailVerification from './models/EmailVerification.js';
+import User from './models/User.js';
+import { tagSubmissionLimiter } from './middleware/rateLimiter.js';
+import TagSubmission from './models/TagSubmission.js';
+import favoritesRouter from './routes/favorites.js';
+
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// ✅ Middleware (in correct order)
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // true only if using HTTPS
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Serve public assets (only public things)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Prevent caching of protected pages
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  next();
+});
+
+// ✅ Import Models
+import Card from './models/Cards.js';
+import Tag from './models/Tags.js';
+import NewTag from './models/NewTag.js';
+import userProfilesRoute from './routes/userProfiles.js';
+import Collection from './models/Collection.js';
+import collectionsRouter from './routes/collections.js';
+app.use('/api', collectionsRouter);
+app.use('/api', favoritesRouter);
+
+// ✅ Protected Middleware
+import { requireAdmin } from './middleware/auth.js';
+// const requireModerator = require('./middleware/requireModerator');
+
+import checkBan from './middleware/checkBan.js';
+
+app.use(checkBan); // apply before protected routes
+
+
+// ✅ API Routes
+import usersRouter from './routes/users.js';
+app.use('/api', usersRouter);
+import tagsRouter from './routes/tags.js';
+app.use('/api', tagsRouter);
+app.use('/', userProfilesRoute);
+
+// ✅ Auth-Protected Route (now truly secure)
+app.get('/admin-panel', requireAdmin, (req, res) => {
+  res.render('admin-panel', { page: 'admin' });
+});
+import adminRoutes from './routes/admin.js';
+app.use('/api', adminRoutes);
+
+
+// ✅ Public Routes (not protected)
+app.get('/register', (req, res) => {
+  res.render('register', { page: 'register' });
+});
+
+app.get('/login', (req, res) => {
+  res.render('login', { page: 'login' });
+});
+
+app.get('/login-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login-test.html'));
+});
+
+app.get('/', (req, res) => {
+  res.render('index', { page: 'index' });
+});
+
+app.get('/reset-password', (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).send('Missing reset token');
+  res.render('reset-password', { token });
+});
+
+
+
+
+// ✅ MongoDB Connection
+//console.log('MONGODB_URI:', process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB Atlas'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
+// ✅ Raw Custom Routes (tag-based)
+const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur'];
+
+function validateTagName(tagName) {
+  const cleaned = tagName.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ');
+  if (!cleaned) return { valid: false, reason: 'empty' };
+  if (cleaned.length > 30) return { valid: false, reason: 'too_long' };
+  if (bannedWords.some(word => cleaned.includes(word))) return { valid: false, reason: 'profanity' };
+  return { valid: true, cleaned };
+}
+
+app.post('/api/cards/:cardId/tags', async (req, res) => {
+  const { cardId } = req.params;
+  const { tagName } = req.body;
+
+  const { valid, cleaned, reason } = validateTagName(tagName || '');
+  if (!valid) return res.status(400).json({ message: `Invalid tag input (${reason})` });
+
+  try {
+    const card = await Card.findById(cardId);
+    if (!card) return res.status(404).json({ message: 'Card not found' });
+
+    let tag = await Tag.findOne({ name: cleaned });
+    if (!tag) {
+      tag = new Tag({ name: cleaned });
+      await tag.save();
+    }
+
+    if (!card.tags.includes(tag._id)) {
+      card.tags.push(tag._id);
+      await card.save();
+    }
+
+    res.status(200).json(card);
+  } catch (err) {
+    console.error('Error adding tag:', err);
+    res.status(500).json({ message: 'Error adding tag' });
+  }
+});
+
+
+app.get('/search', async (req, res) => {
+  const tagsParam = req.query.tags;
+  if (!tagsParam) return res.status(400).json({ error: 'Missing tags parameter' });
+
+  const tags = tagsParam.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const mode = req.query.mode?.toUpperCase() === 'OR' ? 'OR' : 'AND';
+
+  try {
+    const pipeline = [
+      { $match: { tag: { $in: tags }, status: 'approved' } },
+      {
+        $group: {
+          _id: '$cardId',
+          tagsOnCard: { $addToSet: '$tag' }
+        }
+      }
+    ];
+
+    if (mode === 'AND') {
+      pipeline.push({ $match: { tagsOnCard: { $all: tags } } });
+    }
+
+    const tagDocs = await NewTag.aggregate(pipeline);
+    const matchingCardIds = tagDocs.map(doc => doc._id);
+    res.json(matchingCardIds);
+  } catch (err) {
+    console.error('Tag search error:', err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+
+app.get('/all-tagged-cards', async (req, res) => {
+  try {
+    const allTagged = await Tag.find({});
+    const cardIds = allTagged.map(entry => entry.cardId);
+    res.json(cardIds);
+  } catch (err) {
+    console.error('Error fetching all tagged cards:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+app.post('/api/newtags/:cardId', tagSubmissionLimiter, async (req, res) => {
+  const { cardId } = req.params;
+  const { tagName } = req.body;
+
+  const { valid, cleaned, reason } = validateTagName(tagName || '');
+  if (!valid) {
+    return res.status(400).json({ message: `Invalid tag input (${reason})` });
+  }
+  console.log('🔍 Checking for duplicate:', { cardId, tag: cleaned });
+
+  try {
+    // 🔍 Check TagSubmission (pending/approved only)
+    const existsInSubmissions = await TagSubmission.findOne({
+      cardId,
+      tag: cleaned,
+      status: { $in: ['pending', 'approved'] }
+    });
+
+    if (existsInSubmissions) {
+      return res.status(409).json({ message: 'This tag has already been submitted or approved for this card.' });
+    }
+
+    // 🔍 Check NewTag (any status)
+    const existsInNewTags = await NewTag.findOne({ cardId, tag: cleaned });
+
+    if (existsInNewTags) {
+      return res.status(409).json({ message: 'This tag already exists on this card.' });
+    }
+
+    console.log('✅ Passed all checks, saving new tag...');
+    // ✅ Save to TagSubmission as pending
+    const newSubmission = new TagSubmission({
+      cardId,
+      tag: cleaned,
+      submittedBy: req.session.userId,
+      status: 'pending',
+      createdAt: new Date()
+    });
+
+    await newSubmission.save();
+
+    res.status(200).json({ message: 'Tag submitted for review.' });
+  } catch (err) {
+    console.error('Error submitting tag:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.get('/api/tag-stats', async (req, res) => {
+  try {
+    const stats = await NewTag.aggregate([
+      { $match: { status: 'approved' } },
+      { $group: { _id: '$tag', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json(stats.map(entry => ({
+      tag: entry._id,
+      count: entry.count
+    })));
+  } catch (error) {
+    console.error('Error generating tag stats:', error);
+    res.status(500).json({ error: 'Failed to generate tag stats' });
+  }
+});
+
+  app.get('/verify', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send('Verification token missing.');
+  }
+
+  try {
+    const record = await EmailVerification.findOne({ token });
+
+    if (!record) {
+      return res.status(400).send('Invalid or expired token.');
+    }
+
+    if (record.expiresAt < new Date()) {
+      return res.status(400).send('Verification token has expired.');
+    }
+
+    const user = await User.findById(record.userId);
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+
+    // Optional: Add a "verified" flag to your User schema if needed later
+    user.verified = true;
+    user.verifiedAt = new Date();
+    await user.save();
+
+    await EmailVerification.deleteOne({ _id: record._id });
+
+    res.send(`<h2>Email verified successfully!</h2><a href="/login">Go to Login</a>`);
+
+  } catch (err) {
+    console.error('❌ Verification error:', err);
+    res.status(500).send('Server error during verification.');
+  }
+});
+
+
+// User Dashboard
+import { requireLogin, requireModeratorOrAdmin } from './middleware/auth.js';
+app.get('/dashboard', requireLogin, async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userId);
+    res.render('dashboard', {
+      page: 'dashboard',
+      userId: user?._id?.toString() || 'Unknown',
+      username: user?.username || 'Unknown',
+      role: req.session.role || 'user'
+    });
+  } catch (err) {
+    console.error('Error loading dashboard user:', err);
+    res.render('dashboard', {
+      page: 'dashboard',
+      userId: 'Unknown',
+      username: 'Unknown',
+      role: req.session.role || 'user'
+    });
+  }
+});
+
+app.get('/collections/:id', async (req, res) => {
+  const userId = req.session?.userId || null;
+
+  res.render('collection-view', {
+    page: 'collection',
+    collectionId: req.params.id,
+    sessionUserId: userId
+  });
+});
+
+app.get('/explore', (req, res) => {
+  res.render('explore', { page: 'explore' });
+});
+
+
+
+// Moderator Hub
+app.get('/moderator-hub', requireModeratorOrAdmin, (req, res) => {
+  res.render('moderator-hub', { page: 'moderator' });
+});
+
+
+
+// ❌ Catch-all to prevent direct access to raw .html files
+app.get(/^\/.*\.html$/, (req, res) => {
+  res.status(403).send('Access to raw HTML files is forbidden.');
+});
+
+
+// ✅ Start the server
+app.listen(port, () => {
+  console.log(`🚀 Server running on http://localhost:${port}`);
+});

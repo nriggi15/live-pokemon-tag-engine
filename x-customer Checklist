@@ -1,0 +1,46 @@
+🧪 Pokémon Tag Search Engine – Public Testing Checklist
+Please help test the site by trying the features below and reporting anything that feels broken, confusing, or off. Include screenshots or steps when reporting issues if possible 🙏
+
+🔐 Account & Login
+☐ Register a new account
+☐ Check that CAPTCHA and email verification works
+☐ Try logging in and out
+☐ Try logging in before verifying email — should be blocked
+☐ Visit your user profile page after login
+
+🏷️ Tagging System
+☐ Search for a known tag (e.g. cute, charizard)
+☐ Click a tag from the cloud and view matching cards
+☐ Click on a card and open the popup — view tags
+☐ Submit a new tag (e.g. something safe like pink sparkle)
+☐ Try submitting the same tag again — should be blocked
+☐ Try entering an offensive or invalid tag — should be blocked
+☐ After submitting a tag, verify it doesn’t appear in the popup until approved
+
+🛠️ Admin & Moderator
+☐ (If you have test admin access) Open the Admin Panel
+☐ Use Tag Management to edit a tag — confirm it updates
+☐ Deny a pending tag — confirm it doesn’t show in the popup
+☐ Approve a pending tag — confirm it appears in the popup
+☐ Test sorting and searching in tag list
+☐ Visit “Most Used Tags” and make sure they load
+
+📱 Mobile & UI
+☐ Test the site on a phone or small screen
+☐ Resize the workspace panels — are they draggable/responsive?
+☐ Try dark mode toggle (if available)
+☐ Look for overlapping text, layout issues, or unreadable buttons
+☐ Try pressing “Escape” to close popups
+
+🚨 Report Bugs or Feedback
+If you notice:
+
+Slow loading
+
+Typos or broken formatting
+
+Confusing error messages
+
+Anything that feels off or not smooth
+
+→ Please report it!

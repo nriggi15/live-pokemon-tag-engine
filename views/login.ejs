@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <style>
+    input, .login-container button {
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f2f4f8;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+  </style>
+
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+
+  <div class="login-container">
+  <h2>🔐 Login</h2>
+  <form id="loginForm" action="/api/login" method="POST">
+    <input type="email" id="email" name="email" placeholder="Email" required />
+    <input type="password" id="password" name="password" placeholder="Password" required />
+    <button type="submit">Log In</button>
+    <p id="response"></p>
+    <p id="loginMessage"></p> <!-- ✅ Message display area -->
+  </form>
+  
+  <p style="text-align: right; margin-top: -0.5rem;">
+    <a href="/forgot-password">Forgot password?</a>
+  </p>
+
+  <p id="login-error" style="color: red;"></p>
+
+  <!-- Resend section (hidden by default) -->
+  <div id="resend-section" style="display: none;">
+    <p>Didn’t get the email?</p>
+    <button id="resend-button">Resend Verification Email</button>
+    <p id="resend-message" style="color: green;"></p>
+  </div>
+
+
+</div>
+
+
+
+  <script src="/js/script.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

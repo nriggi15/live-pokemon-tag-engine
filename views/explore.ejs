@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Explore</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f4f6fa;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .explore-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .explore-section {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .explore-section h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+
+    .card-preview-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .card-preview-grid img {
+      height: 120px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .card-preview-grid img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+
+  <div class="explore-grid">
+    <div class="explore-section" id="featuredCollections">
+      <h2>🌟 Featured Collections</h2>
+      <div id="featuredCollectionsContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="trendingTags">
+      <h2>🔥 Trending Tags</h2>
+      <div id="trendingTagsContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="mostTagged">
+      <h2>🕒 Most Tagged Cards (Last 24h)</h2>
+      <div id="mostTaggedContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="activeUsers">
+      <h2>🧑‍🤝‍🧑 Top Community Taggers</h2>
+      <div id="activeUsersContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="tagSpotlight">
+      <h2>🧠 Tag Spotlight</h2>
+      <div id="tagSpotlightContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="surpriseCollection">
+      <h2>🪄 Surprise Collection of the Day</h2>
+      <div id="surpriseCollectionContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="newestCollections">
+      <h2>🆕 Newest Public Collections</h2>
+      <div id="newestCollectionsContent">Loading...</div>
+    </div>
+
+    <div class="explore-section" id="liveTagFeed">
+      <h2>📡 Live Tag Activity</h2>
+      <div id="liveTagFeedContent">Loading...</div>
+    </div>
+  </div>
+
+
+
+  <script>
+async function loadFeaturedCollections() {
+  const container = document.getElementById('featuredCollectionsContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/featured');
+    const collections = await res.json();
+
+    if (!Array.isArray(collections) || collections.length === 0) {
+      container.innerHTML = 'No featured collections found.';
+      return;
+    }
+
+    container.innerHTML = '';
+    for (const col of collections) {
+      const div = document.createElement('div');
+      div.style.marginBottom = '1rem';
+
+      const header = document.createElement('h3');
+      header.innerHTML = `<a href="/collections/${col._id}" style="text-decoration: none; color: #2b7de9;">${col.name}</a>`;
+      div.appendChild(header);
+
+      const subtitle = document.createElement('p');
+      subtitle.textContent = `${col.cards.length} cards — Public`;
+      div.appendChild(subtitle);
+
+      const previewGrid = document.createElement('div');
+      previewGrid.className = 'card-preview-grid';
+
+      const previewIds = col.cards.slice(0, 3);
+      for (const cardId of previewIds) {
+        try {
+          const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+          const cardData = await cardRes.json();
+          const img = document.createElement('img');
+          img.src = cardData.data?.images?.small;
+          img.alt = cardData.data?.name || '';
+          previewGrid.appendChild(img);
+        } catch (err) {
+          console.warn('Failed to load card image for', cardId);
+        }
+      }
+
+      div.appendChild(previewGrid);
+      container.appendChild(div);
+    }
+  } catch (err) {
+    console.error('❌ Error loading featured collections:', err);
+    container.innerHTML = 'Error loading collections.';
+  }
+}
+
+async function loadTrendingTags() {
+  const container = document.getElementById('trendingTagsContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/trending-tags');
+    const tags = await res.json();
+
+    if (!Array.isArray(tags) || tags.length === 0) {
+      container.innerHTML = 'No trending tags found.';
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    tags.forEach(({ tag, count }) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="/?tags=${encodeURIComponent(tag)}">#${tag}</a>(${count} uses)`;
+      ul.appendChild(li);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(ul);
+  } catch (err) {
+    console.error('❌ Error loading trending tags:', err);
+    container.innerHTML = 'Error loading trending tags.';
+  }
+}
+
+async function loadMostTaggedCards() {
+  const container = document.getElementById('mostTaggedContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/most-tagged-cards');
+    const cards = await res.json();
+
+    if (!Array.isArray(cards) || cards.length === 0) {
+      container.innerHTML = 'No activity in the last 24 hours.';
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'card-preview-grid';
+
+    for (const entry of cards) {
+      try {
+        const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${entry._id}`);
+        const cardData = await cardRes.json();
+        const card = cardData.data;
+
+        const img = document.createElement('img');
+        img.src = card.images.small;
+        img.alt = card.name;
+        img.title = `${card.name} – ${entry.count} tag${entry.count !== 1 ? 's' : ''}`;
+        img.addEventListener('click', () => openCardPopup(card, { mode: 'view' }));
+
+        grid.appendChild(img);
+      } catch (err) {
+        console.warn('❌ Failed to load card', entry._id);
+      }
+    }
+
+    container.innerHTML = '';
+    container.appendChild(grid);
+  } catch (err) {
+    console.error('❌ Error loading most-tagged cards:', err);
+    container.innerHTML = 'Error loading tagged cards.';
+  }
+}
+
+
+async function loadTopTaggers() {
+  const container = document.getElementById('activeUsersContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/top-taggers');
+    const taggers = await res.json();
+
+    if (!Array.isArray(taggers) || taggers.length === 0) {
+      container.innerHTML = 'No top taggers yet.';
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    taggers.forEach(({ username, count }) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="/user/${username}">@${username}</a> – ${count} approved tag${count !== 1 ? 's' : ''}`;
+      ul.appendChild(li);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(ul);
+  } catch (err) {
+    console.error('❌ Error loading taggers:', err);
+    container.innerHTML = 'Error loading top taggers.';
+  }
+}
+
+async function loadTagSpotlight() {
+  const container = document.getElementById('tagSpotlightContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/tag-spotlight');
+    const spotlight = await res.json();
+
+    if (!spotlight.tag || !Array.isArray(spotlight.cards)) {
+      container.innerHTML = 'No spotlight tag found.';
+      return;
+    }
+
+    const title = document.createElement('h3');
+    title.innerHTML = `#${spotlight.tag}`;
+    container.appendChild(title);
+
+    const searchBtn = document.createElement('button');
+    searchBtn.textContent = `Search #${spotlight.tag}`;
+    searchBtn.addEventListener('click', () => {
+      searchCustomTags(spotlight.tag);
+    });
+    container.appendChild(searchBtn);
+
+    const preview = document.createElement('div');
+    preview.className = 'card-preview-grid';
+
+    for (const cardId of spotlight.cards) {
+      try {
+        const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+        const cardData = await cardRes.json();
+        const card = cardData.data;
+
+        const img = document.createElement('img');
+        img.src = card.images.small;
+        img.alt = card.name;
+        img.title = card.name;
+        img.addEventListener('click', () => openCardPopup(card, { mode: 'view' }));
+
+        preview.appendChild(img);
+      } catch (err) {
+        console.warn('❌ Failed to load card', cardId);
+      }
+    }
+
+    container.appendChild(preview);
+  } catch (err) {
+    console.error('❌ Error loading tag spotlight:', err);
+    container.innerHTML = 'Error loading spotlight.';
+  }
+}
+
+async function loadSurpriseCollection() {
+  const container = document.getElementById('surpriseCollectionContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/surprise-collection');
+    const col = await res.json();
+
+    if (!col || !col._id) {
+      container.innerHTML = 'No surprise collection found.';
+      return;
+    }
+
+    const title = document.createElement('h3');
+    title.innerHTML = `<a href="/collections/${col._id}" style="text-decoration: none; color: #2b7de9;">${col.name}</a>`;
+    container.appendChild(title);
+
+    const owner = document.createElement('p');
+    owner.innerHTML = `by <a href="/user/${col.username}">@${col.username}</a>`;
+    container.appendChild(owner);
+
+    const preview = document.createElement('div');
+    preview.className = 'card-preview-grid';
+
+    for (const cardId of col.cards) {
+      try {
+        const res = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+        const data = await res.json();
+        const img = document.createElement('img');
+        img.src = data.data?.images?.small || '';
+        img.alt = data.data?.name || '';
+        img.title = data.data?.name || '';
+        img.addEventListener('click', () => openCardPopup(data.data, { mode: 'view' }));
+        preview.appendChild(img);
+      } catch (err) {
+        console.warn('❌ Failed to load card', cardId);
+      }
+    }
+
+    container.appendChild(preview);
+  } catch (err) {
+    console.error('❌ Error loading surprise collection:', err);
+    container.innerHTML = 'Error loading surprise collection.';
+  }
+}
+
+async function loadNewestCollections() {
+  const container = document.getElementById('newestCollectionsContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/newest-collections');
+    const collections = await res.json();
+
+    if (!Array.isArray(collections) || collections.length === 0) {
+      container.innerHTML = 'No recent collections found.';
+      return;
+    }
+
+    container.innerHTML = '';
+
+    for (const col of collections) {
+      const wrapper = document.createElement('div');
+      wrapper.style.marginBottom = '1.5rem';
+
+      const title = document.createElement('h3');
+      title.innerHTML = `<a href="/collections/${col._id}" style="text-decoration: none; color: #2b7de9;">${col.name}</a>`;
+      wrapper.appendChild(title);
+
+      const owner = document.createElement('p');
+      owner.innerHTML = `by <a href="/user/${col.username}">@${col.username}</a>`;
+      wrapper.appendChild(owner);
+
+      const preview = document.createElement('div');
+      preview.className = 'card-preview-grid';
+
+      for (const cardId of col.cards) {
+        try {
+          const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+          const data = await cardRes.json();
+          const card = data.data;
+
+          const img = document.createElement('img');
+          img.src = card.images.small;
+          img.alt = card.name;
+          img.title = card.name;
+          img.addEventListener('click', () => openCardPopup(card, { mode: 'view' }));
+
+          preview.appendChild(img);
+        } catch (err) {
+          console.warn('❌ Failed to load card preview:', cardId);
+        }
+      }
+
+      wrapper.appendChild(preview);
+      container.appendChild(wrapper);
+    }
+  } catch (err) {
+    console.error('❌ Error loading newest collections:', err);
+    container.innerHTML = 'Error loading collections.';
+  }
+}
+
+async function loadLiveTagFeed() {
+  const container = document.getElementById('liveTagFeedContent');
+  container.innerHTML = 'Loading...';
+
+  try {
+    const res = await fetch('/api/explore/live-tags');
+    const tags = await res.json();
+
+    if (!Array.isArray(tags) || tags.length === 0) {
+      container.innerHTML = 'No tag activity yet.';
+      return;
+    }
+
+    const list = document.createElement('ul');
+
+    for (const { tag, cardId, username } of tags) {
+      try {
+        const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+        const data = await cardRes.json();
+        const card = data.data;
+
+        const li = document.createElement('li');
+        // Build tag
+        const tagSpan = document.createElement('strong');
+        tagSpan.textContent = `#${tag} → `;
+        li.appendChild(tagSpan);
+
+        // Build card name as clickable link
+        const cardLink = document.createElement('a');
+        cardLink.href = '#';
+        cardLink.textContent = card.name;
+        cardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openCardPopup(card, { mode: 'view' });
+        });
+        li.appendChild(cardLink);
+
+        // Append "by @username"
+        const userSpan = document.createElement('span');
+        userSpan.innerHTML = ` by <a href="/user/${username}">@${username}</a>`;
+        li.appendChild(userSpan);
+
+
+        list.appendChild(li);
+      } catch (err) {
+        console.warn('❌ Could not load card', cardId);
+      }
+    }
+
+    container.innerHTML = '';
+    container.appendChild(list);
+  } catch (err) {
+    console.error('❌ Error loading tag feed:', err);
+    container.innerHTML = 'Error loading tag activity.';
+  }
+}
+
+
+
+
+window.onload = () => {
+  loadFeaturedCollections();
+  loadTrendingTags();
+  loadMostTaggedCards();
+  loadTopTaggers();
+  loadTagSpotlight();
+  loadSurpriseCollection();
+  loadNewestCollections();
+  loadLiveTagFeed();
+};
+
+
+
+
+
+
+
+
+</script>
+
+
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

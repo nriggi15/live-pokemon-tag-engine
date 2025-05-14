@@ -1,0 +1,387 @@
+// /public/js/search.js
+
+const API_KEY = 'fe0b02a8-634f-4944-9880-188a8869e920';
+
+const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur']; // Add more or load from file/db
+
+let currentQuery = null;
+let currentPage = 1;
+let searchMode = null;
+
+const searchInput = document.getElementById('searchInput');
+const tagCloud = document.getElementById('tagCloud');
+const cardResults = document.getElementById('cardResults');
+const resultsCount = document.getElementById('resultsCount');
+const loadMoreContainer = document.getElementById('loadMoreContainer');
+const backToTopBtn = document.getElementById('backToTopBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+
+window.searchResults = []; // 🔒 stores the current search result set
+
+
+// Load More Button
+const loadMoreBtn = document.createElement('button');
+loadMoreBtn.textContent = '🔁 Load More';
+loadMoreBtn.classList.add('load-more-btn');
+loadMoreBtn.addEventListener('click', () => {
+  if (searchMode === 'pokemon' && currentQuery) {
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // ✅ scroll immediately
+    searchCards(currentQuery, currentPage + 1);
+  }
+});
+
+function toggleLoadMoreButton(show) {
+  if (show) {
+    if (!loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreContainer.appendChild(loadMoreBtn);
+    }
+  } else {
+    if (loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreBtn.remove();
+    }
+  }
+}
+
+function resetSearchState() {
+  currentQuery = null;
+  currentPage = 1;
+  searchMode = null;
+  toggleLoadMoreButton(false);
+}
+
+function buildQuery(input) {
+  const tagToQueryMap = {
+    pink: 'types:Psychic OR name:pink',
+    cute: 'name:pikachu OR name:eevee OR name:jigglypuff OR name:clefairy',
+    flying: 'subtypes:Flying OR abilities.name:Flying',
+    charizard: 'name:charizard',
+    sunshine: 'name:sun OR name:light OR set.name:Sun'
+  };
+  const tag = input.toLowerCase();
+  if (tagToQueryMap[tag]) return tagToQueryMap[tag];
+  if (tag.includes(':')) return tag;
+  return `name:"${input}"`;
+}
+
+  function updateResultsCount(count) {
+    resultsCount.classList.remove('hidden');
+    if (count === 0) {
+      resultsCount.textContent = 'No results found.';
+    } else {
+      resultsCount.textContent = `Total ${count} card${count > 1 ? 's' : ''}`;
+    }
+  }
+  
+
+function createTagCloud() {
+  const tagCloud = document.getElementById('tagCloud');
+  if (!tagCloud) {
+    console.warn('❌ tagCloud element not found!');
+    return;
+  }
+  console.log('✅ Creating tag cloud...');
+
+  tagCloud.innerHTML = '';
+  const tags = [
+    'cute', 'pink', 'flying', 'charizard', 'sunshine',
+    'shiny', 'water', 'grass', 'electric',
+    'legendary', 'vintage', 'holo', 'gx', 'ex', 'full art'
+  ];
+
+  const tagRow = document.createElement('div');
+  tagRow.classList.add('tag-row');
+
+  tags.forEach(tag => {
+    const btn = document.createElement('button');
+    btn.textContent = tag;
+    btn.classList.add('tag-button');
+    btn.addEventListener('click', () => {
+      searchInput.value = tag;
+      searchCards(tag);
+    });
+    tagRow.appendChild(btn);
+  });
+
+  tagCloud.appendChild(tagRow);
+
+  const rarityTags = [
+    { label: 'IR', query: 'rarity:\"illustration rare\"' },
+    { label: 'SIR', query: 'rarity:\"special illustration rare\"' },
+    { label: 'UR', query: 'rarity:\"ultra rare\"' }
+  ];
+  
+
+  const rarityRow = document.createElement('div');
+  rarityRow.classList.add('rarity-row');
+
+  rarityTags.forEach(({ label, query }) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.classList.add('rarity-button');
+    btn.addEventListener('click', () => {
+      searchInput.value = label;
+      searchCards(query);
+    });
+    rarityRow.appendChild(btn);
+  });
+    const chaseBtn = document.createElement('button');
+    chaseBtn.textContent = '🎯 Chase';
+    chaseBtn.style.backgroundColor = '#4e5052';
+    chaseBtn.style.color = 'white';
+    chaseBtn.style.border = '1px solid white';
+    chaseBtn.style.marginLeft = '0.5rem';
+    chaseBtn.style.fontWeight = 'bold';
+
+    chaseBtn.addEventListener('click', () => {
+      tagSearchInput.value = 'chase';
+      searchCustomTags('chase');
+    });
+
+    rarityRow.appendChild(chaseBtn);
+
+  const showAllBtn = document.createElement('button');
+  showAllBtn.textContent = '🧩 Show All Tagged Cards';
+  showAllBtn.addEventListener('click', () => {
+    tagSearchInput.value = '#all';
+    resultsCount.textContent = 'Loading...';
+    resultsCount.classList.remove('hidden');
+    fetch('/all-tagged-cards')
+      .then(res => res.json())
+      .then(cardIds => {
+        if (cardIds.length === 0) {
+          cardResults.innerHTML = '<p>No tagged cards found.</p>';
+          return;
+        }
+        const cardPromises = cardIds.map(async (id) => {
+          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`, {
+            headers: { 'X-Api-Key': API_KEY }
+          });
+          const data = await res.json();
+          return data.data;
+        });
+        return Promise.all(cardPromises);
+      })
+      .then(cards => {
+        if (cards) showCards(cards);
+      })
+      .catch(err => {
+        console.error('Error fetching tagged cards:', err);
+        cardResults.innerHTML = '<p>Error loading tagged cards.</p>';
+      });
+  });
+  rarityRow.appendChild(showAllBtn);
+
+  tagCloud.appendChild(rarityRow);
+}
+
+  function showCards(cards, append = false) {
+    if (!append) {
+      cardResults.innerHTML = '';
+      window.searchResults = cards; // ✅ set the global search result array
+    }
+  
+    if (cards.length === 0) {
+      if (!append) {
+        cardResults.innerHTML = '<p>No cards found.</p>';
+      }
+      return;
+    }
+  cards.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('card');
+    cardDiv.dataset.card = JSON.stringify(card);
+    cardDiv.innerHTML = `
+      <img src="${card.images.small}" alt="${card.name}" />
+      <p>${card.name}</p>
+      <p><strong>Set:</strong> ${card.set.name}</p>
+    `;
+    cardDiv.addEventListener('click', () => {
+      const index = window.searchResults.findIndex(c => c.id === card.id);
+      window.currentPopupIndex = index; // ✅ Track which card is active
+      openCardPopup(card, { mode: 'edit' });
+    });
+
+    cardResults.appendChild(cardDiv);
+  });
+  resultsCount.textContent = `Total ${cards.length} card${cards.length > 1 ? 's' : ''}`;
+}
+
+
+
+let approvedTagsSet = new Set();
+
+async function loadApprovedTags() {
+  try {
+    const res = await fetch('/api/tag-stats');
+    const stats = await res.json();
+    approvedTagsSet = new Set(stats.map(entry => entry.tag.toLowerCase()));
+    console.log('✅ Loaded approved tags:', approvedTagsSet.size);
+  } catch (err) {
+    console.error('❌ Failed to load tag stats:', err);
+  }
+}
+
+
+function initSearchPage() {
+  console.log('🔍 Initializing search page...');
+
+  document.getElementById('searchBtn')?.addEventListener('click', () => {
+    const val = searchInput.value.trim();
+    if (val) searchCards(val);
+  });
+
+  document.getElementById('tagSearchBtn')?.addEventListener('click', () => {
+    const val = tagSearchInput.value.trim();
+    if (val) searchCustomTags(val);
+  });
+
+  refreshBtn?.addEventListener('click', () => location.reload());
+
+  backToTopBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  tagSearchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const tag = tagSearchInput.value.trim();
+      if (tag !== '') searchCustomTags(tag);
+    }
+  });
+  
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const query = searchInput.value.trim();
+      if (query !== '') searchCards(query);
+    }
+  });
+
+  const queryTagList = document.getElementById('queryTagList');
+  const queryPreview = document.getElementById('queryPreview');
+  const runQueryBtn = document.getElementById('runQueryBtn');
+  const modeInputs = document.getElementsByName('queryMode');
+
+  let selectedTags = new Set();
+
+  function updatePreview() {
+    const mode = [...modeInputs].find(r => r.checked).value;
+    const tags = Array.from(selectedTags);
+    queryPreview.textContent = tags.join(` ${mode} `) || 'No tags selected.';
+  }
+
+  function toggleTag(tag) {
+    if (selectedTags.has(tag)) {
+      selectedTags.delete(tag);
+    } else {
+      selectedTags.add(tag);
+    }
+    updatePreview();
+    renderQueryButtons();
+  }
+
+    function renderQueryButtons() {
+      queryTagList.innerHTML = '';
+
+      const rarities = ['#IR', '#SIR', '#UR'];
+      const tags = ['full art', 'pretty', 'colorful', 'chase'];
+
+      // Rarity Row
+      const rarityRow = document.createElement('div');
+      rarityRow.style.marginBottom = '0.5rem';
+      rarities.forEach(tag => {
+        const btn = document.createElement('button');
+        btn.textContent = tag;
+        btn.className = selectedTags.has(tag) ? 'tag-button selected' : 'tag-button';
+        btn.style.margin = '0.25rem';
+        btn.addEventListener('click', () => toggleTag(tag));
+        rarityRow.appendChild(btn);
+      });
+      queryTagList.appendChild(rarityRow);
+
+      // Tag Row
+      tags.forEach(tag => {
+        const btn = document.createElement('button');
+        btn.textContent = tag;
+        btn.className = selectedTags.has(tag) ? 'tag-button selected' : 'tag-button';
+        btn.style.margin = '0.25rem';
+        btn.addEventListener('click', () => toggleTag(tag));
+        queryTagList.appendChild(btn);
+      });
+    }
+
+
+  renderQueryButtons();
+  updatePreview();
+
+  runQueryBtn?.addEventListener('click', () => {
+    const tags = Array.from(selectedTags);
+    const mode = [...modeInputs].find(r => r.checked).value;
+
+    if (tags.length === 0) return;
+
+    tagSearchInput.value = tags.join(mode === 'AND' ? ' and ' : ',');
+    searchCustomTags(tagSearchInput.value);
+  });
+
+
+}
+
+  function applyCardColorTheme([r, g, b]) {
+  const hex = `rgb(${r}, ${g}, ${b})`;
+  document.querySelectorAll('.popup-content a').forEach(link => {
+    link.style.color = hex;
+  });
+}
+
+async function loadRandomCards() {
+  const cardResults = document.getElementById('cardResults');
+  if (!cardResults) return;
+
+  try {
+    // Step 1: get total card count
+    const countRes = await fetch('https://api.pokemontcg.io/v2/cards?pageSize=1', {
+      headers: { 'X-Api-Key': API_KEY }
+    });
+    const countData = await countRes.json();
+    const totalCards = countData.totalCount || 10000;
+
+    // Step 2: pick a random page that would have 5 cards
+    const pageSize = 5;
+    const totalPages = Math.floor(totalCards / pageSize);
+    const randomPage = Math.floor(Math.random() * totalPages) + 1;
+
+    // Step 3: fetch a random page
+    const res = await fetch(`https://api.pokemontcg.io/v2/cards?pageSize=${pageSize}&page=${randomPage}`, {
+      headers: { 'X-Api-Key': API_KEY }
+    });
+
+    const data = await res.json();
+    if (!data?.data?.length) {
+      cardResults.innerHTML = '<p>⚠️ Could not load featured cards.</p>';
+      return;
+    }
+
+    // Add header
+    const header = document.createElement('h3');
+    header.textContent = '🌟 Featured Cards';
+    header.style.marginTop = '1rem';
+    header.style.textAlign = 'center';
+    cardResults.before(header);
+
+    showCards(data.data, false);
+  } catch (err) {
+    console.error('Failed to load random cards:', err);
+    cardResults.innerHTML = '<p>⚠️ Failed to load featured cards.</p>';
+  }
+}
+
+
+
+// Ensure the tag cloud is built on page load
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('📌 DOM loaded in search.js');
+  createTagCloud();
+  initSearchPage(); // ✅ Add this call
+  loadApprovedTags(); 
+  loadRandomCards();
+});

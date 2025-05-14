@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+  <title>Moderator Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .info-box {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1e7e34;
+    }
+  </style>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+  <div id="moderator-container">
+  <h2>🛠️ Moderator Hub</h2>
+
+  <div class="info-box">
+    <p><strong>Welcome, Moderator!</strong></p>
+    <p>Future tools and moderation actions will go here.</p>
+  </div>
+
+  <div id="pendingTagsContainer">
+    <h3>Pending Tag Submissions</h3>
+    <div id="pendingTagsList">Loading...</div>
+  </div>  
+</div>
+
+  <script>
+    function logout() {
+      fetch('/api/logout').then(() => location.href = '/login');
+    }
+  </script>
+
+<script>
+  async function fetchPendingTags() {
+    const list = document.getElementById('pendingTagsList');
+    list.innerHTML = 'Loading...';
+
+    try {
+      const res = await fetch('/api/mod/tags/pending');
+      const data = await res.json();
+
+      if (!res.ok || !Array.isArray(data)) throw new Error();
+
+      if (data.length === 0) {
+        list.innerHTML = '<p>No pending submissions!</p>';
+        return;
+      }
+
+      list.innerHTML = '';
+      data.forEach(sub => {
+        const div = document.createElement('div');
+        div.classList.add('tag-entry');
+        div.style.marginBottom = '1rem';
+        div.style.borderBottom = '1px solid #ccc';
+        div.style.paddingBottom = '0.5rem';
+
+        div.innerHTML = `
+          <p><strong>Card:</strong> ${sub.cardId}</p>
+          <p><strong>Tag:</strong> ${sub.tag}</p>
+          <p><strong>Submitted By:</strong> ${sub.submittedBy?.username || 'Unknown'}</p>
+          <p><strong>Date:</strong> ${new Date(sub.createdAt).toLocaleString()}</p>
+          <button onclick="moderateTag('${sub._id}', 'approve')">✅ Approve</button>
+          <button onclick="moderateTag('${sub._id}', 'deny')">❌ Deny</button>
+        `;
+
+        list.appendChild(div);
+      });
+    } catch (err) {
+      list.innerHTML = '<p>Error loading submissions.</p>';
+      console.error(err);
+    }
+  }
+
+  async function moderateTag(id, action) {
+    try {
+      const res = await fetch(`/api/mod/newtags/${id}/${action}`, { method: 'POST' });
+      if (res.ok) {
+        fetchPendingTags(); // refresh list
+      } else {
+        alert('Failed to update tag status.');
+      }
+    } catch (err) {
+      console.error('Moderation failed:', err);
+    }
+  }
+
+  // Initial load
+  fetchPendingTags();
+</script>
+
+<script src="/js/script.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,51 @@
+✅ Critical Pre-Launch Checklist
+🧪 1. Tag Submission Validation
+ ✅ Profanity filter is working (confirmed in validateTagName)
+
+ ⚠️ Add a rate limit for tag submissions per user (e.g. 1 every 10 seconds or 10/day)
+
+ ⚠️ Prevent duplicate tags differing only by capitalization or spacing
+
+👤 2. User Accounts & Permissions
+ ✅ Users must verify email before interacting
+
+ ✅ Roles are enforced: only admins can access /admin-panel, etc.
+
+ ⚠️ Add user-facing feedback if banned (e.g. “You’ve been banned”)
+
+ ⚠️ Add password reset (if not already in your roadmap)
+
+🧼 3. Tag Display & Behavior
+ ✅ Only approved tags are shown in popup
+
+ ⚠️ Add ability to sort/filter tags on cards (e.g. alphabetical?)
+
+ ⚠️ Optional: limit how many tags are shown before "expand more" button appears
+
+🛡️ 4. Abuse Mitigation
+ ⚠️ Add rate limiting middleware to sensitive routes (tag submission, login, etc.)
+
+ ⚠️ Store IP address (or device fingerprint) for aggressive tag spammers
+
+🔧 5. Admin/Mod Tools
+ ✅ Admin can edit tags, change status, and delete
+
+ ✅ Moderator hub can approve/deny submissions
+
+ ⚠️ Add search/filter in admin tag manager (by user, tag, cardId, etc.)
+
+ ⚠️ View recent tag submissions by a specific user (e.g. on profile page)
+
+🎨 6. Visual / UI Polish
+ ⚠️ Add “loading...” indicators on all major fetches (dashboard, mod queue)
+
+ ⚠️ Ensure full mobile responsiveness (test on phone!)
+
+ ⚠️ Add favicon, logo, and site title
+
+🧹 7. Code & Performance
+ ⚠️ Remove unused routes and legacy code (/api/newtags/:cardId using old Tag model is now gone — good!)
+
+ ⚠️ Review console logs — remove sensitive output before launch
+
+ ⚠️ Compress image assets if needed (lazy load future card popups?)

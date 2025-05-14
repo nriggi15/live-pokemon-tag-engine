@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register Admin</title>
+  <style>
+
+    input, .register-container button {
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f2f4f8;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    .register-container button {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+
+  </style>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <%- include('partials/sidebar') %>
+  <div id="register-container">
+  <h2>User Registration</h2>
+  <form id="registerForm" action="/api/register" method="POST">
+    <input type="text" name="username" placeholder="Username" required />
+    <input type="email" name="email" placeholder="Email" required />
+    <input type="password" id="password" name="password" placeholder="Password" required />
+    <input type="password" id="confirm" name="confirm" placeholder="Confirm Password" required />
+
+  
+    <!-- 🆕 Add this dropdown -->
+    <select name="role" required>
+      <option value="user">User</option>
+      <!-- <option value="moderator">Moderator</option> -->
+      <option value="guest">Guest</option>
+      <!-- 🚫 Never expose admin here -->
+    </select>
+
+     <!-- CAPTCHA widget -->
+      <div class="g-recaptcha" data-sitekey="6LfTWjorAAAAAOzAKzu3rimbKBqjCwzWuIun2lsA"></div>
+
+      <button type="submit">Register</button>
+   
+    <!-- Load reCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  
+    <!-- <button type="submit">Register</button> -->
+    <p id="response"></p>
+  </form>
+  </div>
+  
+
+<script>
+  const form = document.getElementById('registerForm');
+  const container = document.getElementById('register-container');
+  const response = document.getElementById('response');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const body = Object.fromEntries(formData.entries());
+    body['g-recaptcha-response'] = grecaptcha.getResponse(); // Add captcha token
+
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+
+    if (password !== confirm) {
+      response.textContent = '❌ Passwords do not match.';
+      response.style.color = 'red';
+      return;
+    }
+
+    
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        container.innerHTML = `
+          <h2>✅ Registration successful!</h2>
+          <p>Please check your email to verify your account before logging in.</p>
+          <a href="/login">Go to Login</a>
+        `;
+      } else {
+        response.textContent = data.message || 'Registration failed.';
+        response.style.color = 'red';
+      }
+
+    } catch (err) {
+      response.textContent = 'Something went wrong.';
+      response.style.color = 'red';
+    }
+  });
+</script>
+
+
+  <script src="/js/script.js"></script>
+
+</body>
+</html>
