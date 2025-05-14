@@ -12,14 +12,6 @@
       padding: 2rem;
     }
 
-    .explore-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-        gap: 2rem;
-        max-width: 1400px;
-        margin: 2rem auto;
-        padding: 1rem;
-    }
 
     .explore-section {
       background: white;
@@ -51,6 +43,37 @@
     .card-preview-grid img:hover {
       transform: scale(1.05);
     }
+
+
+    @media (max-width: 900px) {
+      .explore-grid {
+        grid-template-columns: 1fr; /* ✅ force 1 column on mobile */
+        padding: 0.5rem;
+        gap: 1rem;
+      }
+
+      .explore-section {
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .card-preview-grid {
+        justify-content: center;
+      }
+
+      .card-preview-grid img {
+        height: 90px;
+      }
+
+      .explore-section h2 {
+        font-size: 1.2rem;
+        text-align: center;
+      }
+    }
+
+
+
   </style>
 </head>
 <body>

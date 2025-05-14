@@ -464,6 +464,19 @@ h1 {
   }
 }
 
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+@media (max-width: 600px) {
+  .explore-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
 
 
 /* Popup container */
