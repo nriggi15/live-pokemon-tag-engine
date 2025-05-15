@@ -4,39 +4,174 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bottom Nav Test</title>
-  <link rel="stylesheet" href="/public/css/bottom-nav.css">
+  <link rel="stylesheet" href="/css/bottom-nav.css">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .nav-panel {
+      position: fixed;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+      display: none;
+      flex-direction: column;
+      z-index: 9999;
+    }
+    .nav-panel a, .nav-panel button {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      background: none;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .nav-panel a:hover, .nav-panel button:hover {
+      background-color: #f2f2f2;
+    }
+  </style>
 </head>
 <body>
 
-  <main>
-    <h1 style="text-align: center;">Bottom Navigation Test</h1>
-    <p style="text-align: center;">This is a test page for mobile-first bottom nav.</p>
-  </main>
+<h1>Pokémon Card Tagger</h1>
+<h2>Explore by Tag</h2> 
 
-  <!-- Bottom Navigation Bar -->
-  <nav class="bottom-nav">
-    <a href="/dashboard" class="nav-item">
-      <i class="fas fa-user"></i>
-      <span>Account</span>
-    </a>
-    <a href="/" class="nav-item">
-      <i class="fas fa-home"></i>
-      <span>Home</span>
-    </a>
-    <a href="/explore" class="nav-item">
-      <i class="fas fa-compass"></i>
-      <span>Explore</span>
-    </a>
-    <a href="/tags" class="nav-item">
-      <i class="fas fa-tags"></i>
-      <span>Tags</span>
-    </a>
-    <a href="#" class="nav-item">
-      <i class="fas fa-ellipsis-h"></i>
-      <span>More</span>
-    </a>
-  </nav>
+  <!-- Tag Usage Stats POPUP ONLY, button is in #sidebar -->
+  <div id="tagStatsPopup" class="popup hidden">
+    <div class="popup-content">
+      <span class="close-button">&times;</span>
+      <h3>📊 Tag Usage Stats</h3>
+      <ul id="tagStatsList"></ul>
+    </div>
+  </div>
 
+  <!-- TAG CLOUD -->
+  <div id="tagCloud"></div>
+
+  <div id="topControls">
+    <button id="refreshBtn">🔄 Refresh / Clear Search</button>
+  </div>
+  
+  <div id="favoriteSearchControls" style="margin-bottom: 1rem;"></div>
+
+  <div id="searchContainer">
+    <div class="search-group">
+      <label for="tagSearchInput">Search by Custom Tags</label>
+      <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
+      <button id="tagSearchBtn">Tag Search</button>
+    </div>
+
+    <div class="search-group">
+      <label for="searchInput">Search by Pokémon or Keyword</label>
+      <input type="text" id="searchInput" placeholder="Search by name..." />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
+      <h3>🔎 Advanced Tag Search (currently 50% working)</h3>
+      <div id="queryTagList" style="margin-bottom: 0.5rem;"></div>
+      <div>
+        <label><input type="radio" name="queryMode" value="AND" checked /> AND</label>
+        <label style="margin-left: 1rem;"><input type="radio" name="queryMode" value="OR" /> OR</label>
+      </div>
+      <p id="queryPreview" style="margin: 0.5rem 0; font-style: italic; color: #555;"></p>
+      <button id="runQueryBtn">Search</button>
+    </div>
+  </div>
+
+  <div id="resultsCount" class="hidden"></div>
+  <div id="loadingSpinner" class="hidden">Loading...</div>
+  <div id="cardResults"></div>
+  <div id="loadMoreContainer"></div>
+
+  <!-- Card Detail Popup -->
+  <div id="card-popup" class="popup hidden">
+    <div class="popup-content">
+      <span id="popup-close">&times;</span>
+      <img id="popup-image" src="" alt="Card image" />
+      <h2 id="popup-name"></h2>
+      <p id="popup-number"></p>
+      <p id="popup-supertype"></p>
+      <p id="popup-subtypes"></p>
+      <p id="popup-flavor-text"></p>
+    </div>
+  </div>
+
+  <div id="tagConfirmPopup" class="popup hidden">
+    <div class="popup-content">
+      <p id="tagConfirmMessage"></p>
+      <div class="confirm-buttons">
+        <button id="confirmTagSubmit">✅ Submit</button>
+        <button id="cancelTagSubmit">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="backToTopBtn" class="hidden">⬆️ Back to Top</button>
+
+
+<nav class="bottom-nav">
+  <a href="/tags" class="nav-item" title="Tags">
+    <i class="fas fa-tags"></i>
+  </a>
+  <a href="#" class="nav-item" title="Account" onclick="togglePanel('accountPanel')">
+    <i class="fas fa-user"></i>
+  </a>
+  <a href="/" class="nav-item" title="Home">
+    <i class="fas fa-home"></i>
+  </a>
+  <a href="/explore" class="nav-item" title="Explore">
+    <i class="fas fa-compass"></i>
+  </a>
+  <a href="#" class="nav-item" title="More" onclick="togglePanel('morePanel')">
+    <i class="fas fa-ellipsis-h"></i>
+  </a>
+</nav>
+
+<!-- Account Panel -->
+<div class="nav-panel" id="accountPanel">
+  <% if (isLoggedIn) { %>
+    <a href="/dashboard">Dashboard</a>
+    <a href="#" id="myProfileBtn">My Profile</a>
+    <% if (role === 'moderator' || role === 'admin') { %>
+      <a href="/moderator-hub" id="modLink">Moderator Hub</a>
+    <% } %>
+    <% if (role === 'admin') { %>
+      <a href="/admin-panel" id="adminLink">Admin Panel</a>
+    <% } %>
+    <button id="logoutBtn">Logout</button>
+  <% } else { %>
+    <a href="/login" id="loginBtn">🔐 Login</a>
+  <% } %>
+</div>
+
+
+<!-- More Panel -->
+<div class="nav-panel" id="morePanel">
+  <button id="toggleDarkModeBtn">🌓 Toggle Dark Mode</button>
+  <button id="openTagStats">📊 View Tag Usage</button>
+</div>
+
+<form id="logoutForm" action="/api/logout" method="GET" style="display: none;"></form>
+
+<script>
+  function togglePanel(id) {
+    const panels = document.querySelectorAll('.nav-panel');
+    panels.forEach(p => p.style.display = 'none');
+    const panel = document.getElementById(id);
+    panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  // 🧠 Wire up logout button
+  document.getElementById('logoutBtn')?.addEventListener('click', function () {
+    document.getElementById('logoutForm').submit();
+  });
+</script>
+  <script src="/js/search.js"></script>
+  <script src="/js/script.js"></script>
 
 </body>
 </html>

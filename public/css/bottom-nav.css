@@ -6,24 +6,26 @@
   height: 60px;
   background-color: #f2f2f2;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   align-items: center;
   border-top: 1px solid #ccc;
   z-index: 9999;
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
 }
 
 .nav-item {
   flex-grow: 1;
   text-align: center;
   text-decoration: none;
-  color: #555;
-  font-size: 12px;
+  color: #444;
+  font-size: 18px;
+  padding: 10px 0;
 }
 
 .nav-item i {
   display: block;
-  font-size: 18px;
-  margin-bottom: 2px;
+  font-size: 22px;
+  margin: 0 auto;
 }
 
 .nav-item:hover {

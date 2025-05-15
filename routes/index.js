@@ -7,13 +7,12 @@ router.get('/', (req, res) => {
 });
 
 // Dashboard / Account section
-router.get('/dashboard', (req, res) => {
-  res.render('dashboard', { title: 'Dashboard' });
+router.get('/explore', (req, res) => {
+  res.render('explore', { page: 'explore' });
 });
 
-// Explore page
-router.get('/explore', (req, res) => {
-  res.render('explore', { title: 'Explore Cards' });
+router.get('/dashboard', (req, res) => {
+  res.render('dashboard', { page: 'dashboard' });
 });
 
 // Tag browsing page
@@ -23,7 +22,15 @@ router.get('/tags', (req, res) => {
 
 // Bottom Navigation Bar Test Page
 router.get('/bottom-nav-test', (req, res) => {
-  res.render('bottom-nav-test', { title: 'Bottom Nav Test' });
+    res.render('bottom-nav-test', {
+        title: 'Bottom Nav Test',
+        page: 'bottom-test',
+        isLoggedIn: !!req.session.userId,
+        role: req.session.role || null
+    });
 });
 
+
+
 export default router;
+
