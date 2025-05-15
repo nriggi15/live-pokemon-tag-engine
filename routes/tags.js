@@ -171,6 +171,40 @@ router.get('/newtags/:cardId', async (req, res) => {
   }
 });
 
+//POST NEWTAGS BULK REQUEST FOR TAGGING CENTER
+// POST /api/newtags/bulk
+router.post('/newtags/bulk', async (req, res) => {
+  const { cardIds, tags } = req.body;
+
+  console.log('🧪 Bulk tag check payload:', { cardIds, tags });
+
+
+  if (!Array.isArray(cardIds) || !Array.isArray(tags)) {
+    return res.status(400).json({ message: 'cardIds and tags must be arrays' });
+  }
+
+  try {
+    const tagDocs = await NewTag.find({
+      cardId: { $in: cardIds },
+      tag: { $in: tags.map(t => t.trim().toLowerCase()) },
+      status: 'approved'
+    }).lean();
+
+    const map = {};
+    cardIds.forEach(id => map[id] = []);
+
+    for (const doc of tagDocs) {
+      if (!map[doc.cardId].includes(doc.tag)) {
+        map[doc.cardId].push(doc.tag);
+      }
+    }
+
+    res.json(map); // { 'sv3-189': ['cute'], 'sv3-44': [] }
+  } catch (err) {
+    console.error('❌ Bulk tag check failed:', err);
+    res.status(500).json({ message: 'Server error during bulk tag check' });
+  }
+});
 
 
 

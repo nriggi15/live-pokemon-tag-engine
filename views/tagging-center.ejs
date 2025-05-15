@@ -13,11 +13,13 @@
   <h1 style="margin-left: 1rem;">🧷 Tagging Center</h1>
 
   <!-- Search Controls -->
+   
   <div id="tagging-controls" style="margin: 1rem;">
     <input type="text" id="tagSearchInput" placeholder="Search by #tag or Pokémon..." />
     <button id="searchBtn">🔍 Search</button>
     <button id="toggleViewBtn">🔁 Toggle View</button>
   </div>
+  <button id="resetBtn">Reset</button>
 
   <!-- Tag Confirmation Popup -->
   <div id="tagConfirmPopup" class="popup hidden">
@@ -30,6 +32,10 @@
     </div>
   </div>
 
+  <!-- Loading spinner -->
+<div id="loadingSpinner" class="hidden">
+  <div class="spinner"></div>
+</div>
 
   <!-- Container View (Grid) -->
 <div id="cardContainerView" class="grid-view hidden">

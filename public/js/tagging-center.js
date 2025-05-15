@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateView();
   });
 
+  
+
 
   updateView(); // Initialize
 
@@ -89,6 +91,7 @@ async function searchByCustomTag(tag) {
 }
 
 function renderCards(cards) {
+  document.getElementById('loadingSpinner')?.classList.add('hidden');
   searchResults = cards;
   currentCardIndex = -1;
   cardContainer.innerHTML = '';
@@ -227,6 +230,9 @@ if (submitTagBtn) {
 
 //New Tagging Center Search
 async function taggingCenterSearch(term) {
+  document.getElementById('loadingSpinner')?.classList.remove('hidden');
+  cardContainer.innerHTML = '';
+
   const { tags, name } = parseCombinedSearch(term);
   let cardsFromAPI = [];
   // Tag-only search fallback
@@ -246,6 +252,7 @@ async function taggingCenterSearch(term) {
       })];
 
       if (!commonIds.length) {
+        document.getElementById('loadingSpinner')?.classList.add('hidden');
         renderCards([]);
         return;
       }
@@ -263,10 +270,14 @@ async function taggingCenterSearch(term) {
       );
 
       const valid = cardData.filter(Boolean);
+      document.getElementById('loadingSpinner')?.classList.add('hidden');
+
       renderCards(valid);
       return;
     } catch (err) {
       console.error('Tag-only search failed:', err);
+      document.getElementById('loadingSpinner')?.classList.add('hidden');
+
       renderCards([]);
       return;
     }
@@ -292,26 +303,48 @@ async function taggingCenterSearch(term) {
   }
 
   // Step 3: Filter cards by checking if they have ALL tags in your DB
-  const filtered = [];
+  try {
+    
+    console.log('🚀 POSTING to /api/newtags/bulk with:', {
+      cardIds: cardsFromAPI.map(c => c.id),
+      tags
+    });
 
-  for (const card of cardsFromAPI) {
-    try {
-      const res = await fetch(`/api/newtags/${card.id}`);
-      const tagDocs = await res.json();
-      const cardTags = tagDocs.map(doc => doc.tag);
 
-      const matchesAllTags = tags.every(tag => cardTags.includes(tag));
-      if (matchesAllTags) {
-        filtered.push(card);
-      }
-    } catch (err) {
-      console.error(`Error checking tags for card ${card.id}`, err);
-    }
+    const res = await fetch('/api/newtags/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cardIds: cardsFromAPI.map(c => c.id),
+        tags: tags
+      })
+    });
+
+    const tagMap = await res.json(); // { cardId: [tags] }
+
+    const filtered = cardsFromAPI.filter(card => {
+      const cardTags = tagMap[card.id] || [];
+      return tags.every(tag => cardTags.includes(tag));
+    });
+
+    renderCards(filtered);
+  } catch (err) {
+    console.error('❌ Bulk tag filtering failed:', err);
+    renderCards([]);
   }
 
-  renderCards(filtered);
 }
 
+const resetBtn = document.getElementById('resetBtn');
+
+resetBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  cardContainer.innerHTML = '';
+  currentCardIndex = -1;
+  searchResults = [];
+  currentView = 'grid';
+  updateView();
+});
 
 
 
