@@ -6,6 +6,7 @@
   <title>Tagging Center</title>
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/css/tagging-center.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
 </head>
 <body>
 
@@ -37,7 +38,10 @@
 
 <!-- Single Card Detail View -->
 <div id="cardDetailView" class="detail-view hidden">
-  <div id="cardDetailContent"></div>
+  <div id="cardDetailContent">
+    <div id="favoritesBadge" class="hidden">❤️ In Favorites</div>
+  </div>
+
   <div id="taggingFormWrapper">
     <input type="text" id="tagInput" placeholder="Add a tag..." />
     <button id="submitTagBtn">➕ Add Tag</button>
@@ -46,7 +50,7 @@
 
   <div id="existingTagsBox">
     <h3>Tags:</h3>
-    <ul id="existingTagsList"></ul>
+    <div id="existingTagsList" class="tag-bubble-container"></div>
   </div>
 
   <div id="collectionControls">
@@ -65,6 +69,7 @@
   <!-- Scripts -->
   <script src="/js/script.js"></script>
   <script src="/js/tagging-center.js" defer></script>
+    
 
 </body>
 </html>

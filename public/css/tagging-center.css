@@ -21,3 +21,26 @@
 #cardDetailView.slide-right {
   animation-name: slideRight;
 }
+
+#favoritesBadge {
+  margin-bottom: 0.5rem;
+  color: #e0245e;
+  font-weight: bold;
+  text-align: center;
+}
+
+.tag-bubble-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-bubble {
+  background-color: #f0f0f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #333;
+  border: 1px solid #ccc;
+}

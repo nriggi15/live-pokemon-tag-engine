@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Explore</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -77,7 +78,6 @@
   </style>
 </head>
 <body>
-  <%- include('partials/sidebar') %>
 
   <div class="explore-grid">
     <div class="explore-section" id="featuredCollections">
@@ -121,6 +121,12 @@
     </div>
   </div>
 
+  <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav') %>
+
+  <script src="/js/script.js"></script>
+  <script src="/js/tagging-center.js" defer></script>
+  <script src="/js/index.js" defer></script>
 
 
   <script>

@@ -321,6 +321,28 @@ router.get('/explore/live-tags', async (req, res) => {
   }
 });
 
+//
+//GET tags for tagging-center
+//
+// GET /api/search?tags=cute
+router.get('/search', async (req, res) => {
+  const { tags } = req.query;
+  if (!tags) return res.status(400).json({ message: 'Missing tag query' });
+
+  try {
+    const matchedTags = await NewTag.find({
+      tag: tags.trim().toLowerCase(),
+      status: 'approved'
+    }).lean();
+
+    const uniqueCardIds = [...new Set(matchedTags.map(t => t.cardId))];
+
+    res.json(uniqueCardIds); // e.g., ['sv3-2', 'sv3-189']
+  } catch (err) {
+    console.error('❌ Error in tag search:', err);
+    res.status(500).json({ message: 'Server error during tag search' });
+  }
+});
 
 
 

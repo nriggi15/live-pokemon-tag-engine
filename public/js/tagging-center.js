@@ -55,12 +55,9 @@ searchBtn.addEventListener('click', () => {
   const term = searchInput.value.trim().toLowerCase();
   if (!term) return;
 
-  if (term.startsWith('#')) {
-    searchCustomTags(term.substring(1));
-  } else {
-    searchByPokemonName(term);
-  }
+  taggingCenterSearch(term);
 });
+
 
 async function searchByPokemonName(name) {
   try {
@@ -228,6 +225,44 @@ if (submitTagBtn) {
 
 }
 
+//New Tagging Center Search
+async function taggingCenterSearch(term) {
+  // 1. Try MongoDB tag search first
+  try {
+    const tagRes = await fetch(`/api/search?tags=${term}`);
+    const cardIds = await tagRes.json();
+
+    if (Array.isArray(cardIds) && cardIds.length > 0) {
+      const cardData = await Promise.all(
+        cardIds.map(async id => {
+          try {
+            const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`);
+            const data = await res.json();
+            return data.data;
+          } catch (err) {
+            console.warn(`Card fetch failed for ID: ${id}`);
+            return null;
+          }
+        })
+      );
+
+      const validCards = cardData.filter(Boolean);
+      renderCards(validCards);
+      return;
+    }
+  } catch (err) {
+    console.error('🛑 Error during tag search:', err);
+  }
+
+  // 2. Fallback: Search by Pokémon name via API
+  try {
+    const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${term}`);
+    const data = await pokeRes.json();
+    renderCards(data.data || []);
+  } catch (err) {
+    console.error('🛑 Error during Pokémon name search:', err);
+  }
+}
 
 
 
@@ -309,7 +344,7 @@ async function openCardDetail(card) {
 
     container.innerHTML = `
       <img src="${fullCard.images.large}" alt="${fullCard.name}" style="max-width: 300px;" />
-      <h2>${fullCard.name}</h2>
+      <h2><span id="cardNameText">${fullCard.name}</span></h2>
       <p><strong>Set:</strong> ${fullCard.set.name}</p>
       <p><strong>Card Number:</strong> ${fullCard.number}</p>
       <p><strong>Rarity:</strong> ${fullCard.rarity || 'Unknown'}</p>
@@ -329,7 +364,7 @@ async function openCardDetail(card) {
 
 function renderTags(cardId) {
   const tagList = document.getElementById('existingTagsList');
-  tagList.innerHTML = '<li>Loading...</li>';
+  tagList.innerHTML = 'Loading...';
 
   fetch(`/api/newtags/${cardId}`)
     .then(res => res.json())
@@ -341,10 +376,12 @@ function renderTags(cardId) {
       }
 
       tags.forEach(tag => {
-        const li = document.createElement('li');
-        li.textContent = tag.tag;
-        tagList.appendChild(li);
+        const span = document.createElement('span');
+        span.textContent = tag.tag;
+        span.className = 'tag-bubble';
+        tagList.appendChild(span);
       });
+
     })
     .catch(err => {
       console.error('❌ Error fetching tags:', err);
@@ -368,6 +405,19 @@ function renderCollections(cardId) {
 
     .then(collections => {
       container.innerHTML = '';
+      const favorites = collections.find(col => col.name.toLowerCase() === 'favorites');
+      const isInFavorites = favorites?.cards.includes(cardId);
+
+      const nameSpan = document.getElementById('cardNameText');
+      if (nameSpan) {
+        if (favorites?.cards.includes(cardId)) {
+          nameSpan.innerHTML = `❤️ ${nameSpan.textContent.replace(/^❤️\s*/, '')}`;
+        } else {
+          nameSpan.innerHTML = nameSpan.textContent.replace(/^❤️\s*/, '');
+        }
+      }
+
+
       if (!collections.length) {
         container.innerHTML = '<p>No collections found.</p>';
         return;

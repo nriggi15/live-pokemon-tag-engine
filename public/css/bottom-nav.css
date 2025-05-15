@@ -31,3 +31,28 @@
 .nav-item:hover {
   background-color: #e0e0e0;
 }
+
+.nav-panel {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+  display: none;
+  flex-direction: column;
+  z-index: 9999;
+}
+.nav-panel a, .nav-panel button {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  width: 100%;
+}
+.nav-panel a:hover, .nav-panel button:hover {
+  background-color: #f2f2f2;
+}

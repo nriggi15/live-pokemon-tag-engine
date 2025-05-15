@@ -55,6 +55,8 @@ import userProfilesRoute from './routes/userProfiles.js';
 import Collection from './models/Collection.js';
 import collectionsRouter from './routes/collections.js';
 import indexRoutes from './routes/index.js';
+import tagsRoutes from './routes/tags.js';
+app.use('/api', tagsRoutes);
 app.use('/', indexRoutes);
 app.use('/api', collectionsRouter);
 app.use('/api', favoritesRouter);

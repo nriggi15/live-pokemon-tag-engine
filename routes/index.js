@@ -30,9 +30,18 @@ router.get('/bottom-nav-test', (req, res) => {
     });
 });
 
+//tagging-center isLoggedIn for bottom nav
 router.get('/tagging-center', (req, res) => {
-  res.render('tagging-center', { page: 'tagging-center' });
+  const isLoggedIn = !!req.session.userId;
+  const role = req.session.role || null;
+
+  res.render('tagging-center', {
+    page: 'tagging-center',
+    isLoggedIn,
+    role
+  });
 });
+
 
 
 

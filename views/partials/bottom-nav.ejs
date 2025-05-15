@@ -1,6 +1,11 @@
-<!-- views/partials/bottom-nav.ejs -->
+<!-- /views/partials/bottom-nav.ejs -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
 <nav class="bottom-nav">
-  <a href="/dashboard" class="nav-item" title="Account">
+  <a href="/tagging-center" class="nav-item" title="Tags">
+    <i class="fas fa-tags"></i>
+  </a>
+  <a href="#" class="nav-item" title="Account" onclick="togglePanel('accountPanel')">
     <i class="fas fa-user"></i>
   </a>
   <a href="/" class="nav-item" title="Home">
@@ -9,11 +14,45 @@
   <a href="/explore" class="nav-item" title="Explore">
     <i class="fas fa-compass"></i>
   </a>
-  <a href="/tags" class="nav-item" title="Tags">
-    <i class="fas fa-tags"></i>
-  </a>
-  <a href="#" class="nav-item" title="More">
+  <a href="#" class="nav-item" title="More" onclick="togglePanel('morePanel')">
     <i class="fas fa-ellipsis-h"></i>
   </a>
 </nav>
 
+<!-- Account Panel -->
+<div class="nav-panel" id="accountPanel">
+  <% if (isLoggedIn) { %>
+    <a href="/dashboard">Dashboard</a>
+    <a href="#" id="myProfileBtn">My Profile</a>
+    <% if (role === 'moderator' || role === 'admin') { %>
+      <a href="/moderator-hub" id="modLink">Moderator Hub</a>
+    <% } %>
+    <% if (role === 'admin') { %>
+      <a href="/admin-panel" id="adminLink">Admin Panel</a>
+    <% } %>
+    <button id="logoutBtn">Logout</button>
+  <% } else { %>
+    <a href="/login" id="loginBtn">🔐 Login</a>
+  <% } %>
+</div>
+
+<!-- More Panel -->
+<div class="nav-panel" id="morePanel">
+  <button id="toggleDarkModeBtn">🌓 Toggle Dark Mode</button>
+  <button id="openTagStats">📊 View Tag Usage</button>
+</div>
+
+<form id="logoutForm" action="/api/logout" method="GET" style="display: none;"></form>
+
+<script>
+  function togglePanel(id) {
+    const panels = document.querySelectorAll('.nav-panel');
+    panels.forEach(p => p.style.display = 'none');
+    const panel = document.getElementById(id);
+    panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  document.getElementById('logoutBtn')?.addEventListener('click', function () {
+    document.getElementById('logoutForm').submit();
+  });
+</script>
