@@ -1,8 +1,10 @@
 General Updates:
 -Tagging center fixes, styling
+-new search function for tagging-center
 
 Features Added:
 -Card detailed, swipe gestures
+-search tagging-center works as intended via pokemonAPI and tag collection
 
 Technical Updates:
 -Fixed tag submission from tagging center
@@ -11,9 +13,9 @@ Technical Updates:
 
 
 Bugs Discovered:
--
+-Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
 
 Bug Fixes:
 -
 
-v1.5.52
+v1.5.53 - STABLE**
