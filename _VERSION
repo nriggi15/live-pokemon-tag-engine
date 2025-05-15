@@ -1,15 +1,13 @@
 General Updates:
 -Tagging center fixes, styling
--new search function for tagging-center
+-Tagging center uses #tag for tag searching
 
 Features Added:
 -Card detailed, swipe gestures
 -search tagging-center works as intended via pokemonAPI and tag collection
 
 Technical Updates:
--Fixed tag submission from tagging center
--swipe gesture between detailed view
--double tap add to favorites
+-Fixed tagging-center tag search, must use #tag for tag searching
 
 
 Bugs Discovered:
@@ -18,4 +16,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.53 - STABLE**
+v1.5.54 - STABLE**

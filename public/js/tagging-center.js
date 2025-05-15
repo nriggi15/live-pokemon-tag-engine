@@ -227,42 +227,91 @@ if (submitTagBtn) {
 
 //New Tagging Center Search
 async function taggingCenterSearch(term) {
-  // 1. Try MongoDB tag search first
-  try {
-    const tagRes = await fetch(`/api/search?tags=${term}`);
-    const cardIds = await tagRes.json();
+  const { tags, name } = parseCombinedSearch(term);
+  let cardsFromAPI = [];
+  // Tag-only search fallback
+  if (!name && tags.length > 0) {
+    try {
+      let cardIdSets = [];
 
-    if (Array.isArray(cardIds) && cardIds.length > 0) {
+      for (const tag of tags) {
+        const res = await fetch(`/api/search?tags=${tag}`);
+        const cardIds = await res.json();
+        cardIdSets.push(new Set(cardIds));
+      }
+
+      // AND logic — only keep cards that appear in all tag sets
+      const commonIds = [...cardIdSets.reduce((a, b) => {
+        return new Set([...a].filter(id => b.has(id)));
+      })];
+
+      if (!commonIds.length) {
+        renderCards([]);
+        return;
+      }
+
       const cardData = await Promise.all(
-        cardIds.map(async id => {
+        commonIds.map(async id => {
           try {
             const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`);
-            const data = await res.json();
-            return data.data;
-          } catch (err) {
-            console.warn(`Card fetch failed for ID: ${id}`);
+            const json = await res.json();
+            return json.data;
+          } catch {
             return null;
           }
         })
       );
 
-      const validCards = cardData.filter(Boolean);
-      renderCards(validCards);
+      const valid = cardData.filter(Boolean);
+      renderCards(valid);
+      return;
+    } catch (err) {
+      console.error('Tag-only search failed:', err);
+      renderCards([]);
       return;
     }
-  } catch (err) {
-    console.error('🛑 Error during tag search:', err);
   }
 
-  // 2. Fallback: Search by Pokémon name via API
-  try {
-    const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${term}`);
-    const data = await pokeRes.json();
-    renderCards(data.data || []);
-  } catch (err) {
-    console.error('🛑 Error during Pokémon name search:', err);
+
+
+  // Step 1: Search Pokémon API by name
+  if (name) {
+    try {
+      const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${name}`);
+      const data = await pokeRes.json();
+      cardsFromAPI = data.data || [];
+    } catch (err) {
+      console.error('❌ Pokémon API name search failed:', err);
+    }
   }
+
+  // Step 2: If no tags provided, just show the cards
+  if (!tags.length) {
+    renderCards(cardsFromAPI);
+    return;
+  }
+
+  // Step 3: Filter cards by checking if they have ALL tags in your DB
+  const filtered = [];
+
+  for (const card of cardsFromAPI) {
+    try {
+      const res = await fetch(`/api/newtags/${card.id}`);
+      const tagDocs = await res.json();
+      const cardTags = tagDocs.map(doc => doc.tag);
+
+      const matchesAllTags = tags.every(tag => cardTags.includes(tag));
+      if (matchesAllTags) {
+        filtered.push(card);
+      }
+    } catch (err) {
+      console.error(`Error checking tags for card ${card.id}`, err);
+    }
+  }
+
+  renderCards(filtered);
 }
+
 
 
 
@@ -617,4 +666,14 @@ function showHeartPopup() {
   setTimeout(() => {
     heart.remove();
   }, 700);
+}
+
+//Parse input for AND search
+function parseCombinedSearch(query) {
+  const parts = query.toLowerCase().split(/\s+and\s+/).map(part => part.trim());
+
+  const tags = parts.filter(p => p.startsWith('#')).map(p => p.slice(1));
+  const name = parts.find(p => !p.startsWith('#')) || null;
+
+  return { tags, name };
 }
