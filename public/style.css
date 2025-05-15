@@ -509,6 +509,16 @@ h1 {
   border-radius: 6px;
 }
 
+#tagMessage.fade-out {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+#tagMessage {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
 
 /* Popup container */
 .popup {

@@ -1,0 +1,23 @@
+#cardDetailView.slide-left,
+#cardDetailView.slide-right {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+#cardDetailView.slide-left {
+  animation-name: slideLeft;
+}
+
+#cardDetailView.slide-right {
+  animation-name: slideRight;
+}

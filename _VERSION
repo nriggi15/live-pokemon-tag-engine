@@ -1,20 +1,19 @@
 General Updates:
--Recent and favorite searches
--user profiles updated
+-
 
 Features Added:
--Favorite searches
--Recent searches
--Explore page added with:
--redesigned the profile
+-Card detailed, swipe gestures
 
 Technical Updates:
--favoritesearches db added
+-Fixed tag submission from tagging center
+-swipe gesture between detailed view
+-double tap add to favorites
+
 
 Bugs Discovered:
--swipe gesture break popup after a few
+-
 
 Bug Fixes:
 -
 
-v1.5.450
+v1.5.51

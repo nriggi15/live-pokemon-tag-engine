@@ -1,4 +1,8 @@
 let currentView = 'grid'; // or 'detail'
+let searchResults = [];
+let currentCardIndex = -1;
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
   containerView = document.getElementById('cardContainerView');
@@ -88,7 +92,10 @@ async function searchByCustomTag(tag) {
 }
 
 function renderCards(cards) {
+  searchResults = cards;
+  currentCardIndex = -1;
   cardContainer.innerHTML = '';
+
 
   if (!cards || cards.length === 0) {
     cardContainer.innerHTML = '<p>No results found.</p>';
@@ -99,10 +106,14 @@ function renderCards(cards) {
     const div = document.createElement('div');
     div.className = 'card-preview';
     div.innerHTML = `
-      <img src="${card.images.small}" alt="${card.name}" />
+      <img src="${card.images.small}" alt="${card.name}" onerror="this.onerror=null;this.src='.../img/placeholder.png';" />
       <p>${card.name}</p>
     `;
-    div.addEventListener('click', () => openCardDetail({ id: card.id }));
+    div.addEventListener('click', () => {
+      currentCardIndex = cards.findIndex(c => c.id === card.id);
+      openCardDetail({ id: card.id });
+    });
+
     cardContainer.appendChild(div);
   });
 
@@ -116,26 +127,40 @@ const submitTagBtn = document.getElementById('submitTagBtn');
 
 if (submitTagBtn) {
   submitTagBtn.addEventListener('click', async () => {
+    const tagMessage = document.getElementById('tagMessage');
+    tagMessage.textContent = '';
+    tagMessage.style.color = '#555'; // reset color
+
+
     const raw = tagInput.value.trim().toLowerCase();
     const tag = raw.replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, ' ');
 
     if (!tag || tag.length > 20) {
-      alert('❌ Tag must be 1–20 characters.');
+      tagMessage.style.color = '#d9534f';
+      tagMessage.textContent = '❌ Tag must be 1–20 characters.';
       return;
     }
+
+
+
 
     try {
       const whoamiRes = await fetch('/api/whoami');
       const whoami = await whoamiRes.json();
       if (!whoami?.userId) {
-        alert('🚫 You must be logged in to submit tags.');
+        tagMessage.style.color = '#d9534f';
+        tagMessage.textContent = '🚫 You must be logged in to submit tags.';
+        setTimeout(() => {
+          tagMessage.classList.add('fade-out');
+          setTimeout(() => {
+            tagMessage.textContent = '';
+            tagMessage.classList.remove('fade-out');
+          }, 600); // match the CSS transition time
+        }, 3000);
         return;
       }
 
-      const cardId = document
-        .querySelector('#cardDetailContent p:nth-of-type(2)')
-        .textContent.replace('Card Number:', '')
-        .trim();
+      const cardId = document.getElementById('cardId')?.textContent?.trim();
 
       const res = await fetch(`/api/tag-submissions/${cardId}`, {
         method: 'POST',
@@ -143,19 +168,64 @@ if (submitTagBtn) {
         body: JSON.stringify({ tagName: tag })
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        alert('✅ Tag submitted for review.');
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.status === 409) {
+        tagMessage.style.color = '#d9534f';
+        tagMessage.textContent = '⚠️ This tag has already been submitted or approved.';
+        setTimeout(() => {
+          tagMessage.classList.add('fade-out');
+          setTimeout(() => {
+            tagMessage.textContent = '';
+            tagMessage.classList.remove('fade-out');
+          }, 600); // match the CSS transition time
+        }, 3000);
+
+      } else if (res.ok) {
+        tagMessage.style.color = '#28a745';
+        tagMessage.textContent = '✅ Tag submitted for review!';
+        setTimeout(() => {
+          tagMessage.classList.add('fade-out');
+          setTimeout(() => {
+            tagMessage.textContent = '';
+            tagMessage.classList.remove('fade-out');
+          }, 600); // match the CSS transition time
+        }, 3000);
+
         tagInput.value = '';
         renderTags(cardId);
       } else {
-        alert(data.message || '❌ Failed to submit tag.');
+        tagMessage.style.color = '#d9534f';
+        tagMessage.textContent = data.message || '❌ Failed to submit tag.';
+        setTimeout(() => {
+          tagMessage.classList.add('fade-out');
+          setTimeout(() => {
+            tagMessage.textContent = '';
+            tagMessage.classList.remove('fade-out');
+          }, 600); // match the CSS transition time
+        }, 3000);
+
       }
     } catch (err) {
       console.error('Tag submission error:', err);
-      alert('❌ An error occurred.');
+      tagMessage.style.color = '#d9534f';
+      tagMessage.textContent = '❌ An unexpected error occurred.';
+      setTimeout(() => {
+        tagMessage.classList.add('fade-out');
+        setTimeout(() => {
+          tagMessage.textContent = '';
+          tagMessage.classList.remove('fade-out');
+        }, 600); // match the CSS transition time
+      }, 3000);
+
     }
+
+
   });
+
 }
 
 
@@ -166,6 +236,42 @@ if (submitTagBtn) {
 }); // End of DOMLoader
 //
 //
+
+
+function showNextCard() {
+  if (!searchResults.length || currentCardIndex === -1) return;
+  currentCardIndex = (currentCardIndex + 1) % searchResults.length;
+
+  animateCardSlide('left');
+  openCardDetail({ id: searchResults[currentCardIndex].id });
+}
+
+function showPreviousCard() {
+  if (!searchResults.length || currentCardIndex === -1) return;
+  currentCardIndex = (currentCardIndex - 1 + searchResults.length) % searchResults.length;
+
+  animateCardSlide('right');
+  openCardDetail({ id: searchResults[currentCardIndex].id });
+}
+
+function animateCardSlide(direction) {
+  const detailView = document.getElementById('cardDetailView');
+  if (!detailView) return;
+
+  const className = direction === 'left' ? 'slide-left' : 'slide-right';
+
+  detailView.classList.remove('slide-left', 'slide-right');
+  void detailView.offsetWidth; // 🪄 force reflow
+  detailView.classList.add(className);
+
+  setTimeout(() => {
+    detailView.classList.remove(className);
+  }, 300);
+}
+
+
+
+
 
 let containerView;
 let detailView;
@@ -187,12 +293,27 @@ async function openCardDetail(card) {
     const fullCard = data.data;
 
     const container = document.getElementById('cardDetailContent');
+    
+
+    const tagMessage = document.getElementById('tagMessage');
+    if (tagMessage) {
+      tagMessage.textContent = '';
+      tagMessage.style.color = '#555';
+    }
+    const tagInput = document.getElementById('tagInput');
+    if (tagInput) {
+      tagInput.value = '';
+    }
+
+
+
     container.innerHTML = `
       <img src="${fullCard.images.large}" alt="${fullCard.name}" style="max-width: 300px;" />
       <h2>${fullCard.name}</h2>
       <p><strong>Set:</strong> ${fullCard.set.name}</p>
       <p><strong>Card Number:</strong> ${fullCard.number}</p>
       <p><strong>Rarity:</strong> ${fullCard.rarity || 'Unknown'}</p>
+      <p id="cardId" class="hidden">${fullCard.id}</p>
     `;
 
     renderTags(fullCard.id);
@@ -204,6 +325,7 @@ async function openCardDetail(card) {
     console.error('❌ Failed to load card details:', err);
   }
 }
+
 
 function renderTags(cardId) {
   const tagList = document.getElementById('existingTagsList');
@@ -230,7 +352,7 @@ function renderTags(cardId) {
     });
 }
 
-
+//FETCH Collections if loggedin
 function renderCollections(cardId) {
   const container = document.getElementById('collectionCheckboxes');
   container.innerHTML = 'Loading...';
@@ -282,3 +404,167 @@ function renderCollections(cardId) {
     });
 }
 
+//Swipe to move on mobile
+let touchStartX = 0;
+
+if (detailView) {
+  detailView.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  detailView.addEventListener('touchend', (e) => {
+    const diffX = e.changedTouches[0].clientX - touchStartX;
+
+    if (Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        showNextCard();
+      } else {
+        showPreviousCard();
+      }
+    }
+  });
+}
+
+//Arrow Keys to swipe on keyboard
+document.addEventListener('keydown', (e) => {
+  if (currentView !== 'detail') return; // only when in detail view
+
+  if (e.key === 'ArrowRight') {
+    showNextCard();
+  } else if (e.key === 'ArrowLeft') {
+    showPreviousCard();
+  }
+});
+
+//Double Tap to add to favorites SCREEN TAP
+let lastTapTime = 0;
+
+document.getElementById('cardDetailView')?.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  const timeSinceLastTap = now - lastTapTime;
+
+  if (timeSinceLastTap < 300) {
+    handleFavoriteShortcut();
+  }
+
+  lastTapTime = now;
+});
+
+//Double Tap to add to favorites SPACE BAR
+let lastSpaceTime = 0;
+
+document.addEventListener('keydown', (e) => {
+  if (currentView !== 'detail') return;
+  if (e.code !== 'Space') return;
+
+  const now = Date.now();
+  const timeSinceLastSpace = now - lastSpaceTime;
+
+  if (timeSinceLastSpace < 300) {
+    e.preventDefault(); // avoid scroll
+    handleFavoriteShortcut();
+  }
+
+  lastSpaceTime = now;
+});
+
+async function handleFavoriteShortcut() {
+  try {
+    const whoamiRes = await fetch('/api/whoami');
+    const whoami = await whoamiRes.json();
+
+    if (!whoami?.userId) {
+      showLoginAlert();
+      return;
+    }
+
+    // ✅ Logged in — move to step 5
+    addToFavorites();
+  } catch (err) {
+    console.error('Error checking login status:', err);
+  }
+}
+
+function showLoginAlert() {
+  const existing = document.getElementById('loginPrompt');
+  if (existing) return;
+
+  const alert = document.createElement('div');
+  alert.id = 'loginPrompt';
+  alert.textContent = 'Log in to add to favorites!';
+  alert.style.position = 'fixed';
+  alert.style.bottom = '2rem';
+  alert.style.left = '50%';
+  alert.style.transform = 'translateX(-50%)';
+  alert.style.background = '#d9534f';
+  alert.style.color = 'white';
+  alert.style.padding = '0.75rem 1.5rem';
+  alert.style.borderRadius = '6px';
+  alert.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+  alert.style.zIndex = '9999';
+  alert.style.opacity = '1';
+  alert.style.transition = 'opacity 0.4s ease-in-out';
+
+  document.body.appendChild(alert);
+
+  setTimeout(() => {
+    alert.style.opacity = '0';
+    setTimeout(() => alert.remove(), 500);
+  }, 1200);
+}
+
+///POST to 'Favorites' Collection
+async function addToFavorites() {
+  const cardId = document.getElementById('cardId')?.textContent?.trim();
+  if (!cardId) return;
+
+  try {
+    const res = await fetch('/api/collections/me');
+    const collections = await res.json();
+
+    const favorites = collections.find(c => c.name.toLowerCase() === 'favorites');
+    const target = favorites || collections[0]; // fallback to first collection
+
+    if (!target) return;
+
+    const addRes = await fetch(`/api/collections/${target._id}/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cardId })
+    });
+
+    if (addRes.ok) {
+      showHeartPopup();
+    } else {
+      console.warn('⚠️ Already in favorites or failed to add');
+    }
+  } catch (err) {
+    console.error('❌ Error adding to favorites:', err);
+  }
+}
+
+//Show the heart popup
+function showHeartPopup() {
+  const heart = document.createElement('div');
+  heart.textContent = '❤️';
+  heart.style.position = 'fixed';
+  heart.style.fontSize = '3rem';
+  heart.style.left = '50%';
+  heart.style.top = '50%';
+  heart.style.transform = 'translate(-50%, -50%)';
+  heart.style.opacity = '1';
+  heart.style.zIndex = '9999';
+  heart.style.transition = 'transform 0.6s ease-out, opacity 0.6s ease-out';
+
+  document.body.appendChild(heart);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    heart.style.transform = 'translate(-50%, -70%) scale(1.2)';
+    heart.style.opacity = '0';
+  });
+
+  setTimeout(() => {
+    heart.remove();
+  }, 700);
+}

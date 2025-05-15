@@ -407,6 +407,7 @@ function storeRecentSearch(term) {
 
 function loadRecentCards() {
   const container = document.getElementById('recentCardsList');
+  if (!container) return; // 🔒 skip if not on this page
   const key = 'recentlyViewedCards';
   const cards = JSON.parse(localStorage.getItem(key)) || [];
 
