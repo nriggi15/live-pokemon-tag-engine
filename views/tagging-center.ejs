@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tagging Center</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <h1 style="margin-left: 1rem;">🧷 Tagging Center</h1>
+
+  <!-- Search Controls -->
+  <div id="tagging-controls" style="margin: 1rem;">
+    <input type="text" id="tagSearchInput" placeholder="Search by tag or Pokémon..." />
+    <button id="searchBtn">🔍 Search</button>
+    <button id="toggleViewBtn">🔁 Toggle View</button>
+  </div>
+
+  <!-- Tag Confirmation Popup -->
+  <div id="tagConfirmPopup" class="popup hidden">
+    <div class="popup-content">
+      <p id="tagConfirmMessage"></p>
+      <div class="confirm-buttons">
+        <button id="confirmTagSubmit">✅ Submit</button>
+        <button id="cancelTagSubmit">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Container View (Grid) -->
+<div id="cardContainerView" class="grid-view hidden">
+  <!-- Cards will be inserted here -->
+</div>
+
+<!-- Single Card Detail View -->
+<div id="cardDetailView" class="detail-view hidden">
+  <div id="cardDetailContent"></div>
+  <div id="taggingFormWrapper">
+    <input type="text" id="tagInput" placeholder="Add a tag..." />
+    <button id="submitTagBtn">➕ Add Tag</button>
+  </div>
+
+  <div id="existingTagsBox">
+    <h3>Tags:</h3>
+    <ul id="existingTagsList"></ul>
+  </div>
+
+  <div id="collectionControls">
+    <h3>Collections:</h3>
+    <div id="collectionCheckboxes">Loading...</div>
+  </div>
+
+  <button id="backToGridBtn">🔙 Back to Grid</button>
+</div>
+
+
+
+  <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav') %>
+
+  <!-- Scripts -->
+  <script src="/js/script.js"></script>
+  <script src="/js/tagging-center.js" defer></script>
+
+</body>
+</html>

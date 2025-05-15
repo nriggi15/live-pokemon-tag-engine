@@ -30,6 +30,11 @@ router.get('/bottom-nav-test', (req, res) => {
     });
 });
 
+router.get('/tagging-center', (req, res) => {
+  res.render('tagging-center', { page: 'tagging-center' });
+});
+
+
 
 
 export default router;

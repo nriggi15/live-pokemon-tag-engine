@@ -521,6 +521,11 @@ async function searchCustomTags(tag) {
   searchInput.value = '';
   searchMode = 'custom';
   document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+  const isTaggingCenter = window.location.pathname.includes('/tagging-center');
+  const cardResults = isTaggingCenter
+  ? document.getElementById('cardContainerView')
+  : document.getElementById('cardResults');
+
   cardResults.innerHTML = '';
   resultsCount.textContent = 'Loading...';
   renderFavoriteButton(`#${tag.trim()}`, 'tag');
@@ -621,8 +626,31 @@ async function searchCustomTags(tag) {
         return;
       }
 
-      showCards(filteredCards, false);
-      updateResultsCount(filteredCards.length, false);
+      if (isTaggingCenter) {
+        cardResults.innerHTML = '';
+        filteredCards.forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'card-preview';
+          cardDiv.innerHTML = `
+            <img src="${card.images.small}" alt="${card.name}" />
+            <p>${card.name}</p>
+          `;
+          cardDiv.addEventListener('click', () => {
+            openCardDetail({
+              id: card.id,
+              name: card.name,
+              image: card.images.large || card.images.small
+            });
+          });
+          cardResults.appendChild(cardDiv);
+        });
+      } else {
+        showCards(filteredCards, false);
+        updateResultsCount(filteredCards.length, false);
+        document.getElementById('backToTopBtn')?.classList.remove('hidden');
+      }
+
+
       document.getElementById('backToTopBtn').classList.remove('hidden');
 
 

@@ -478,6 +478,37 @@ h1 {
   }
 }
 
+.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.detail-view {
+  padding: 1rem;
+  border-top: 2px solid #ccc;
+}
+
+#cardDetailView h3 {
+  margin-top: 1rem;
+}
+
+.card-preview {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  background: #f9f9f9;
+}
+
+.card-preview img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
 
 /* Popup container */
 .popup {
