@@ -34,6 +34,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  justify-content: center;
 }
 
 .tag-bubble {
@@ -69,4 +70,9 @@
 
 .hidden {
   display: none;
+}
+
+#taggingCenterContent {
+  width: 80%;
+  padding-bottom: 80px; /* Adjust if nav is taller */
 }
