@@ -1,5 +1,6 @@
 ---
-import { getCollection, getEntryBySlug } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 
 export async function getStaticPaths() {
@@ -10,9 +11,7 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const post = await getEntryBySlug('posts', slug);
-
-console.log('📝 Loaded post:', post);
+const post = await getEntry('posts', slug) as CollectionEntry<'posts'>;
 
 if (!post) {
   throw new Error('404');
