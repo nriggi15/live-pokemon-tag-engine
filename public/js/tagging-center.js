@@ -346,6 +346,63 @@ resetBtn.addEventListener('click', () => {
   updateView();
 });
 
+//Swipe to move on mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+const detailView = document.getElementById('cardDetailView');
+
+if (detailView) {
+  detailView.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+    }
+  });
+
+  detailView.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      touchEndX = e.touches[0].clientX;
+    }
+  }, { passive: false });
+
+  detailView.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length === 1) {
+      handleSwipe();
+    }
+  });
+}
+
+function handleSwipe() {
+  const diffX = touchEndX - touchStartX;
+  if (Math.abs(diffX) > 50) {
+    if (diffX < 0) {
+      showNextCard();
+    } else {
+      showPreviousCard();
+    }
+  }
+}
+
+//Double Tap to add to favorites SCREEN TAP
+let lastTapTime = 0;
+
+detailView.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  const timeSinceLastTap = now - lastTapTime;
+
+  if (timeSinceLastTap < 300 && e.touches?.length === 0) {
+    e.preventDefault(); // prevent zoom
+    handleFavoriteShortcut();
+  }
+
+  lastTapTime = now;
+});
+
+detailView.addEventListener('touchmove', (e) => {
+  e.preventDefault(); // Optional: prevents accidental scrolling
+}, { passive: false });
+
+
 
 
 //
@@ -536,26 +593,7 @@ function renderCollections(cardId) {
     });
 }
 
-//Swipe to move on mobile
-let touchStartX = 0;
 
-if (detailView) {
-  detailView.addEventListener('touchstart', (e) => {
-    touchStartX = e.touches[0].clientX;
-  });
-
-  detailView.addEventListener('touchend', (e) => {
-    const diffX = e.changedTouches[0].clientX - touchStartX;
-
-    if (Math.abs(diffX) > 50) {
-      if (diffX < 0) {
-        showNextCard();
-      } else {
-        showPreviousCard();
-      }
-    }
-  });
-}
 
 //Arrow Keys to swipe on keyboard
 document.addEventListener('keydown', (e) => {
@@ -568,19 +606,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-//Double Tap to add to favorites SCREEN TAP
-let lastTapTime = 0;
 
-document.getElementById('cardDetailView')?.addEventListener('touchend', (e) => {
-  const now = Date.now();
-  const timeSinceLastTap = now - lastTapTime;
-
-  if (timeSinceLastTap < 300) {
-    handleFavoriteShortcut();
-  }
-
-  lastTapTime = now;
-});
 
 //Double Tap to add to favorites SPACE BAR
 let lastSpaceTime = 0;

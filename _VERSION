@@ -1,32 +1,11 @@
 General Updates:
--Tagging center fixes, styling
--Tagging center uses #tag for tag searching
--compound #cute and clefairy search!
--tagging center reset button
-**Tagging Center now has:
-
-✅ Combined tag + Pokémon search
-
-✅ Fast bulk filtering with /api/newtags/bulk
-
-✅ Beautiful inline bubble tags
-
-✅ ❤️ favorites shortcut
-
-✅ Reset button
-
-✅ Swipe/arrow nav
-
-✅ Spinner with perfect show/hide behavior
+-Testing mobile swipe fix
 
 Features Added:
--Card detailed, swipe gestures
--search tagging-center works as intended via pokemonAPI and tag collection
--tagging center reset button
+-
 
 Technical Updates:
--Fixed tagging-center tag search, must use #tag for tag searching
-
+-
 
 Bugs Discovered:
 -Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
