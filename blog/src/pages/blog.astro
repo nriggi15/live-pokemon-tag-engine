@@ -1,0 +1,22 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+const posts = await getCollection('posts');
+---
+
+<Layout>
+  <h1>CardVerse Blog</h1>
+  <p>Welcome to our community-powered Pokémon card blog!</p>
+
+  <ul>
+    {posts.map(post => (
+      <li>
+        <a href={`/posts/${post.slug}`}>
+          <h2>{post.data.title}</h2>
+        </a>
+        <p>{post.data.description}</p>
+        <small>Published on {new Date(post.data.pubDate).toLocaleDateString()}</small>
+      </li>
+    ))}
+  </ul>
+</Layout>

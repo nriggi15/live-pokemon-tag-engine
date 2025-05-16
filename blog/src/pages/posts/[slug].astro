@@ -1,0 +1,30 @@
+---
+import { getCollection, getEntryBySlug } from 'astro:content';
+import Layout from '@/layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.slug }
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await getEntryBySlug('posts', slug);
+
+console.log('📝 Loaded post:', post);
+
+if (!post) {
+  throw new Error('404');
+}
+
+const { Content } = await post.render();
+---
+
+<Layout>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p><em>Published on {new Date(post.data.pubDate).toLocaleDateString()}</em></p>
+    <Content />
+  </article>
+</Layout>
