@@ -1,0 +1,78 @@
+.leaderboards-content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.time-filter {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.time-filter button {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.time-filter button:hover {
+  background: #ddd;
+}
+
+.leaderboards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .leaderboards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leaderboards-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.leaderboards-section h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.leaderboards-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+.leaderboards-section li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.leaderboards-section li:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-subsection {
+  margin-top: 1.5rem;
+}
+
+.leaderboard-subsection h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.25rem;
+}

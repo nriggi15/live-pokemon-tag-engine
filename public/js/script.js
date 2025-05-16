@@ -494,6 +494,26 @@ async function renderFavoriteButton(term, type) {
 
 async function searchCards(query, page = 1) {
   storeRecentSearch(query.trim());
+  // ✅ Clean logging: log multiple terms if needed
+  const input = query.trim().toLowerCase();
+  const parts = input.split(/\s+and\s+/).map(part => part.trim());
+
+  for (const part of parts) {
+    const cleaned = part.startsWith('#') ? part.slice(1) : part;
+    if (cleaned) {
+      try {
+        await fetch('/api/log-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ term: cleaned })
+        });
+      } catch (err) {
+        console.error('Failed to log search term:', cleaned, err);
+      }
+    }
+  }
+
+
   resetSearchState();
   tagSearchInput.value = '';
   searchMode = 'pokemon';
@@ -588,19 +608,26 @@ async function searchCustomTags(tag) {
     cardResults.innerHTML = ''; // clear old results
     document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
 
-      const cardData = [];
+    const batchSize = 10;
+    const cardData = [];
 
-      for (const id of ids) {
-        try {
-          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`, {
-            headers: { 'X-Api-Key': API_KEY }
-          });
-          const data = await res.json();
-          cardData.push(data.data);
-        } catch (err) {
-          console.error(`Failed to fetch card ${id}`, err);
+    for (let i = 0; i < ids.length; i += batchSize) {
+      const batchIds = ids.slice(i, i + batchSize);
+      const query = batchIds.map(id => `id:${id}`).join(' OR ');
+
+      try {
+        const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}`, {
+          headers: { 'X-Api-Key': API_KEY }
+        });
+        const data = await res.json();
+        if (data.data?.length) {
+          cardData.push(...data.data);
         }
+      } catch (err) {
+        console.error(`Failed to fetch batch [${batchIds.join(', ')}]`, err);
       }
+    }
+
 
       console.log('📦 Card data:', cardData.map(c => `${c.name} → ${c.rarity}`));
 
@@ -629,22 +656,44 @@ async function searchCustomTags(tag) {
 
       if (isTaggingCenter) {
         cardResults.innerHTML = '';
-        filteredCards.forEach(card => {
-          const cardDiv = document.createElement('div');
-          cardDiv.className = 'card-preview';
-          cardDiv.innerHTML = `
-            <img src="${card.images.small}" alt="${card.name}" />
-            <p>${card.name}</p>
-          `;
-          cardDiv.addEventListener('click', () => {
-            openCardDetail({
-              id: card.id,
-              name: card.name,
-              image: card.images.large || card.images.small
+        let lazyIndex = 0;
+        const lazyBatchSize = 10;
+
+        function renderLazyCards() {
+          const nextBatch = filteredCards.slice(lazyIndex, lazyIndex + lazyBatchSize);
+
+          nextBatch.forEach(card => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card-preview';
+            cardDiv.innerHTML = `
+              <img src="${card.images.small}" alt="${card.name}" />
+              <p>${card.name}</p>
+            `;
+            cardDiv.addEventListener('click', () => {
+              openCardDetail({
+                id: card.id,
+                name: card.name,
+                image: card.images.large || card.images.small
+              });
             });
+            cardResults.appendChild(cardDiv);
           });
-          cardResults.appendChild(cardDiv);
+
+          lazyIndex += lazyBatchSize;
+        }
+
+        // Initial load
+        renderLazyCards();
+
+        // Infinite Scroll Trigger
+        window.addEventListener('scroll', () => {
+          if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+            if (lazyIndex < filteredCards.length) {
+              renderLazyCards();
+            }
+          }
         });
+
       } else {
         showCards(filteredCards, false);
         updateResultsCount(filteredCards.length, false);

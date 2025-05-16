@@ -1,11 +1,16 @@
 General Updates:
 -mobile swipe fixes
+-we are now tracking your searches... very carefully...
+-Leaderboards!
 
 Features Added:
 -Added card display in tag queue
+-searchlogs added to db
+-Leaderboards! (Limits to 5 results per section)
 
 Technical Updates:
--
+-searchlogs added for leaderboards user
+-Leaderboards added
 
 Bugs Discovered:
 -Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
@@ -15,4 +20,4 @@ Bug Fixes:
 -fixed swipe
 -fixed double tap favorites
 
-v1.5.60 - Swipe test, explore
+v1.5.60 - Swipe test, explore, leaderboards

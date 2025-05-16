@@ -19,6 +19,11 @@ router.get('/explore', (req, res) => {
 });
 
 
+router.get('/leaderboards', (req, res) => {
+  res.render('leaderboards', { isLoggedIn: req.session.userId, role: req.session.role });
+});
+
+
 router.get('/dashboard', (req, res) => {
   res.render('dashboard', { page: 'dashboard' });
 });

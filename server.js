@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
+import SearchLog from './models/SearchLog.js';
 
 import EmailVerification from './models/EmailVerification.js';
 import User from './models/User.js';
@@ -56,6 +56,8 @@ import Collection from './models/Collection.js';
 import collectionsRouter from './routes/collections.js';
 import indexRoutes from './routes/index.js';
 import tagsRoutes from './routes/tags.js';
+import leaderboardsRouter from './routes/leaderboards.js';
+app.use('/api/leaderboards', leaderboardsRouter);
 app.use('/api', tagsRoutes);
 app.use('/', indexRoutes);
 app.use('/api', collectionsRouter);
@@ -166,6 +168,18 @@ app.get('/search', async (req, res) => {
   if (!tagsParam) return res.status(400).json({ error: 'Missing tags parameter' });
 
   const tags = tagsParam.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  
+    // Inside /search route:
+    for (const tag of tags) {
+      SearchLog.create({
+        term: tag,
+        createdAt: new Date(),
+        userId: req.session.userId || null,
+        ip: req.ip
+      }).catch(err => console.error('❌ Failed to log search term:', err));
+    }
+
+  
   const mode = req.query.mode?.toUpperCase() === 'OR' ? 'OR' : 'AND';
 
   try {
@@ -252,6 +266,29 @@ app.post('/api/newtags/:cardId', tagSubmissionLimiter, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
+//POST to MongoDB searchlogs on index customtagsearch
+app.post('/api/log-search', async (req, res) => {
+  const { term } = req.body;
+  if (!term) return res.status(400).json({ message: 'Missing search term' });
+
+  try {
+    await SearchLog.create({
+      term: term.toLowerCase(),
+      createdAt: new Date(),
+      userId: req.session.userId || null,
+      ip: req.ip
+    });
+
+    res.status(200).json({ message: 'Logged' });
+  } catch (err) {
+    console.error('❌ Failed to log search:', err);
+    res.status(500).json({ message: 'Failed to log search' });
+  }
+});
+
 
 
 app.get('/api/tag-stats', async (req, res) => {
@@ -342,6 +379,15 @@ app.get('/collections/:id', async (req, res) => {
     page: 'collection',
     collectionId: req.params.id,
     sessionUserId: userId
+  });
+});
+
+//Leaderboards
+app.get('/leaderboards', (req, res) => {
+  res.render('leaderboards', {
+    page: 'leaderboards',
+    isLoggedIn: req.session.userId,
+    role: req.session.role
   });
 });
 

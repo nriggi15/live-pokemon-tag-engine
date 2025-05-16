@@ -119,6 +119,16 @@ if (tagSearchInput && searchBtn) {
 
 async function searchByPokemonName(name) {
   try {
+    await fetch('/api/log-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ term: name.trim() })
+    });
+  } catch (err) {
+    console.error('Failed to log search query:', err);
+  }
+
+  try {
     const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${name}`);
     const data = await res.json();
     renderCards(data.data);
@@ -289,7 +299,25 @@ async function taggingCenterSearch(term) {
   document.getElementById('loadingSpinner')?.classList.remove('hidden');
   cardContainer.innerHTML = '';
 
-  const { tags, name } = parseCombinedSearch(term);
+  const { tags, names } = parseCombinedSearch(term);
+
+  const termsToLog = [];
+  termsToLog.push(...names.map(n => n.toLowerCase()));
+  termsToLog.push(...tags.map(t => t.toLowerCase()));
+
+  for (const t of termsToLog) {
+    try {
+      await fetch('/api/log-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ term: t })
+      });
+    } catch (err) {
+      console.error('Failed to log tagging center search term:', t, err);
+    }
+  }
+
+
   let cardsFromAPI = [];
   // Tag-only search fallback
   if (!name && tags.length > 0) {
@@ -313,23 +341,65 @@ async function taggingCenterSearch(term) {
         return;
       }
 
-      const cardData = await Promise.all(
-        commonIds.map(async id => {
-          try {
-            const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`);
-            const json = await res.json();
-            return json.data;
-          } catch {
-            return null;
+
+      //
+      document.getElementById('loadingSpinner')?.classList.remove('hidden');
+      cardContainer.innerHTML = ''; // clear old results
+      searchResults = []; // reset global state
+
+      for (const id of commonIds) {
+        fetchCardWithTimeout(id, 5000) // 5 second timeout
+          .then(card => {
+            if (card) {
+              searchResults.push(card);
+              appendCardToContainer(card);
+            }
+          })
+          .catch(err => console.error(`❌ Failed to load card ${id}:`, err));
+      }
+
+      // After all attempts, hide spinner
+      Promise.allSettled(commonIds.map(id => fetchCardWithTimeout(id, 5000)))
+        .then(() => {
+          document.getElementById('loadingSpinner')?.classList.add('hidden');
+          if (searchResults.length === 0) {
+            cardContainer.innerHTML = '<p>No results found.</p>';
           }
-        })
-      );
+        });
 
-      const valid = cardData.filter(Boolean);
-      document.getElementById('loadingSpinner')?.classList.add('hidden');
+      // Helper to fetch with timeout
+      async function fetchCardWithTimeout(id, timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-      renderCards(valid);
-      return;
+        try {
+          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`, { signal: controller.signal });
+          clearTimeout(timeout);
+          const data = await res.json();
+          return data.data;
+        } catch (err) {
+          clearTimeout(timeout);
+          return null;
+        }
+      }
+
+      // Helper to append one card to grid
+      function appendCardToContainer(card) {
+        const div = document.createElement('div');
+        div.className = 'card-preview';
+        div.innerHTML = `
+          <img src="${card.images.small}" alt="${card.name}" onerror="this.onerror=null;this.src='.../img/placeholder.png';" />
+          <p>${card.name}</p>
+        `;
+        div.addEventListener('click', () => {
+          currentCardIndex = searchResults.findIndex(c => c.id === card.id);
+          openCardDetail({ id: card.id });
+        });
+
+        cardContainer.appendChild(div);
+      }
+      //
+
     } catch (err) {
       console.error('Tag-only search failed:', err);
       document.getElementById('loadingSpinner')?.classList.add('hidden');
@@ -340,15 +410,49 @@ async function taggingCenterSearch(term) {
   }
 
   // Step 1: Search Pokémon API by name
-  if (name) {
+/*   if (name) {
     try {
-      const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${name}`);
+      try {
+        await fetch('/api/log-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ term: name.trim() })
+        });
+      } catch (err) {
+        console.error('Failed to log tagging center name search:', err);
+      }
+      const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${name}"`);
       const data = await pokeRes.json();
+      console.log('🔍 Name search results:', data.data); // ✅ Add this log
       cardsFromAPI = data.data || [];
     } catch (err) {
       console.error('❌ Pokémon API name search failed:', err);
     }
+  } */
+  if (names.length > 0) {
+    cardsFromAPI = [];
+
+    for (const name of names) {
+      try {
+        const pokeRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${name}"`);
+        const data = await pokeRes.json();
+        console.log(`🔍 Name search results for "${name}":`, data.data);
+        if (data.data?.length) {
+          cardsFromAPI.push(...data.data);
+        }
+      } catch (err) {
+        console.error(`❌ Pokémon API name search failed for "${name}":`, err);
+      }
+    }
   }
+
+  // ✅ FIX: Early return for name-only search (no tags)
+  if (!tags.length && cardsFromAPI.length > 0) {
+    document.getElementById('loadingSpinner')?.classList.add('hidden');
+    renderCards(cardsFromAPI);
+    return;
+  }
+
 
   // Step 2: If no tags provided, just show the cards
   if (!tags.length) {
@@ -402,7 +506,7 @@ resetBtn.addEventListener('click', () => {
 
 //Arrow Keys to swipe on keyboard
 document.addEventListener('keydown', (e) => {
-  console.log('Key pressed:', e.key, 'Current View:', currentView, 'Current Index:', currentCardIndex);
+  //console.log('Key pressed:', e.key, 'Current View:', currentView, 'Current Index:', currentCardIndex);
   if (currentView !== 'detail') return; // only when in detail view
 
   if (e.key === 'ArrowRight') {
@@ -736,7 +840,7 @@ function parseCombinedSearch(query) {
   const parts = query.toLowerCase().split(/\s+and\s+/).map(part => part.trim());
 
   const tags = parts.filter(p => p.startsWith('#')).map(p => p.slice(1));
-  const name = parts.find(p => !p.startsWith('#')) || null;
+  const names = parts.filter(p => !p.startsWith('#'));
 
-  return { tags, name };
+  return { tags, names };
 }

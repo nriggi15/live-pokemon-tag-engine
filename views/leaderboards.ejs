@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tagging Leaderboards</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
+  <link rel="stylesheet" href="/css/leaderboards.css" />
+
+</head>
+<body>
+  <main class="leaderboards-content">
+    <h1>🏆 Tagging Leaderboards</h1>
+
+    <!-- Time Filter -->
+    <div class="time-filter">
+      <button data-filter="daily">Daily</button>
+      <button data-filter="monthly">Monthly</button>
+      <button data-filter="alltime">All-Time</button>
+    </div>
+
+    <div class="leaderboards-grid">
+        <section class="leaderboards-section">
+        <h2>👤 User Leaderboards</h2>
+
+        <div class="leaderboard-subsection">
+            <h3>📝 Most Tags Submitted</h3>
+            <div id="mostTagsSubmitted">Loading...</div>
+        </div>
+
+        <div class="leaderboard-subsection">
+            <h3>✅ Most Tags Approved</h3>
+            <div id="mostTagsApproved">Loading...</div>
+        </div>
+
+        <div class="leaderboard-subsection">
+            <h3>❌ Most Tags Denied</h3>
+            <div id="mostTagsDenied">Loading...</div>
+        </div>
+
+        <div class="leaderboard-subsection">
+            <h3>📊 Top Approval Rates</h3>
+            <div id="topApprovalRates">Loading...</div>
+        </div>
+        </section>
+
+        <section class="leaderboards-section">
+        <h2>🏷️ Tag Leaderboards</h2>
+
+        <div class="leaderboard-subsection">
+            <h3>🏷️ Most Used Tags</h3>
+            <div id="mostUsedTags">Loading...</div>
+        </div>
+
+        <div class="leaderboard-subsection">
+            <h3>🃏 Most Tagged Cards</h3>
+            <div id="mostTaggedCards">Loading...</div>
+        </div>
+
+        <div class="leaderboard-subsection">
+            <h3>🔎 Most Searched Tags</h3>
+            <div id="mostSearchedTags">Loading...</div>
+        </div>
+        </section>
+
+    </div>
+
+  </main>
+
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+  <script src="/js/leaderboards.js" defer></script>
+</body>
+</html>
