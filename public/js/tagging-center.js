@@ -1,14 +1,49 @@
 let currentView = 'grid'; // or 'detail'
 let searchResults = [];
 let currentCardIndex = -1;
-
-
+let containerView;
+let detailView;
+let touchStartX = 0;
+let touchEndX = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   containerView = document.getElementById('cardContainerView');
   detailView = document.getElementById('cardDetailView');
+  //Swipe to move on mobile
+  if (detailView) {
+    detailView.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+      }
+    });
+
+    detailView.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) {
+        touchEndX = e.touches[0].clientX;
+      }
+    }, { passive: false });
+
+    detailView.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        handleSwipe();
+      }
+
+      // Double-tap detection
+      const now = Date.now();
+      const timeSinceLastTap = now - lastTapTime;
+
+      if (timeSinceLastTap < 300 && e.touches?.length === 0) {
+        e.preventDefault();
+        handleFavoriteShortcut();
+      }
+
+      lastTapTime = now;
+    });
+  }
+
   const toggleBtn = document.getElementById('toggleViewBtn');
   const backBtn = document.getElementById('backToGridBtn');
+
 
   toggleBtn.addEventListener('click', () => {
     currentView = currentView === 'grid' ? 'detail' : 'grid';
@@ -43,7 +78,13 @@ function loadSampleCards() {
       <img src="${card.image}" alt="${card.name}" />
       <p>${card.name}</p>
     `;
-    cardDiv.addEventListener('click', () => openCardDetail(card));
+    
+    cardDiv.addEventListener('click', () => {
+      currentCardIndex = sampleCards.findIndex(c => c.id === card.id);
+      openCardDetail(card);
+    });
+
+
     cardContainer.appendChild(cardDiv);
   });
 }
@@ -59,6 +100,21 @@ searchBtn.addEventListener('click', () => {
 
   taggingCenterSearch(term);
 });
+
+//ENTER hit Submit
+
+const tagSearchInput = document.getElementById('tagSearchInput');
+
+if (tagSearchInput && searchBtn) {
+  tagSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevents accidental form submit or page reload
+      searchBtn.click();
+    }
+  });
+}
+
+
 
 
 async function searchByPokemonName(name) {
@@ -283,8 +339,6 @@ async function taggingCenterSearch(term) {
     }
   }
 
-
-
   // Step 1: Search Pokémon API by name
   if (name) {
     try {
@@ -346,30 +400,54 @@ resetBtn.addEventListener('click', () => {
   updateView();
 });
 
-//Swipe to move on mobile
-let touchStartX = 0;
-let touchEndX = 0;
+//Arrow Keys to swipe on keyboard
+document.addEventListener('keydown', (e) => {
+  console.log('Key pressed:', e.key, 'Current View:', currentView, 'Current Index:', currentCardIndex);
+  if (currentView !== 'detail') return; // only when in detail view
 
-const detailView = document.getElementById('cardDetailView');
+  if (e.key === 'ArrowRight') {
+    showNextCard();
+  } else if (e.key === 'ArrowLeft') {
+    showPreviousCard();
+  }
+});
 
-if (detailView) {
-  detailView.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      touchStartX = e.touches[0].clientX;
-    }
-  });
+//Double Tap to add to favorites SPACE BAR
+let lastSpaceTime = 0;
 
-  detailView.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1) {
-      touchEndX = e.touches[0].clientX;
-    }
-  }, { passive: false });
+document.addEventListener('keydown', (e) => {
+  if (currentView !== 'detail') return;
+  if (e.code !== 'Space') return;
 
-  detailView.addEventListener('touchend', (e) => {
-    if (e.changedTouches.length === 1) {
-      handleSwipe();
-    }
-  });
+  const now = Date.now();
+  const timeSinceLastSpace = now - lastSpaceTime;
+
+  if (timeSinceLastSpace < 300) {
+    e.preventDefault(); // avoid scroll
+    handleFavoriteShortcut();
+  }
+
+  lastSpaceTime = now;
+});
+
+//
+//
+}); // End of DOMLoader
+//
+//
+
+function animateCardSlide(direction) {
+  if (!detailView) return;
+
+  const className = direction === 'left' ? 'slide-left' : 'slide-right';
+
+  detailView.classList.remove('slide-left', 'slide-right');
+  void detailView.offsetWidth; // 🪄 force reflow
+  detailView.classList.add(className);
+
+  setTimeout(() => {
+    detailView.classList.remove(className);
+  }, 300);
 }
 
 function handleSwipe() {
@@ -385,32 +463,6 @@ function handleSwipe() {
 
 //Double Tap to add to favorites SCREEN TAP
 let lastTapTime = 0;
-
-detailView.addEventListener('touchend', (e) => {
-  const now = Date.now();
-  const timeSinceLastTap = now - lastTapTime;
-
-  if (timeSinceLastTap < 300 && e.touches?.length === 0) {
-    e.preventDefault(); // prevent zoom
-    handleFavoriteShortcut();
-  }
-
-  lastTapTime = now;
-});
-
-detailView.addEventListener('touchmove', (e) => {
-  e.preventDefault(); // Optional: prevents accidental scrolling
-}, { passive: false });
-
-
-
-
-//
-//
-}); // End of DOMLoader
-//
-//
-
 
 function showNextCard() {
   if (!searchResults.length || currentCardIndex === -1) return;
@@ -428,27 +480,7 @@ function showPreviousCard() {
   openCardDetail({ id: searchResults[currentCardIndex].id });
 }
 
-function animateCardSlide(direction) {
-  const detailView = document.getElementById('cardDetailView');
-  if (!detailView) return;
 
-  const className = direction === 'left' ? 'slide-left' : 'slide-right';
-
-  detailView.classList.remove('slide-left', 'slide-right');
-  void detailView.offsetWidth; // 🪄 force reflow
-  detailView.classList.add(className);
-
-  setTimeout(() => {
-    detailView.classList.remove(className);
-  }, 300);
-}
-
-
-
-
-
-let containerView;
-let detailView;
 
   function updateView() {
     if (currentView === 'grid') {
@@ -595,36 +627,8 @@ function renderCollections(cardId) {
 
 
 
-//Arrow Keys to swipe on keyboard
-document.addEventListener('keydown', (e) => {
-  if (currentView !== 'detail') return; // only when in detail view
-
-  if (e.key === 'ArrowRight') {
-    showNextCard();
-  } else if (e.key === 'ArrowLeft') {
-    showPreviousCard();
-  }
-});
 
 
-
-//Double Tap to add to favorites SPACE BAR
-let lastSpaceTime = 0;
-
-document.addEventListener('keydown', (e) => {
-  if (currentView !== 'detail') return;
-  if (e.code !== 'Space') return;
-
-  const now = Date.now();
-  const timeSinceLastSpace = now - lastSpaceTime;
-
-  if (timeSinceLastSpace < 300) {
-    e.preventDefault(); // avoid scroll
-    handleFavoriteShortcut();
-  }
-
-  lastSpaceTime = now;
-});
 
 async function handleFavoriteShortcut() {
   try {
