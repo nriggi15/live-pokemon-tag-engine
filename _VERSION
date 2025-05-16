@@ -1,8 +1,8 @@
 General Updates:
--Testing mobile swipe fix
+-mobile swipe fixes
 
 Features Added:
--
+-Added card display in tag queue
 
 Technical Updates:
 -
@@ -11,6 +11,8 @@ Bugs Discovered:
 -Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
 
 Bug Fixes:
--
+-centered content
+-fixed swipe
+-fixed double tap favorites
 
-v1.5.54 - STABLE**
+v1.5.60 - Swipe test, explore

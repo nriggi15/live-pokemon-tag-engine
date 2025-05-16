@@ -227,8 +227,15 @@
         return;
       }
 
-      const rows = submissions.map(sub => `
+      const rows = submissions.map(sub => {
+      const [setCode, number] = sub.cardId.split('-');
+      const imageUrl = `https://images.pokemontcg.io/${setCode}/${number}.png`;
+
+      return `
         <tr>
+          <td>
+            <img src="${imageUrl}" alt="${sub.cardId}" class="card-thumb" data-cardid="${sub.cardId}" style="height: 60px; cursor: pointer;" />
+          </td>
           <td>${sub.cardId}</td>
           <td>${sub.tag}</td>
           <td>${sub.submittedBy?.username || 'Unknown'}</td>
@@ -237,13 +244,16 @@
             <button class="deny-tag" data-id="${sub._id}">❌ Deny</button>
           </td>
         </tr>
-      `).join('');
+      `;
+    }).join('');
+
 
       adminWorkspace.innerHTML = `
         <h3>🕓 Tagging Queue</h3>
         <table>
           <thead>
             <tr>
+              <th>Image</th>
               <th>Card</th>
               <th>Tag</th>
               <th>Submitted By</th>
@@ -261,6 +271,20 @@
       document.querySelectorAll('.deny-tag').forEach(btn => {
         btn.addEventListener('click', () => handleTagAction(btn.dataset.id, 'deny'));
       });
+
+      document.querySelectorAll('.card-thumb').forEach(img => {
+      img.addEventListener('click', async () => {
+        const cardId = img.dataset.cardid;
+        try {
+          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+          const data = await res.json();
+          openCardPopup(data.data, { mode: 'view' });
+        } catch (err) {
+          console.error('❌ Failed to load card for popup:', err);
+        }
+      });
+    });
+
 
     } catch (err) {
       adminWorkspace.innerHTML = `<p>❌ Failed to load tagging queue.</p>`;

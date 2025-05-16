@@ -13,9 +13,27 @@
     body {
       font-family: Arial, sans-serif;
       padding: 2rem;
-      max-width: 600px;
+      max-width: 1000px;  /* ✅ or remove this line entirely */
       margin: auto;
     }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+        max-width: 100%;
+      }
+    }
+
+    .tag-entry {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #ccc;
+    }
+
+
 
     .info-box {
       padding: 1rem;
@@ -78,13 +96,34 @@
 
       list.innerHTML = '';
       data.forEach(sub => {
-        const div = document.createElement('div');
-        div.classList.add('tag-entry');
-        div.style.marginBottom = '1rem';
-        div.style.borderBottom = '1px solid #ccc';
-        div.style.paddingBottom = '0.5rem';
+        const entryDiv = document.createElement('div');
+        entryDiv.classList.add('tag-entry');
+        entryDiv.style.display = 'flex';
+        entryDiv.style.alignItems = 'center';
+        entryDiv.style.marginBottom = '1rem';
+        entryDiv.style.borderBottom = '1px solid #ccc';
+        entryDiv.style.paddingBottom = '0.5rem';
+        entryDiv.style.gap = '1rem';
 
-        div.innerHTML = `
+        const cardImage = document.createElement('img');
+        cardImage.src = `https://images.pokemontcg.io/${sub.cardId.split('-')[0]}/${sub.cardId.split('-')[1]}.png`;
+        cardImage.alt = sub.cardId;
+        cardImage.style.height = '80px';
+        cardImage.style.cursor = 'pointer';
+        cardImage.style.flexShrink = '0';
+
+        cardImage.addEventListener('click', async () => {
+          try {
+            const res = await fetch(`https://api.pokemontcg.io/v2/cards/${sub.cardId}`);
+            const data = await res.json();
+            openCardPopup(data.data, { mode: 'view' });
+          } catch (err) {
+            console.error('❌ Failed to load card for popup:', err);
+          }
+        });
+
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `
           <p><strong>Card:</strong> ${sub.cardId}</p>
           <p><strong>Tag:</strong> ${sub.tag}</p>
           <p><strong>Submitted By:</strong> ${sub.submittedBy?.username || 'Unknown'}</p>
@@ -93,8 +132,11 @@
           <button onclick="moderateTag('${sub._id}', 'deny')">❌ Deny</button>
         `;
 
-        list.appendChild(div);
+        entryDiv.appendChild(cardImage);
+        entryDiv.appendChild(infoDiv);
+        list.appendChild(entryDiv);
       });
+
     } catch (err) {
       list.innerHTML = '<p>Error loading submissions.</p>';
       console.error(err);
