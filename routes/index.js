@@ -1,10 +1,14 @@
 import express from 'express';
 const router = express.Router();
 
-// Home page
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Home', page: 'index' });
+  res.render('index', {
+    isLoggedIn: !!req.session.userId,
+    role: req.session.role || 'guest',
+    page: 'index'
+  });
 });
+
 
 // Dashboard / Account section
 router.get('/explore', (req, res) => {
@@ -20,13 +24,22 @@ router.get('/explore', (req, res) => {
 
 
 router.get('/leaderboards', (req, res) => {
-  res.render('leaderboards', { isLoggedIn: req.session.userId, role: req.session.role });
+  res.render('leaderboards', { 
+    isLoggedIn: req.session.userId,
+    role: req.session.role
+  });
 });
 
 
 router.get('/dashboard', (req, res) => {
-  res.render('dashboard', { page: 'dashboard' });
+  res.render('dashboard', {
+    page: 'dashboard',  // ✅ Add this
+    isLoggedIn: !!req.session.userId,
+    role: req.session.role || 'guest'
+  });
 });
+
+
 
 // Tag browsing page
 router.get('/tags', (req, res) => {

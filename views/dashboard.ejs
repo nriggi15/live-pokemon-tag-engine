@@ -37,11 +37,13 @@
     }
   </style>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
 </head>
 <body>
   <%- include('partials/sidebar') %>
 
-
+  <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
 
 
 
