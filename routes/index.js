@@ -8,8 +8,16 @@ router.get('/', (req, res) => {
 
 // Dashboard / Account section
 router.get('/explore', (req, res) => {
-  res.render('explore', { page: 'explore' });
+  const isLoggedIn = !!req.session.userId;
+  const role = req.session.role || 'guest';
+
+  res.render('explore', {
+    page: 'explore',
+    isLoggedIn,
+    role
+  });
 });
+
 
 router.get('/dashboard', (req, res) => {
   res.render('dashboard', { page: 'dashboard' });

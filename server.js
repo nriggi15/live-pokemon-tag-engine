@@ -345,11 +345,6 @@ app.get('/collections/:id', async (req, res) => {
   });
 });
 
-app.get('/explore', (req, res) => {
-  res.render('explore', { page: 'explore' });
-});
-
-
 
 // Moderator Hub
 app.get('/moderator-hub', requireModeratorOrAdmin, (req, res) => {

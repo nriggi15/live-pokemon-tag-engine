@@ -73,6 +73,7 @@
 }
 
 #taggingCenterContent {
+  justify-content: center;
   width: 80%;
   padding-bottom: 80px; /* Adjust if nav is taller */
 }
