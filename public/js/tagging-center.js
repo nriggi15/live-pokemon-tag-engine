@@ -555,11 +555,10 @@ async function loadUntaggedCards() {
     // ✅ Fetch only once
     const res = await fetch('/api/untagged-cards');
     const data = await res.json();
-    searchResults = data.cards;
     currentCardIndex = 0;
     // ✅ Prevent dupes
     const alreadyRendered = new Set();
-
+    searchResults = data.cards;
     //console.log('🔁 Rendering untagged cards:', data.cards.length, 'cards');
 
     data.cards.forEach(card => {
@@ -619,7 +618,7 @@ function animateCardSlide(direction) {
 
 function handleSwipe() {
   const diffX = touchEndX - touchStartX;
-  if (Math.abs(diffX) > 100) {
+  if (Math.abs(diffX) > 250) {
     if (diffX < 0) {
       showNextCard();
     } else {
@@ -663,8 +662,6 @@ async function openCardDetail(card) {
   try {
     const res = await fetch(`https://api.pokemontcg.io/v2/cards/${card.id}`);
     const data = await res.json();
-    searchResults = data.cards;
-    currentCardIndex = 0;
 
     const fullCard = data.data;
 

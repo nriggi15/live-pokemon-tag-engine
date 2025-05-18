@@ -1,7 +1,12 @@
 // public/js/advanced-search.js
+let currentPage = 1;
+let isLoading = false;
+let lastQuery = '';
+
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('searchInput');
   const resultsContainer = document.getElementById('results-container');
+  
 
   // Fetch sets and populate setSelect dropdown
   (async function loadSets() {
@@ -147,6 +152,12 @@ if (sortedArtists.length === 0) {
         resultsContainer.appendChild(cardEl);
       });
 
+      if (data.cards.length < 50) {
+        isLoading = true; // stop further loads
+      } else {
+        isLoading = false; // allow next page
+      }
+
 //console.log('🎨 Found artists:', [...artistSet]);
 
       } catch (err) {
@@ -186,5 +197,15 @@ document.getElementById('sortSelect').addEventListener('change', () => {
 
 });
 
+window.addEventListener('scroll', () => {
+  const scrollPos = window.scrollY + window.innerHeight;
+  const docHeight = document.body.offsetHeight;
 
+  if (scrollPos >= docHeight - 300 && !isLoading) {
+    console.log('🔄 Loading next page...');
+    isLoading = true;
+    currentPage++;
+    fetchCards(lastQuery, true); // append = true
+  }
+});
 

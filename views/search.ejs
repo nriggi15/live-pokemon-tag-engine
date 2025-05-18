@@ -14,6 +14,44 @@
       margin-bottom: 1rem;
     }
 
+    @media (max-width: 600px) {
+      .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-bar {
+        width: 100%;
+      }
+
+      .filter-toggle {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #filterPanel > div {
+        flex-direction: column;
+      }
+
+      #filterPanel select,
+      #filterPanel label {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      #filterPanel {
+        padding: 0.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #results-container {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      }
+    }
+
+
     .search-bar {
       flex-grow: 1;
       padding: 0.5rem 1rem;
@@ -37,6 +75,7 @@
       gap: 1rem;
       position: relative; /* ✨ Enable relative context for previews */
       overflow: visible;  /* ✨ Allow previews to spill out */
+      padding-bottom: 80px; /* Prevent cards from being hidden under nav */
     }
 
     .card-inner {
@@ -58,20 +97,20 @@
       z-index: 1000; /* bring this whole card above all others */
     }
 
-    .hover-preview {
+/*     .hover-preview {
       display: none;
       position: absolute;
       top: 0;
       left: 100%;
       margin-left: 10px;
-      z-index: 1001; /* stays above others even more */
+      z-index: 1001;
       background: white;
       border: 2px solid #444;
       padding: 5px;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       width: 300px;
-    }
+    } */
 
 
 

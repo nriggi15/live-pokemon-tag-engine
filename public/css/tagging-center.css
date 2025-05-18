@@ -81,6 +81,23 @@
   padding: 1rem;
 }
 
+#cardDetailContent img {
+  display: block;
+  margin: 0 auto;
+}
+
+#cardDetailContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#cardDetailContent > * {
+  margin-bottom: 1rem;
+}
+
+
 .card-preview .hover-preview {
   display: none;
   position: absolute;
