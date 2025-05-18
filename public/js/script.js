@@ -611,11 +611,28 @@ async function searchCustomTags(tag) {
       }
 
       const tagQueryParam = realTags.join(',');
-      const res = await fetch(`/search?tags=${encodeURIComponent(tagQueryParam)}&mode=${queryMode}`);
+/*       const res = await fetch(`/search?tags=${encodeURIComponent(tagQueryParam)}&mode=${queryMode}`);
+    const ids = await res.json(); */
+
+
+    const res = await fetch(`/api/search?tags=${encodeURIComponent(tagQueryParam)}&mode=${queryMode}`);
+
+    const text = await res.text();
+    console.log('🔎 Raw /search response:', text);
+
+    let ids;
+    try {
+      ids = JSON.parse(text);
+    } catch (err) {
+      console.error('❌ Failed to parse /search response as JSON:', err);
+      cardResults.innerHTML = '<p>Server returned invalid data format.</p>';
+      return;
+    }
 
 
 
-    const ids = await res.json();
+
+
     if (ids.length === 0) {
       cardResults.innerHTML = `<p>No cards found for tag: ${tag}</p>`;
       document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present

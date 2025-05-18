@@ -1,22 +1,16 @@
 General Updates:
--Blog added starters
--market value of collections
-/card
-/search
+-New /blog post
 
 Features Added:
--/collections now show estimated market value of collection
--/blog added
-
-Technical Updates:
--/blog added but is buggy
--/collections updated
-
-Bugs Discovered:
--Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
--Detailed mode no arrow keys working? check swiping
-
-Bug Fixes:
 -
 
-v1.5.61 - /search& /card
+Technical Updates:
+-
+
+Bugs Discovered:
+-
+
+Bug Fixes:
+-Fixed tag cloud buttons
+
+v1.5.62 - /blost post and bug fix

@@ -73,7 +73,7 @@ function buildQuery(input) {
   }
   
 
-function createTagCloud() {
+async function createTagCloud() {
   const tagCloud = document.getElementById('tagCloud');
   if (!tagCloud) {
     console.warn('❌ tagCloud element not found!');
@@ -82,25 +82,33 @@ function createTagCloud() {
   console.log('✅ Creating tag cloud...');
 
   tagCloud.innerHTML = '';
-  const tags = [
-    'cute', 'pink', 'flying', 'charizard', 'sunshine',
-    'shiny', 'water', 'grass', 'electric',
-    'legendary', 'vintage', 'holo', 'gx', 'ex', 'full art'
-  ];
-
+  
   const tagRow = document.createElement('div');
   tagRow.classList.add('tag-row');
 
-  tags.forEach(tag => {
-    const btn = document.createElement('button');
-    btn.textContent = tag;
-    btn.classList.add('tag-button');
-    btn.addEventListener('click', () => {
-      searchInput.value = tag;
-      searchCards(tag);
+  try {
+    const res = await fetch('/api/tag-stats');
+    const allTags = await res.json();
+
+    // Pick 15 random tags
+    const shuffled = allTags.sort(() => 0.5 - Math.random());
+    const selectedTags = shuffled.slice(0, 15);
+
+    selectedTags.forEach(entry => {
+      const tag = entry.tag;
+      const btn = document.createElement('button');
+      btn.textContent = tag;
+      btn.classList.add('tag-button');
+      btn.addEventListener('click', () => {
+        tagSearchInput.value = tag;
+        searchCustomTags(tag);
+      });
+      tagRow.appendChild(btn);
     });
-    tagRow.appendChild(btn);
-  });
+  } catch (err) {
+    console.error('❌ Failed to load random tags:', err);
+  }
+
 
   tagCloud.appendChild(tagRow);
 
