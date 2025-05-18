@@ -378,8 +378,11 @@ app.get('/collections/:id', async (req, res) => {
   res.render('collection-view', {
     page: 'collection',
     collectionId: req.params.id,
-    sessionUserId: userId
+    sessionUserId: userId,
+    isLoggedIn: !!req.session.userId,
+    role: req.session.role || 'guest'
   });
+
 });
 
 //Leaderboards

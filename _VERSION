@@ -1,11 +1,14 @@
 General Updates:
 -Blog added starters
+-market value of collections
 
 Features Added:
+-/collections now show estimated market value of collection
 -/blog added
 
 Technical Updates:
 -/blog added but is buggy
+-/collections updated
 
 Bugs Discovered:
 -Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
@@ -13,4 +16,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.60 - /blog
+v1.5.61 - /blog

@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Collection Viewer</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/tagging-center.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
   <style>
     body {
       font-family: sans-serif;
@@ -57,11 +59,18 @@
     <h2 id="collectionName">Loading...</h2>
     <p id="ownerInfo"></p>
     <p id="cardCount"></p>
+    <p id="collectionValue">Loading value...</p>
+
   </div>
 
   <div class="card-grid" id="cardGrid">Loading cards...</div>
 
   <a href="javascript:history.back()" id="backBtn">← Back to Profile</a>
+
+    <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+
+
 
   <script>
     const collectionId = "<%= collectionId %>";
@@ -85,13 +94,24 @@
         const grid = document.getElementById('cardGrid');
         grid.innerHTML = '';
 
-
+        let totalValue = 0;
 
         for (const id of data.cards) {
             try {
                 const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`);
                 const cardData = await cardRes.json();
                 const card = cardData.data;
+
+                // 🔢 Calculate price
+                if (card?.tcgplayer?.prices) {
+                  for (const variant in card.tcgplayer.prices) {
+                    const price = card.tcgplayer.prices[variant]?.market;
+                    if (typeof price === 'number') {
+                      totalValue += price;
+                      break; // use first valid price
+                    }
+                  }
+                }
 
                 // 🔳 Wrap card image and button in a container
                 const wrapper = document.createElement('div');
@@ -154,6 +174,9 @@
                 console.warn('❌ Failed to load card:', id);
             }
             } //FOR LOOP IS FINISHED HERE
+            
+            document.getElementById('collectionValue').textContent =
+              `Estimated Total Value: $${totalValue.toFixed(2)}`;
 
 
             // 🧲 Make the card grid sortable
@@ -207,7 +230,7 @@
 
     loadCollection();
   </script>
-
+  <script src="/js/tagging-center.js" defer></script>
   <script src="/js/script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
