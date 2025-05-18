@@ -492,7 +492,33 @@ h1 {
   margin-top: 1rem;
 }
 
+.top-nav {
+  background-color: var(--header-bg, #fff);
+  padding: 12px 20px;
+  border-bottom: 1px solid #ddd;
+}
 
+.top-nav .nav-container {
+  max-width: 200px;
+  margin: 0 auto;
+  display: relative;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-logo img {
+  height: 32px;
+  border-radius: 6px;
+  display: block;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
 
 .card-preview img {
   width: 100%;

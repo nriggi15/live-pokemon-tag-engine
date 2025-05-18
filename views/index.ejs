@@ -3,15 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Card Tagger</title>
+  <title>CardVerse - Pokémon Card Tagger</title>
+  <link rel="icon" href="/img/cardverse-logo.png" type="image/png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32">
+  <!-- Mobile App Icon -->
+  <link rel="apple-touch-icon" href="/img/app-icon-512.png">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
 
 </head>
 <body>
-  <h1>Pokémon Card Tagger</h1>
-  <h2>Explore by Tag</h2> 
+
+
+<!-- Top-left logo -->
+<div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+  <a href="/" class="site-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit;">
+    <img src="/img/cardverse-logo.png" alt="CardVerse Logo" style="height: 40px; border-radius: 6px;" />
+    <span style="font-weight: bold; font-size: 1.3rem;">CardVerse</span>
+  </a>
+</div>
+
+<!-- Centered Header Titles -->
+<div style="text-align: center; margin-top: 20px;">
+  <h1 style="margin-bottom: 0;">Pokémon Card Tagger</h1>
+  <h2 style="margin-top: 0;">Explore by Tag</h2>
+</div>
+
+
 
 <!-- BEGIN SIDE BAR -->
 <%- include('partials/sidebar') %>

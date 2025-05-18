@@ -10,7 +10,10 @@ router.get('/', (req, res) => {
   res.render('index', {
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
-    page: 'index'
+    isDarkMode: req.session?.darkMode || false,
+    page: 'index',
+    layout: 'layout',
+    title: 'Home',
   });
 });
 
