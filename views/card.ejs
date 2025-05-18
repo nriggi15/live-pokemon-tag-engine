@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= card.name %> | Pokémon Card</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
+  <style>
+    .card-page-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .card-image {
+      max-width: 300px;
+      border-radius: 10px;
+    }
+
+    .card-info {
+      flex: 1;
+      font-size: 1rem;
+    }
+
+    .card-info p {
+      margin-bottom: 0.5rem;
+    }
+
+    .card-section {
+      margin-top: 2rem;
+    }
+
+    .card-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #555;
+      padding-bottom: 0.25rem;
+    }
+
+    .card-grid {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.5rem;
+    }
+
+    .card-grid img {
+      height: 150px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .link {
+      color: #4ba8ff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-page-container">
+    <div class="card-header">
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
+
+        <div style="margin-top: 0.75rem; text-align: center;">
+            <% if (tags.length) { %>
+            <% tags.forEach(t => { %>
+                <span style="
+                display: inline-block;
+                background: #eee;
+                color: #222;
+                padding: 5px 10px;
+                border-radius: 15px;
+                font-size: 0.85rem;
+                margin: 3px;
+                "><%= t.tag %></span>
+            <% }) %>
+            <% } else { %>
+            <p style="font-size: 0.85rem; color: #888;">No tags yet.</p>
+            <% } %>
+        </div>
+
+        <div id="tag-entry-container" style="margin-top: 1rem; text-align: center;">
+        <% if (isLoggedIn) { %>
+            <% if (message) { %>
+            <div id="tag-status" style="margin-top: 0.5rem; color: <%= message.type === 'success' ? 'green' : 'red' %>;">
+                <%= message.text %>
+            </div>
+            <% } %>
+
+            <form id="tagForm" style="display: inline-flex; gap: 0.5rem;" method="POST" action="/submit-tag">
+            <input type="hidden" name="cardId" value="<%= card.id %>">
+            <input
+                type="text"
+                name="tag"
+                placeholder="Add a tag..."
+                required
+                maxlength="20"
+                style="padding: 5px 10px; border-radius: 10px; border: 1px solid #ccc;"
+            >
+            <button type="submit" style="padding: 5px 10px; border-radius: 10px; background: #222; color: white;">
+                Add Tag
+            </button>
+            </form>
+        <% } else { %>
+            <p style="color: #888;">Log in to add tags.</p>
+        <% } %>
+        </div>
+
+
+    </div>
+
+
+      <div class="card-info">
+        <h1><%= card.name %></h1>
+        <p><strong>Set:</strong> <%= card.set.name %> (<%= card.set.id %>)</p>
+        <p><strong>Card Number:</strong> <%= card.number %></p>
+        <p><strong>Supertype:</strong> <%= card.supertype %></p>
+        <% if (card.subtypes) { %><p><strong>Subtypes:</strong> <%= card.subtypes.join(', ') %></p><% } %>
+        <% if (card.level) { %><p><strong>Level:</strong> <%= card.level %></p><% } %>
+        <% if (card.hp) { %><p><strong>HP:</strong> <%= card.hp %></p><% } %>
+        <% if (card.types) { %><p><strong>Types:</strong> <%= card.types.join(', ') %></p><% } %>
+        <% if (card.evolvesFrom) { %><p><strong>Evolves From:</strong> <%= card.evolvesFrom %></p><% } %>
+        <% if (card.weaknesses) { %>
+          <p><strong>Weaknesses:</strong>
+            <%= card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ') %>
+          </p>
+        <% } %>
+        <% if (card.resistances) { %>
+          <p><strong>Resistances:</strong>
+            <%= card.resistances.map(r => `${r.type} ${r.value}`).join(', ') %>
+          </p>
+        <% } %>
+        <% if (card.rarity) { %><p><strong>Rarity:</strong> <%= card.rarity %></p><% } %>
+        <% if (card.artist) { %><p><strong>Artist:</strong> <%= card.artist %></p><% } %>
+
+        <% if (card.tcgplayer?.url) { %>
+          <p><a href="<%= card.tcgplayer.url %>" target="_blank" class="link">🛒 View on TCGPlayer</a></p>
+        <% } %>
+        <% if (card.cardmarket?.url) { %>
+          <p><a href="<%= card.cardmarket.url %>" target="_blank" class="link">🛒 View on Cardmarket</a></p>
+        <% } %>
+      </div>
+    </div>
+
+
+    <% if (card.attacks?.length) { %>
+      <div class="card-section">
+        <h2>Attacks</h2>
+        <ul>
+          <% card.attacks.forEach(a => { %>
+            <li><strong><%= a.name %></strong>: <%= a.text || 'No description' %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <% if (card.rules?.length) { %>
+      <div class="card-section">
+        <h2>Rules</h2>
+        <ul>
+          <% card.rules.forEach(rule => { %>
+            <li><%= rule %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <div class="card-section">
+      <h2>Similar Cards</h2>
+      <div class="card-grid" id="similarCards">
+        <% if (similarCards.length) { %>
+            <% similarCards.forEach(c => { %>
+                <a href="/card/<%= c.id %>">
+                <img src="<%= c.images.small %>" alt="<%= c.name %>" title="<%= c.name %>">
+                </a>
+            <% }) %>
+            <% } else { %>
+            <p style="font-size: 0.9rem; color: #888;">No similar cards found.</p>
+        <% } %>
+
+      </div>
+    </div>
+
+    <div class="card-section">
+      <h2>More from <%= card.set.name %></h2>
+      <div class="card-grid" id="setCards">
+        <% if (setCards.length) { %>
+            <% setCards.forEach(c => { %>
+                <a href="/card/<%= c.id %>">
+                <img src="<%= c.images.small %>" alt="<%= c.name %>" title="<%= c.name %>">
+                </a>
+            <% }) %>
+            <% } else { %>
+            <p style="font-size: 0.9rem; color: #888;">No other cards found from this set.</p>
+        <% } %>
+
+      </div>
+    </div>
+
+    <div class="card-section">
+      <h2>User Collections Containing This Card</h2>
+        <% collectionsWithCard.forEach(col => { %>
+        <div style="margin-bottom: 2rem; text-align: center;">
+            <p style="font-weight: bold; margin-bottom: 0.5rem;"><%= col.name %></p>
+            <div
+            class="card-grid collection-preview"
+            id="collection-<%= col._id %>"
+            data-card-ids="<%= col.cards.slice(0, 3).join(',') %>"
+            style="justify-content: center;"
+            ></div>
+        </div>
+        <% }) %>
+
+
+    </div>
+  </div>
+
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+
+<script>
+  const loadedCollections = new Set();
+
+  document.querySelectorAll('.collection-preview').forEach(async (container) => {
+    const id = container.id;
+    if (loadedCollections.has(id)) return;
+    loadedCollections.add(id);
+
+    const ids = container.dataset.cardIds.split(',');
+
+    for (const cardId of ids) {
+      try {
+        const res = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+        const data = await res.json();
+        const card = data.data;
+
+        const link = document.createElement('a');
+        link.href = `/card/${card.id}`;
+        link.innerHTML = `<img src="${card.images.small}" alt="${card.name}" title="${card.name}" style="height: 100px;">`;
+        container.appendChild(link);
+      } catch (err) {
+        console.error(`❌ Error loading card ${cardId}:`, err);
+      }
+    }
+  });
+</script>
+
+<script>
+  const tagStatus = document.getElementById('tag-status');
+  if (tagStatus) {
+    setTimeout(() => {
+      tagStatus.style.transition = 'opacity 0.5s ease';
+      tagStatus.style.opacity = '0';
+      setTimeout(() => tagStatus.remove(), 500);
+    }, 3000);
+  }
+</script>
+
+
+</body>
+</html>

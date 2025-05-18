@@ -1,6 +1,8 @@
 General Updates:
 -Blog added starters
 -market value of collections
+/card
+/search
 
 Features Added:
 -/collections now show estimated market value of collection
@@ -16,4 +18,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.61 - /blog
+v1.5.61 - /search& /card

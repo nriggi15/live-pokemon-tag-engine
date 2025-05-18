@@ -1,0 +1,133 @@
+<!-- views/search.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Search Pokémon Cards</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
+
+  <style>
+    .search-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .search-bar {
+      flex-grow: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .filter-toggle {
+      background: #444;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #results-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .card-preview {
+      border: 1px solid #555;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card-preview:hover {
+      transform: scale(1.05);
+    }
+
+    .card-preview img {
+      width: 100%;
+      display: block;
+    }
+
+    .hover-preview {
+    display: none;
+    position: absolute;
+    z-index: 999;
+    transform: translate(10px, 0);
+    border: 2px solid #444;
+    background: black;
+    padding: 5px;
+    border-radius: 10px;
+    width: 300px;
+    }
+
+    .card-preview:hover .hover-preview {
+    display: block;
+    }
+
+    .card-preview {
+    position: relative;
+    }
+
+  </style>
+
+</head>
+<body>
+
+ <div class="container">
+    <h1>🔍 Pokémon Card Search</h1>
+
+    <div class="search-controls">
+      <input type="text" id="searchInput" class="search-bar" placeholder="Search cards by name, tags, or filter..." />
+      <button id="filterBtn" class="filter-toggle">Filters</button>
+    </div>
+
+    <div id="filterPanel" style="display: none; margin-bottom: 1rem;">
+    <h3>Filter Results</h3>
+
+    <label><input type="checkbox" name="cardType" value="Pokémon" /> Pokémon</label>
+    <label><input type="checkbox" name="cardType" value="Trainer" /> Trainer</label>
+    <label><input type="checkbox" name="cardType" value="Energy" /> Energy</label>
+    <br><br>
+
+    <label>Format:
+        <select id="formatSelect">
+        <option value="">Any</option>
+        <option value="Standard">Standard</option>
+        <option value="Expanded">Expanded</option>
+        <option value="Unlimited">Unlimited</option>
+        </select>
+    </label>
+    <br><br>
+
+    <label>Type:
+        <select id="typeSelect">
+        <option value="">Any</option>
+        <option value="Fire">Fire</option>
+        <option value="Water">Water</option>
+        <option value="Psychic">Psychic</option>
+        <option value="Grass">Grass</option>
+        <option value="Electric">Electric</option>
+        <!-- Add others as needed -->
+        </select>
+    </label>
+    </div>
+
+
+    <div id="results-container">
+      <!-- Cards will load here -->
+    </div>
+  </div>
+
+      <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+
+  <script src="/js/script.js"></script>
+  <script src="/js/advanced-search.js"></script>
+</body>
+</html>

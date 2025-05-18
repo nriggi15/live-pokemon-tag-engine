@@ -31,6 +31,7 @@
     "git-filter-repo": "^0.0.30",
     "mongodb": "^6.16.0",
     "mongoose": "^8.14.1",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.3"
   }
 }

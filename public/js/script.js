@@ -525,14 +525,30 @@ async function searchCards(query, page = 1) {
   const url = `https://api.pokemontcg.io/v2/cards?q=${buildQuery(query)}&page=${page}&pageSize=250`;
   try {
     const res = await fetch(url, { headers: { 'X-Api-Key': API_KEY } });
-    const data = await res.json();
+
+    if (!res.ok) {
+      const errText = await res.text(); // helpful for debugging
+      console.error(`❌ Error from Pokémon API (status ${res.status}):`, errText);
+      cardResults.innerHTML = `<p>Error fetching cards (status ${res.status}).</p>`;
+      return;
+    }
+
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (err) {
+      console.error('❌ Failed to parse JSON:', err);
+      cardResults.innerHTML = '<p>Invalid response from card API.</p>';
+      return;
+    }
+
     showCards(data.data, false);
     toggleLoadMoreButton(data.totalCount > page * 250);
     document.getElementById('backToTopBtn').classList.remove('hidden');
+
   } catch (err) {
     console.error('Error fetching cards:', err);
     cardResults.innerHTML = '<p>Error loading cards.</p>';
-    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
   }
 }
 
