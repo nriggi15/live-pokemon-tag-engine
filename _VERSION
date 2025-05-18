@@ -1,5 +1,7 @@
 General Updates:
 -New /blog post
+-Fixed tag cloud buttons redirecting search, now show working, random tags
+-updated /explore styling
 
 Features Added:
 -
@@ -13,4 +15,4 @@ Bugs Discovered:
 Bug Fixes:
 -Fixed tag cloud buttons
 
-v1.5.62 - /blost post and bug fix
+v1.5.62 - 

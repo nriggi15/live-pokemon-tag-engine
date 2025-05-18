@@ -2,9 +2,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <nav class="bottom-nav">
-  <a href="/tagging-center" class="nav-item" title="Tags">
-    <i class="fas fa-tags"></i>
-  </a>
+<a href="#" class="nav-item" title="Tags" onclick="togglePanel('tagsPanel')">
+  <i class="fas fa-tags"></i>
+</a>
   <a href="#" class="nav-item" title="Account" onclick="togglePanel('accountPanel')">
     <i class="fas fa-user"></i>
   </a>
@@ -42,15 +42,40 @@
   <button id="openTagStats">📊 View Tag Usage</button>
 </div>
 
+<div class="nav-panel" id="tagsPanel">
+  <a href="/tagging-center">🔖 Tagging Center</a>
+  <a href="/search">🔍 Card Search</a>
+</div>
+
 <form id="logoutForm" action="/api/logout" method="GET" style="display: none;"></form>
 
 <script>
+  let openPanelId = null;
+
   function togglePanel(id) {
-    const panels = document.querySelectorAll('.nav-panel');
-    panels.forEach(p => p.style.display = 'none');
     const panel = document.getElementById(id);
-    panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+
+    const isOpen = panel.style.display === 'flex';
+
+    // Close all panels
+    document.querySelectorAll('.nav-panel').forEach(p => p.style.display = 'none');
+
+    // Toggle the selected one
+    if (!isOpen) {
+      panel.style.display = 'flex';
+      openPanelId = id;
+    } else {
+      openPanelId = null;
+    }
   }
+
+  // Close panel on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-panel') && !e.target.closest('.nav-item')) {
+      document.querySelectorAll('.nav-panel').forEach(p => p.style.display = 'none');
+      openPanelId = null;
+    }
+  });
 
   document.getElementById('logoutBtn')?.addEventListener('click', function () {
     document.getElementById('logoutForm').submit();

@@ -86,42 +86,48 @@ router.get('/adv-search', async (req, res) => {
 
   let filters = [];
 
-    if (q) filters.push(`name:${q}*`);
-    if (cardType) filters.push(`supertype:"${cardType}"`);
-    if (format) filters.push(`legalities.${format.toLowerCase()}:legal`);
-    if (type) filters.push(`types:"${type}"`);
-    if (rarity) filters.push(`rarity:"${rarity}"`);
-    if (set) filters.push(`set.name:"${set}"`);
-    if (artist) filters.push(`artist:"${artist}"`);
+  // Always add name filter (wildcard if no query)
+  filters.push(`name:${q ? `${q}*` : '*'}`);
 
+  if (cardType) filters.push(`supertype:"${cardType}"`);
+  if (format) filters.push(`legalities.${format.toLowerCase()}:legal`);
+  if (type) filters.push(`types:"${type}"`);
+  if (rarity) filters.push(`rarity:"${rarity}"`);
+  if (set) filters.push(`set.name:"${set}"`);
+  if (artist) filters.push(`artist:"${artist}"`);
 
+  const queryString = filters.join(' AND ');
 
-      const queryString = filters.join(' AND ');
-      let apiUrl = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryString)}&pageSize=30`;
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 50;
 
+  let apiUrl = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryString)}&pageSize=${pageSize}&page=${page}`;
 
-      if (sort === 'name') {
-        apiUrl += `&orderBy=name`;
-      } else if (sort === 'hp') {
-        apiUrl += `&orderBy=-hp`;
-      } else if (sort === 'released') {
-        apiUrl += `&orderBy=-set.releaseDate`;
-      } else if (sort && sort !== 'price') {
-        return res.status(400).json({ error: 'Unsupported sort option.' });
-      }
-
-
-
+  // ✅ Add deterministic ordering to avoid duplicate pages
+  if (sort === 'name') {
+    apiUrl += `&orderBy=name`;
+  } else if (sort === 'hp') {
+    apiUrl += `&orderBy=-hp`;
+  } else if (sort === 'released') {
+    apiUrl += `&orderBy=-set.releaseDate`;
+  } else if (!sort) {
+    apiUrl += `&orderBy=id`; // ✅ Guarantees consistent pagination
+  } else if (sort !== 'price') {
+    return res.status(400).json({ error: 'Unsupported sort option.' });
+  }
 
   try {
     const response = await fetch(apiUrl, {
       headers: {
-        'X-Api-Key': process.env.POKEMON_API_KEY // or hardcode your key if needed
+        'X-Api-Key': process.env.POKEMON_API_KEY
       }
     });
 
     const data = await response.json();
+
     console.log('🔍 Querying:', queryString);
+    console.log(`🌐 API request: page=${page}, pageSize=${pageSize}`);
+    console.log(`📦 API returned ${data.data?.length || 0} cards`);
 
     res.json({ cards: data.data || [] });
   } catch (err) {
@@ -129,6 +135,7 @@ router.get('/adv-search', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch cards from API' });
   }
 });
+
 
 
 //Card-ID page

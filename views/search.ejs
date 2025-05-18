@@ -71,11 +71,13 @@
 
     #results-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      padding: 10px;
       position: relative; /* ✨ Enable relative context for previews */
       overflow: visible;  /* ✨ Allow previews to spill out */
       padding-bottom: 80px; /* Prevent cards from being hidden under nav */
+     /*  min-height: 3000px; */
     }
 
     .card-inner {
@@ -91,6 +93,14 @@
     .card-preview {
       position: relative;
       z-index: 1; /* base layer for card */
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .card-preview.fade-in {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .card-preview:hover {
@@ -112,7 +122,68 @@
       width: 300px;
     }
 
+    .card-preview.mirror .hover-preview {
+      left: auto;
+      right: 100%;
+      margin-left: 0;
+      margin-right: 10px;
+    }
 
+    .card-preview.vertical-flip .hover-preview {
+      top: auto;
+      bottom: 100%;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    #search-bar-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px;
+      justify-content: center;
+    }
+
+    #searchInput {
+      flex: 1 1 250px;
+      min-width: 0;
+    }
+
+    #filterBtn {
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      #filterPanel {
+        display: none; /* or auto-collapse it */
+        display: none !important;
+      }
+      #results-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #888;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+    }
 
 
   </style>
@@ -220,6 +291,18 @@
     <div id="results-container">
       <!-- Cards will load here -->
     </div>
+    
+    <!-- //Loading Spinner -->
+    <div id="loading-spinner" style="display: none; text-align: center; padding: 20px;">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="end-of-results" style="display: none; text-align: center; padding: 20px; color: #888;">
+      You've reached the end of the results.
+    </div>
+
+
+
   </div>
 
       <!-- Bottom Navigation Bar -->

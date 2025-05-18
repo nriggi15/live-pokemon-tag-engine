@@ -119,7 +119,8 @@
 
   </script>
   
-  
+      <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>  
   
   
       <!-- Run the JS Script file, put most things above this -->
@@ -128,7 +129,6 @@
       <!-- Shared utilities like sidebar, dark mode, back to top -->
       <script src="/js/script.js"></script>
   
-      <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+
 </body>
 </html>

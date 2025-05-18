@@ -6,6 +6,8 @@ let lastQuery = '';
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('searchInput');
   const resultsContainer = document.getElementById('results-container');
+  document.getElementById('loading-spinner').style.display = 'block';
+
   
 
   // Fetch sets and populate setSelect dropdown
@@ -44,21 +46,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const select = document.getElementById('artistSelect');
 
-const sortedArtists = [...artistSet].sort((a, b) => a.localeCompare(b));
+      const sortedArtists = [...artistSet].sort((a, b) => a.localeCompare(b));
 
-if (sortedArtists.length === 0) {
-  const opt = document.createElement('option');
-  opt.textContent = '⚠️ No artists found';
-  opt.disabled = true;
-  document.getElementById('artistSelect').appendChild(opt);
-} else {
-  sortedArtists.forEach(artist => {
-    const option = document.createElement('option');
-    option.value = artist;
-    option.textContent = artist;
-    select.appendChild(option);
-  });
-}
+      if (sortedArtists.length === 0) {
+        const opt = document.createElement('option');
+        opt.textContent = '⚠️ No artists found';
+        opt.disabled = true;
+        document.getElementById('artistSelect').appendChild(opt);
+      } else {
+        sortedArtists.forEach(artist => {
+          const option = document.createElement('option');
+          option.value = artist;
+          option.textContent = artist;
+          select.appendChild(option);
+        });
+      }
 
   } catch (err) {
     console.error('❌ Failed to load artists:', err);
@@ -75,11 +77,16 @@ if (sortedArtists.length === 0) {
         resultsContainer.innerHTML = '';
         return;
       }
+      currentPage = 1;
       fetchCards(query);
+      lastQuery = query;
+
     }, 300);
   });
 
-    async function fetchCards(query) {
+    async function fetchCards(query, append = false) {
+      console.log(`⬇️ Calling fetchCards(${query}, append=${append}) at page ${currentPage}`);
+
       try {
         const params = new URLSearchParams();
         if (query) params.append('q', query);
@@ -112,11 +119,20 @@ if (sortedArtists.length === 0) {
 
         if (artist) params.append('artist', artist);
 
+        params.append('page', currentPage);
+        params.append('pageSize', 50);
+
         const res = await fetch(`/adv-search?${params.toString()}`);
         const data = await res.json();
-//console.log(`🎨 Page ${page}:`, data.data.length, 'cards loaded');
 
-        resultsContainer.innerHTML = '';
+        document.getElementById('loading-spinner').style.display = 'none';
+        document.getElementById('end-of-results').style.display = 'none';
+        //console.log(`🎨 Page ${page}:`, data.data.length, 'cards loaded');
+
+        if (!append) {
+          resultsContainer.innerHTML = '';
+        }
+
 
         if (sort === 'price') {
           data.cards.sort((a, b) => {
@@ -149,19 +165,50 @@ if (sortedArtists.length === 0) {
           window.location.href = `/card/${card.id}`;
         });
 
-        resultsContainer.appendChild(cardEl);
+          // ⬇️ Add this to mirror preview if too close to screen edge
+      cardEl.addEventListener('mouseenter', () => {
+        const rect = cardEl.getBoundingClientRect();
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        // Horizontal overflow check (right edge)
+        if (rect.right + 320 > windowWidth) {
+          cardEl.classList.add('mirror');
+        } else {
+          cardEl.classList.remove('mirror');
+        }
+
+        // Vertical overflow check (bottom edge)
+        if (rect.bottom + 320 > windowHeight) {
+          cardEl.classList.add('vertical-flip');
+        } else {
+          cardEl.classList.remove('vertical-flip');
+        }
       });
 
-      if (data.cards.length < 50) {
-        isLoading = true; // stop further loads
-      } else {
-        isLoading = false; // allow next page
-      }
+
+
+        resultsContainer.appendChild(cardEl);
+        setTimeout(() => cardEl.classList.add('fade-in'), 10); // triggers transition
+      });
+
+isLoading = false;
+
+if (data.cards.length === 0 && append) {
+  console.log('🚫 No more cards to load.');
+  isLoading = true; // prevent further fetches
+  document.getElementById('end-of-results').style.display = 'block';
+}
+
+
+console.log(`🔎 Fetching page ${currentPage} for query "${query}" (append: ${append})`);
+console.log(`📦 Received ${data.cards.length} cards`);
 
 //console.log('🎨 Found artists:', [...artistSet]);
 
       } catch (err) {
         console.error('❌ Error fetching cards:', err);
+        isLoading = false;
       }
     }
 
@@ -175,8 +222,11 @@ document.getElementById('filterBtn').addEventListener('click', () => {
 // Trigger new search when any filter changes
 document.querySelectorAll('input[name="cardType"], #formatSelect, #typeSelect')
   .forEach(el => el.addEventListener('change', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    fetchCards(query);
+const query = document.getElementById('searchInput').value.trim();
+currentPage = 1;
+lastQuery = query;
+fetchCards(query);
+
   }));
 
 
@@ -185,21 +235,31 @@ document.querySelectorAll(
   'input[name="cardType"], #formatSelect, #typeSelect, #raritySelect, #setSelect, #artistSelect'
 ).forEach(el => {
   el.addEventListener('change', () => {
-    const query = document.getElementById('searchInput').value.trim();
-    fetchCards(query);
+const query = document.getElementById('searchInput').value.trim();
+currentPage = 1;
+lastQuery = query;
+fetchCards(query);
+
   });
 });
 
 document.getElementById('sortSelect').addEventListener('change', () => {
-  const query = document.getElementById('searchInput').value.trim();
-  fetchCards(query);
-});
+const query = document.getElementById('searchInput').value.trim();
+currentPage = 1;
+lastQuery = query;
+fetchCards(query);
 
 });
+
+// Initial load
+lastQuery = 'Pikachu';
+fetchCards('Pikachu', false); // Load first page with empty query
 
 window.addEventListener('scroll', () => {
   const scrollPos = window.scrollY + window.innerHeight;
   const docHeight = document.body.offsetHeight;
+
+  console.log(`📏 Scroll: ${scrollPos} / ${docHeight}`);
 
   if (scrollPos >= docHeight - 300 && !isLoading) {
     console.log('🔄 Loading next page...');
@@ -209,3 +269,5 @@ window.addEventListener('scroll', () => {
   }
 });
 
+
+});
