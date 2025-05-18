@@ -618,7 +618,7 @@ function animateCardSlide(direction) {
 
 function handleSwipe() {
   const diffX = touchEndX - touchStartX;
-  if (Math.abs(diffX) > 250) {
+  if (Math.abs(diffX) > 175) {
     if (diffX < 0) {
       showNextCard();
     } else {
