@@ -82,16 +82,36 @@ router.get('/tagging-center', (req, res) => {
 
 // Advanced card search with partial name or tag matching
 router.get('/adv-search', async (req, res) => {
-  const { q, cardType, format, type } = req.query;
+  const { q, cardType, format, type, rarity, set, artist, sort } = req.query;
+
   let filters = [];
 
-  if (q) filters.push(`name:${q}*`);
-  if (cardType) filters.push(`supertype:"${cardType}"`);
-  if (format) filters.push(`legalities.${format.toLowerCase()}:legal`);
-  if (type) filters.push(`types:"${type}"`);
+    if (q) filters.push(`name:${q}*`);
+    if (cardType) filters.push(`supertype:"${cardType}"`);
+    if (format) filters.push(`legalities.${format.toLowerCase()}:legal`);
+    if (type) filters.push(`types:"${type}"`);
+    if (rarity) filters.push(`rarity:"${rarity}"`);
+    if (set) filters.push(`set.name:"${set}"`);
+    if (artist) filters.push(`artist:"${artist}"`);
 
-  const queryString = filters.join(' AND ');
-  const apiUrl = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryString)}&pageSize=30`;
+
+
+      const queryString = filters.join(' AND ');
+      let apiUrl = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryString)}&pageSize=30`;
+
+
+      if (sort === 'name') {
+        apiUrl += `&orderBy=name`;
+      } else if (sort === 'hp') {
+        apiUrl += `&orderBy=-hp`;
+      } else if (sort === 'released') {
+        apiUrl += `&orderBy=-set.releaseDate`;
+      } else if (sort && sort !== 'price') {
+        return res.status(400).json({ error: 'Unsupported sort option.' });
+      }
+
+
+
 
   try {
     const response = await fetch(apiUrl, {
@@ -110,10 +130,12 @@ router.get('/adv-search', async (req, res) => {
   }
 });
 
+
 //Card-ID page
 router.get('/card/:id', async (req, res) => {
   const cardId = req.params.id;
-  const { message, type } = req.query; // ✅ THIS MUST BE HERE  
+  const { q, cardType, format, type, rarity, set, artist, sort } = req.query;
+
   try {
     const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
       headers: {
@@ -123,6 +145,22 @@ router.get('/card/:id', async (req, res) => {
 
     const cardData = await apiRes.json();
     const card = cardData.data;
+
+
+    let marketPrice = null;
+
+    if (card?.tcgplayer?.prices) {
+      for (const variant in card.tcgplayer.prices) {
+        const price = card.tcgplayer.prices[variant]?.market;
+        if (typeof price === 'number') {
+          marketPrice = price;
+          break; // use first valid price
+        }
+      }
+    }
+
+
+
     if (!card) return res.status(404).render('404');
 
     let tags = [];
@@ -153,6 +191,9 @@ router.get('/card/:id', async (req, res) => {
 
 
     // ✅ Render with all variables
+    const message = req.query.message;
+    const type = req.query.type;
+
     res.render('card', {
       card,
       tags,
@@ -161,8 +202,11 @@ router.get('/card/:id', async (req, res) => {
       collectionsWithCard,
       isLoggedIn: !!req.session.userId,
       role: req.session.role || 'guest',
-      message: message ? { text: message, type } : null // ✅ EXACTLY THIS LINE
+      marketPrice, // ⬅️ add this line
+      message: message ? { text: message, type } : null
     });
+
+
 
 
   } catch (err) {
@@ -215,6 +259,37 @@ router.post('/submit-tag', async (req, res) => {
   }
 });
 
+router.get('/api/untagged-cards', async (req, res) => {
+  try {
+    // Get all tagged card IDs from the database
+    const taggedIds = await TagSubmission.distinct('cardId');
+
+    // Fetch a big batch of cards from PokémonTCG API (e.g., 500 cards)
+    const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards?pageSize=500`, {
+      headers: {
+        'X-Api-Key': process.env.POKEMON_API_KEY
+      }
+    });
+
+    const apiData = await apiRes.json();
+    const allCards = apiData.data || [];
+
+    const seen = new Set();
+    const untagged = allCards.filter(card => {
+      const isNew = !taggedIds.includes(card.id) && !seen.has(card.id);
+      if (isNew) seen.add(card.id);
+      return isNew;
+    });
+
+    const random25 = untagged.sort(() => 0.5 - Math.random()).slice(0, 25);
+
+
+    res.json({ cards: random25 });
+  } catch (err) {
+    console.error('❌ Failed to fetch untagged cards:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 

@@ -58,9 +58,19 @@
       color: #4ba8ff;
       text-decoration: underline;
     }
+
+  .green { color: green; }
+  .red { color: red; }
+
+
   </style>
 </head>
 <body>
+    <div style="margin: 1rem 0; text-align: center;">
+    <button onclick="goBackToSearch()" style="padding: 0.5rem 1rem; border-radius: 10px; background: #eee; border: 1px solid #aaa;">
+      🔙 Back to Search
+    </button>
+  </div>
   <div class="card-page-container">
     <div class="card-header">
       <div style="display: flex; flex-direction: column; align-items: center;">
@@ -87,9 +97,11 @@
         <div id="tag-entry-container" style="margin-top: 1rem; text-align: center;">
         <% if (isLoggedIn) { %>
             <% if (message) { %>
-            <div id="tag-status" style="margin-top: 0.5rem; color: <%= message.type === 'success' ? 'green' : 'red' %>;">
-                <%= message.text %>
+            <% const tagColor = message.type === 'success' ? 'green' : 'red'; %>
+            <div id="tag-status" class="<%= tagColor %>" style="margin-top: 0.5rem;">
+              <%= message.text %>
             </div>
+
             <% } %>
 
             <form id="tagForm" style="display: inline-flex; gap: 0.5rem;" method="POST" action="/submit-tag">
@@ -107,7 +119,10 @@
             </button>
             </form>
         <% } else { %>
-            <p style="color: #888;">Log in to add tags.</p>
+            <p style="color: #888;">
+              <a href="#" onclick="openLoginModal()" style="text-decoration: underline;">Log in</a> to add tags.
+            </p>
+
         <% } %>
         </div>
 
@@ -144,6 +159,16 @@
         <% if (card.cardmarket?.url) { %>
           <p><a href="<%= card.cardmarket.url %>" target="_blank" class="link">🛒 View on Cardmarket</a></p>
         <% } %>
+        <% if (marketPrice) { %>
+          <div class="market-price">
+            💰 Market Price: $<%= marketPrice.toFixed(2) %>
+          </div>
+        <% } else { %>
+          <div class="market-price">
+            💰 Market Price: Not Available
+          </div>
+        <% } %>
+
       </div>
     </div>
 
@@ -220,7 +245,91 @@
     </div>
   </div>
 
+  <div id="loginModal" style="display: none; position: fixed; top: 20vh; left: 50%; transform: translateX(-50%);
+    background: white; border-radius: 10px; padding: 1rem; z-index: 9999; width: 300px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+    <h3 style="margin-top: 0;">🔐 Login</h3>
+    <form id="loginPopupForm">
+      <input type="email" name="email" placeholder="Email" required style="width: 100%; margin-bottom: 0.5rem;" />
+      <input type="password" name="password" placeholder="Password" required style="width: 100%; margin-bottom: 0.5rem;" />
+      <button type="submit" style="width: 100%; padding: 6px 0;">Log In</button>
+      <p id="loginPopupError" style="color: red; font-size: 0.85rem;"></p>
+    </form>
+  </div>
+  <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeLoginModal()">
+  </div>
+
+
+
+
   <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+
+  <script>
+    function goBackToSearch() {
+      const lastSearch = localStorage.getItem('lastSearchURL');
+      window.location.href = lastSearch || '/search';
+    }
+  </script>
+
+
+  <script>
+  const tagStatus = document.getElementById('tag-status');
+  if (tagStatus) {
+    setTimeout(() => {
+      tagStatus.style.transition = 'opacity 0.5s ease';
+      tagStatus.style.opacity = '0';
+      setTimeout(() => {
+        tagStatus.remove();
+
+        // ✅ Remove message & type from URL without reloading
+        const url = new URL(window.location);
+        url.searchParams.delete('message');
+        url.searchParams.delete('type');
+        window.history.replaceState({}, document.title, url.toString());
+
+      }, 500);
+    }, 3000);
+  }
+</script>
+
+
+  <script>
+  function openLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+  }
+
+  document.getElementById('loginPopupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value.trim();
+    const password = form.password.value.trim();
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        window.location.reload(); // ✅ Refresh to now show tag input
+      } else {
+        document.getElementById('loginPopupError').textContent = result.message || 'Login failed';
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      document.getElementById('loginPopupError').textContent = 'Unexpected error during login';
+    }
+  });
+</script>
 
 <script>
   const loadedCollections = new Set();
@@ -250,7 +359,6 @@
 </script>
 
 <script>
-  const tagStatus = document.getElementById('tag-status');
   if (tagStatus) {
     setTimeout(() => {
       tagStatus.style.transition = 'opacity 0.5s ease';

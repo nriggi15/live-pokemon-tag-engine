@@ -35,44 +35,46 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 1rem;
+      position: relative; /* ✨ Enable relative context for previews */
+      overflow: visible;  /* ✨ Allow previews to spill out */
     }
 
+    .card-inner {
+      position: relative;
+    }
+
+
+    .card-preview:hover .hover-preview {
+      display: block !important;
+    }
+
+
     .card-preview {
-      border: 1px solid #555;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s ease;
+      position: relative;
+      z-index: 1; /* base layer for card */
     }
 
     .card-preview:hover {
-      transform: scale(1.05);
-    }
-
-    .card-preview img {
-      width: 100%;
-      display: block;
+      z-index: 1000; /* bring this whole card above all others */
     }
 
     .hover-preview {
-    display: none;
-    position: absolute;
-    z-index: 999;
-    transform: translate(10px, 0);
-    border: 2px solid #444;
-    background: black;
-    padding: 5px;
-    border-radius: 10px;
-    width: 300px;
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 100%;
+      margin-left: 10px;
+      z-index: 1001; /* stays above others even more */
+      background: white;
+      border: 2px solid #444;
+      padding: 5px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      width: 300px;
     }
 
-    .card-preview:hover .hover-preview {
-    display: block;
-    }
 
-    .card-preview {
-    position: relative;
-    }
+
 
   </style>
 
@@ -88,34 +90,91 @@
     </div>
 
     <div id="filterPanel" style="display: none; margin-bottom: 1rem;">
-    <h3>Filter Results</h3>
+      <h3>Search Filters</h3>
 
-    <label><input type="checkbox" name="cardType" value="Pokémon" /> Pokémon</label>
-    <label><input type="checkbox" name="cardType" value="Trainer" /> Trainer</label>
-    <label><input type="checkbox" name="cardType" value="Energy" /> Energy</label>
-    <br><br>
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <label><strong>Supertype</strong></label><br>
+          <label><input type="checkbox" name="cardType" value="Pokémon"> Pokémon</label><br>
+          <label><input type="checkbox" name="cardType" value="Trainer"> Trainer</label><br>
+          <label><input type="checkbox" name="cardType" value="Energy"> Energy</label>
+        </div>
 
-    <label>Format:
-        <select id="formatSelect">
-        <option value="">Any</option>
-        <option value="Standard">Standard</option>
-        <option value="Expanded">Expanded</option>
-        <option value="Unlimited">Unlimited</option>
+        <div>
+          <label><strong>Format</strong></label><br>
+          <select id="formatSelect">
+            <option value="">Any</option>
+            <option value="standard">Standard</option>
+            <option value="expanded">Expanded</option>
+            <option value="unlimited">Unlimited</option>
+          </select>
+        </div>
+
+        <div>
+          <label><strong>Type</strong></label><br>
+          <select id="typeSelect">
+            <option value="">Any</option>
+            <option value="Fire">Fire</option>
+            <option value="Water">Water</option>
+            <option value="Psychic">Psychic</option>
+            <option value="Grass">Grass</option>
+            <option value="Lightning">Lightning</option>
+            <option value="Fighting">Fighting</option>
+            <option value="Darkness">Darkness</option>
+            <option value="Metal">Metal</option>
+            <option value="Fairy">Fairy</option>
+            <option value="Dragon">Dragon</option>
+            <option value="Colorless">Colorless</option>
+          </select>
+        </div>
+
+        <div>
+          <label><strong>Rarity</strong></label><br>
+          <select id="raritySelect">
+            <option value="">Any</option>
+            <option value="Common">Common</option>
+            <option value="Uncommon">Uncommon</option>
+            <option value="Rare">Rare</option>
+            <option value="Rare Holo">Rare Holo</option>
+            <option value="Rare Holo EX">Rare Holo EX</option>
+            <option value="Promo">Promo</option>
+          </select>
+        </div>
+
+        <div>
+          <label><strong>Set</strong></label><br>
+          <select id="setSelect" style="width: 180px;">
+            <option value="">Any</option>
+            <!-- Dynamically filled -->
+          </select>
+        </div>
+
+
+        <div>
+          <label><strong>Artist</strong></label><br>
+          <select id="artistSelect" style="width: 200px;">
+            <option value="">Any</option>
+            <!-- Dynamically filled -->
+          </select>
+        </div>
+
+      </div>
+
+      <div>
+        <label><strong>Sort By</strong></label><br>
+        <select id="sortSelect">
+          <option value="">Default</option>
+          <option value="name">Name (A–Z)</option>
+          <option value="hp">HP (High to Low)</option>
+          <option value="released">Release Date (Newest First)</option>
+          <option value="price">Market Price (High to Low)</option>
+
         </select>
-    </label>
-    <br><br>
+      </div>
 
-    <label>Type:
-        <select id="typeSelect">
-        <option value="">Any</option>
-        <option value="Fire">Fire</option>
-        <option value="Water">Water</option>
-        <option value="Psychic">Psychic</option>
-        <option value="Grass">Grass</option>
-        <option value="Electric">Electric</option>
-        <!-- Add others as needed -->
-        </select>
-    </label>
+
+
+
     </div>
 
 

@@ -14,6 +14,7 @@ Technical Updates:
 
 Bugs Discovered:
 -Card Details (in tagging center) does not post to collection correctly, but it does remove from collection, not add to.
+-Detailed mode no arrow keys working? check swiping
 
 Bug Fixes:
 -

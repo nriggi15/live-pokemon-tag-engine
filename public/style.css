@@ -492,14 +492,7 @@ h1 {
   margin-top: 1rem;
 }
 
-.card-preview {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
-  background: #f9f9f9;
-}
+
 
 .card-preview img {
   width: 100%;

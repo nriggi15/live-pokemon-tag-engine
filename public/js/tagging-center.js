@@ -89,7 +89,6 @@ function loadSampleCards() {
   });
 }
 
-loadSampleCards();
 
 const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('tagSearchInput');
@@ -511,8 +510,12 @@ document.addEventListener('keydown', (e) => {
 
   if (e.key === 'ArrowRight') {
     showNextCard();
+    console.log('Key pressed:', e.key, 'Current View:', currentView);
+
   } else if (e.key === 'ArrowLeft') {
     showPreviousCard();
+    console.log('Key pressed:', e.key, 'Current View:', currentView);
+
   }
 });
 
@@ -533,6 +536,66 @@ document.addEventListener('keydown', (e) => {
 
   lastSpaceTime = now;
 });
+
+
+document.getElementById('loadUntaggedBtn').addEventListener('click', loadUntaggedCards);
+
+async function loadUntaggedCards() {
+  try {
+    const container = document.getElementById('cardContainerView');
+    const spinner = document.getElementById('loadingSpinner');
+    const detail = document.getElementById('cardDetailView');
+
+    // ✅ Clear the DOM first
+    container.innerHTML = '';
+    container.classList.remove('hidden');
+    detail.classList.add('hidden');
+    spinner.classList.remove('hidden');
+
+    // ✅ Fetch only once
+    const res = await fetch('/api/untagged-cards');
+    const data = await res.json();
+    searchResults = data.cards;
+    currentCardIndex = 0;
+    // ✅ Prevent dupes
+    const alreadyRendered = new Set();
+
+    //console.log('🔁 Rendering untagged cards:', data.cards.length, 'cards');
+
+    data.cards.forEach(card => {
+      if (alreadyRendered.has(card.id)) return;
+      alreadyRendered.add(card.id);
+
+      //console.log('🖼️ Rendering card:', card.id);
+
+      const cardEl = document.createElement('div');
+      cardEl.className = 'card-preview';
+      cardEl.style.position = 'relative';
+
+      cardEl.innerHTML = `
+        <img src="${card.images.small}" alt="${card.name}" />
+        <div class="hover-preview">
+          <img src="${card.images.large || card.images.small}" alt="${card.name}" />
+        </div>
+      `;
+
+      cardEl.addEventListener('click', () => {
+        openCardDetail({ id: card.id });
+      });
+
+      container.appendChild(cardEl);
+    });
+
+  } catch (err) {
+    console.error('❌ Error loading untagged cards:', err);
+  } finally {
+    document.getElementById('loadingSpinner').classList.add('hidden');
+  }
+}
+
+
+
+
 
 //
 //
@@ -600,6 +663,9 @@ async function openCardDetail(card) {
   try {
     const res = await fetch(`https://api.pokemontcg.io/v2/cards/${card.id}`);
     const data = await res.json();
+    searchResults = data.cards;
+    currentCardIndex = 0;
+
     const fullCard = data.data;
 
     const container = document.getElementById('cardDetailContent');
