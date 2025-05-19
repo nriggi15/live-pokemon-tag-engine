@@ -941,8 +941,9 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     const isLocal = location.hostname.includes('localhost') || location.hostname.includes('127.0.0.1');
 
     const baseQuery = `${card.name} ${card.set.name}`;
-    const encodedQuery = encodeURIComponent(baseQuery.trim());
-    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=https://www.ebay.com/sch/i.html?_nkw=${encodedQuery}`;
+    const encodedQuery = encodeURIComponent(`https://www.ebay.com/sch/i.html?_nkw=${card.name} ${card.set.name}`);
+    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116-0-0?mpre=${encodedQuery}`;
+
 
     const finalLink = isLocal ? utmSearchUrl : ebayAffiliate;
     popup.querySelector('#ebayAffiliateLink').href = finalLink;
