@@ -939,14 +939,11 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
   `;
 
     const isLocal = location.hostname.includes('localhost') || location.hostname.includes('127.0.0.1');
-
     const baseQuery = `${card.name} ${card.set.name}`;
-    const encodedQuery = encodeURIComponent(`https://www.ebay.com/sch/i.html?_nkw=${card.name} ${card.set.name}`);
-    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116-0-0?mpre=${encodedQuery}`;
 
+    const ebayDirect = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${card.name} ${card.set.name}`)}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
+    popup.querySelector('#ebayAffiliateLink').href = ebayDirect;
 
-    const finalLink = isLocal ? utmSearchUrl : ebayAffiliate;
-    popup.querySelector('#ebayAffiliateLink').href = finalLink;
 
     popup.querySelector('#ebayAffiliateLink').addEventListener('click', () => {
       trackEvent('shop_click', {
