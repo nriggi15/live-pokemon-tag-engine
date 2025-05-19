@@ -6,6 +6,9 @@
   <title><%= title || "CardVerse" %></title>
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="/img/cardverse-logo.png" />
+  
+  <!-- GOOGLE ANALYTICS -->
+  <%- include('partials/analytics') %>
 </head>
 <body class="<%= isDarkMode ? 'dark-mode' : '' %>">
   <%- include('partials/top-nav') %>

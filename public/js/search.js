@@ -208,6 +208,10 @@ async function createTagCloud() {
       <p><strong>Set:</strong> ${card.set.name}</p>
     `;
     cardDiv.addEventListener('click', () => {
+        trackEvent('card_click', {
+          card_id: card.id,
+          source: 'search'
+        });
       const index = window.searchResults.findIndex(c => c.id === card.id);
       window.currentPopupIndex = index; // ✅ Track which card is active
       openCardPopup(card, { mode: 'edit' });
@@ -239,12 +243,23 @@ function initSearchPage() {
 
   document.getElementById('searchBtn')?.addEventListener('click', () => {
     const val = searchInput.value.trim();
-    if (val) searchCards(val);
+    if (val) {
+      trackEvent('pokemon_search', {
+        query: val
+      });
+      searchCards(val);
+    }
   });
+
 
   document.getElementById('tagSearchBtn')?.addEventListener('click', () => {
     const val = tagSearchInput.value.trim();
-    if (val) searchCustomTags(val);
+    if (val) {
+      trackEvent('tag_search', {
+        query: val
+      });
+      searchCustomTags(val);
+    }
   });
 
   refreshBtn?.addEventListener('click', () => location.reload());

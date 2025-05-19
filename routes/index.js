@@ -208,6 +208,14 @@ router.get('/card/:id', async (req, res) => {
     const message = req.query.message;
     const type = req.query.type;
 
+    // eBay Search URLs
+    const baseQuery = `${card.name} ${card.set.name}`.replace(/\s+/g, '+').replace(/[^a-zA-Z0-9+]/g, '');
+    const utmUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(baseQuery)}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
+
+    const ebayDirect = utmUrl;
+    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(utmUrl)}`;
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+
     res.render('card', {
       card,
       tags,
@@ -216,9 +224,13 @@ router.get('/card/:id', async (req, res) => {
       collectionsWithCard,
       isLoggedIn: !!req.session.userId,
       role: req.session.role || 'guest',
-      marketPrice, // ⬅️ add this line
-      message: message ? { text: message, type } : null
+      marketPrice,
+      message: message ? { text: message, type } : null,
+      ebayAffiliate,
+      ebayDirect,
+      isLocalhost
     });
+
 
 
 

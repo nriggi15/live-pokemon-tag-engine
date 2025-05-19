@@ -165,12 +165,18 @@
         <% if (card.rarity) { %><p><strong>Rarity:</strong> <%= card.rarity %></p><% } %>
         <% if (card.artist) { %><p><strong>Artist:</strong> <%= card.artist %></p><% } %>
 
-        <% if (card.tcgplayer?.url) { %>
-          <p><a href="<%= card.tcgplayer.url %>" target="_blank" class="link">🛒 View on TCGPlayer</a></p>
-        <% } %>
-        <% if (card.cardmarket?.url) { %>
-          <p><a href="<%= card.cardmarket.url %>" target="_blank" class="link">🛒 View on Cardmarket</a></p>
-        <% } %>
+        <div style="margin-top: 1rem;">
+          <strong>🛒 Shop:</strong>
+          <a href="<%= isLocalhost ? ebayDirect : ebayAffiliate %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
+          <span style="margin: 0 6px;">|</span>
+          <% if (card.tcgplayer?.url) { %>
+            <a href="<%= card.tcgplayer.url %>" target="_blank" class="link">Find on TCGPlayer</a>
+          <% } else { %>
+            <span style="opacity: 0.6; pointer-events: none;">Find on TCGPlayer</span>
+          <% } %>
+        </div>
+
+      </br>
         <% if (marketPrice) { %>
           <div class="market-price">
             💰 Market Price: $<%= marketPrice.toFixed(2) %>

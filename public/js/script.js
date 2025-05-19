@@ -902,8 +902,17 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
       
       <p>
         <strong class="price-label" title="Prices from TCGplayer’s Market data">Market Price:</strong><br>
-        <span>${getMarketPrice(card)}</span>
+        <span>${getMarketPrice(card)}</span><br><br>
       </p>
+
+      <div style="margin-top: 1rem;">
+        <strong>🛒 Shop:</strong>
+        <a id="ebayAffiliateLink" href="#" target="_blank" style="margin-left: 0.5rem;">Search on eBay</a>
+        <span style="margin: 0 6px;">|</span>
+        <a href="#" target="_blank" style="opacity: 0.6; pointer-events: none; cursor: default;">Find on TCGPlayer</a>
+      </div>
+
+
       
       <div class="tags-container">
         <h3>Tags:</h3>
@@ -929,11 +938,37 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     </div>
   `;
 
+    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const query = `${card.name} ${card.set.name}`.replace(/\s+/g, '+').replace(/[^a-zA-Z0-9+]/g, '');
+
+    // Add UTM tags to help you track clicks by context (popup vs page)
+    const utmSearchUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&utm_source=cardverse&utm_medium=cardpopup&utm_campaign=shop_links`;
+
+    const ebayLink = isLocal
+      ? utmSearchUrl
+      : `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(utmSearchUrl)}`;
+
+    popup.querySelector('#ebayAffiliateLink').href = ebayLink;
+    popup.querySelector('#ebayAffiliateLink').addEventListener('click', () => {
+      trackEvent('shop_click', {
+        shop: 'ebay',
+        card_id: card.id,
+        source: 'popup'
+      });
+    });
+
+
+
   const shareBtn = popup.querySelector('#shareCardBtn');
 
     if (shareBtn) {
       const shareUrl = `${location.origin}/card/${card.id}`;
       shareBtn.addEventListener('click', async () => {
+        trackEvent('card_share', {
+          card_id: card.id,
+          method: navigator.share ? 'native' : 'copy'
+        });
+
         if (navigator.share) {
           try {
             await navigator.share({
@@ -1279,7 +1314,13 @@ if (addTagButton) {
   const tagMessage = popup.querySelector('#tag-message');
   newConfirmTagSubmit.addEventListener('click', () => {
     tagConfirmPopup.classList.add('hidden');
-  
+    
+    trackEvent('tag_submit', {
+      card_id: card.id,
+      tag: pendingTagName
+    });
+
+
     fetch(`/api/newtags/${card.id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
