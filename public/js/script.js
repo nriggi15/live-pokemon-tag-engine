@@ -947,12 +947,21 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
 
 
     popup.querySelector('#ebayAffiliateLink').addEventListener('click', () => {
-      trackEvent('shop_click', {
-        shop: 'ebay',
+      trackEvent('ebay_click_card', {
+        shop: 'eBay',
         card_id: card.id,
+        card_name: card.name,
+        set: card.set?.name || '',
         source: 'popup'
       });
     });
+    if (typeof gtag === 'function') {
+      gtag('event', 'ebay_click_card', {
+        event_category: 'Outbound',
+        event_label: card.name,
+        value: 1
+      });
+    }
 
 
 
