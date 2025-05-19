@@ -227,7 +227,6 @@ router.get('/card/:id', async (req, res) => {
       marketPrice,
       message: message ? { text: message, type } : null,
       ebayAffiliate,
-      ebayDirect,
       isLocalhost,
       ebayFinal
     });
