@@ -25,6 +25,14 @@
     gtag('config', 'G-57E5E7M5H4');
   </script>
 
+<script>
+  function trackEvent(eventName, eventParams = {}) {
+    if (typeof gtag === 'function') {
+      gtag('event', eventName, eventParams);
+    }
+  }
+</script>
+
 
 
 </head>
@@ -126,13 +134,13 @@
     <div class="search-group">
       <label for="tagSearchInput">Search by Custom Tags</label>
       <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
-      <button id="tagSearchBtn">Tag Search</button>
+      <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button>
     </div>
 
     <div class="search-group">
       <label for="searchInput">Search by Pokémon or Keyword</label>
       <input type="text" id="searchInput" placeholder="Search by name..." />
-      <button id="searchBtn">Search</button>
+      <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button>
     </div>
 
     <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">

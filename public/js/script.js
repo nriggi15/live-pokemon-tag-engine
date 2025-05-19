@@ -818,6 +818,14 @@ async function searchCustomTags(tag) {
 //
 
 async function openCardPopup(card, { mode = 'edit' } = {}) {
+  
+  trackEvent('card_popup_open', {
+    cardId: card.id,
+    name: card.name,
+    set: card.set?.name || 'unknown',
+    rarity: card.rarity || 'unknown'
+  });
+
 
   storeRecentlyViewedCard(card);
 
