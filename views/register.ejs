@@ -96,6 +96,7 @@
   
     <!-- <button type="submit">Register</button> -->
     <p id="response"></p>
+    <p id="spamMsg"></p>
   </form>
   </div>
   
@@ -104,6 +105,7 @@
   const form = document.getElementById('registerForm');
   const container = document.getElementById('register-container');
   const response = document.getElementById('response');
+  const spamMsg = document.getElementById('spamMsg');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
