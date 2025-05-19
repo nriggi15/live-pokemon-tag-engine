@@ -941,8 +941,9 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     const isLocal = location.hostname.includes('localhost') || location.hostname.includes('127.0.0.1');
     const baseQuery = `${card.name} ${card.set.name}`;
 
-    const ebayDirect = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${card.name} ${card.set.name}`)}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
-    popup.querySelector('#ebayAffiliateLink').href = ebayDirect;
+    const ebayAffiliate = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${card.name} ${card.set.name}`)}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339111116&customid=${card.id}&toolid=10001&mkevt=1`;
+    popup.querySelector('#ebayAffiliateLink').href = ebayAffiliate;
+
 
 
     popup.querySelector('#ebayAffiliateLink').addEventListener('click', () => {

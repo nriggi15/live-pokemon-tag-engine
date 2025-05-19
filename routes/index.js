@@ -211,7 +211,7 @@ router.get('/card/:id', async (req, res) => {
     // eBay Search URLs
     const isLocalhost = req.hostname.includes('localhost') || req.hostname.includes('127.0.0.1');
     const baseQuery = `${card.name} ${card.set.name}`;
-    const ebayAffiliate = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${card.name} ${card.set.name}`)}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
+    const ebayAffiliate = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(`${card.name} ${card.set.name}`)}&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339111116&customid=${card.id}&toolid=10001&mkevt=1`;
 
 
 
