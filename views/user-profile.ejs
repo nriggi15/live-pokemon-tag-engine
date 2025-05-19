@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-
+<link rel="stylesheet" href="/css/bottom-nav.css" />
   <link rel="stylesheet" href="/style.css" />
   <title>User Profile</title>
   <style>
@@ -198,6 +198,9 @@
 
 
 <!-- END NEW PROFILE GRID -->
+
+      <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>  
 
 <script>
     async function loadProfile() {

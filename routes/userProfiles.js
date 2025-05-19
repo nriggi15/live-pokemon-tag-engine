@@ -8,7 +8,9 @@ import UserProfile from '../models/UserProfile.js';
 router.get('/user/:username', (req, res) => {
   res.render('user-profile', {
     username: req.params.username,
-    page: 'profile' // ✅ Add this
+    page: 'profile',
+    isLoggedIn: !!req.session.userId,
+    role: req.session.role || 'guest',
   });
 });
 
