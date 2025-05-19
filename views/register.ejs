@@ -58,7 +58,15 @@
      <!-- CAPTCHA widget -->
       <div class="g-recaptcha" data-sitekey="6LfTWjorAAAAAOzAKzu3rimbKBqjCwzWuIun2lsA"></div>
 
+      <div style="margin: 10px 0;">
+        <label>
+          <input type="checkbox" id="termsCheckbox" required />
+          I agree to the <a href="/terms" target="_blank">Terms & Conditions</a>.
+        </label>
+      </div>
+
       <button type="submit">Register</button>
+
    
     <!-- Load reCAPTCHA script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
@@ -78,8 +86,15 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (!document.getElementById('termsCheckbox').checked) {
+      response.textContent = '❌ You must agree to the Terms & Conditions.';
+      response.style.color = 'red';
+      return;
+    }
+
     const formData = new FormData(form);
     const body = Object.fromEntries(formData.entries());
+    body['termsAccepted'] = document.getElementById('termsCheckbox').checked;
     body['g-recaptcha-response'] = grecaptcha.getResponse(); // Add captcha token
 
     const password = document.getElementById('password').value;

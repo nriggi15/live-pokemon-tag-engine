@@ -23,6 +23,9 @@ import Collection from '../models/Collection.js';
 // TEMPORARY: Create only ONE admin manually via POST
 router.post('/register', registerLimiter, async (req, res) => {
   const { email, password, confirm, username, 'g-recaptcha-response': captcha } = req.body;
+    if (!req.body.termsAccepted || req.body.termsAccepted !== 'true') {
+    return res.status(400).json({ message: 'You must accept the Terms & Conditions.' });
+  }
   if (password !== confirm) {
     return res.status(400).json({ message: 'Passwords do not match.' });
   }

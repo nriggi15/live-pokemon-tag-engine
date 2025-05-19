@@ -59,9 +59,18 @@ import tagsRoutes from './routes/tags.js';
 import leaderboardsRouter from './routes/leaderboards.js';
 app.use('/api/leaderboards', leaderboardsRouter);
 app.use('/api', tagsRoutes);
+
+
+app.get('/terms-debug', (req, res) => {
+  res.send('✅ Terms route is working');
+});
+
+
+
 app.use('/', indexRoutes);
 app.use('/api', collectionsRouter);
 app.use('/api', favoritesRouter);
+
 
 // ✅ Protected Middleware
 import { requireAdmin } from './middleware/auth.js';
@@ -103,6 +112,11 @@ app.get('/login-test', (req, res) => {
 app.get('/', (req, res) => {
   res.render('index', { page: 'index' });
 });
+
+app.get('/terms', (req, res) => {
+  res.render('terms');
+});
+
 
 app.get('/reset-password', (req, res) => {
   const token = req.query.token;

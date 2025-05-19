@@ -1,8 +1,8 @@
 General Updates:
--Social buttons added to cardpopup, /cardID, collections
+-Register updated with public t&c available at /terms
 
 Features Added:
--popup on load home page for new users
+-
 
 Technical Updates:
 -
@@ -13,4 +13,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.63 - Social sharing!
+v1.5.64 - Terms update on register
