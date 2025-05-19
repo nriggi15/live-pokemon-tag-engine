@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About – CardVerse</title>
+  <link rel="stylesheet" href="/style.css" />
+    <%- include('partials/analytics') %>
+    
+    <style>
+  .container {
+    max-width: 1200px;
+    margin: auto;
+
+  }
+
+ul {
+     list-style: none;
+    padding-left: 1rem; 
+  }
+
+  dl dt {
+    font-weight: bold;
+  }
+
+  dl dd {
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+  }
+
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+
+</head>
+<body class="about-page">
+
+
+  <main class="container">
+    <h1>About CardVerse</h1>
+    <p>
+      CardVerse is a free, fan-made Pokémon TCG tool that lets you explore, search, and tag cards using unique descriptors like 
+      <em>cute</em>, <em>flying</em>, <em>spooky</em>, and more. Our goal is to build the most fun, community-driven Pokédex for Pokémon cards.
+    </p>
+
+    <section>
+      <h2>What You Can Do</h2>
+      <ul>
+        <li>🔍 Search cards using community-submitted tags</li>
+        <li>🏷️ Submit your own tags for cards</li>
+        <li>📁 Create and share collections — public or private</li>
+        <li>✨ Discover new cards through visual and tag-based browsing</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Join the Community</h2>
+      <p>
+        💬 <a href="https://discord.gg/h8ha9489tr" target="_blank" rel="noopener noreferrer">Join our Discord</a> to chat, submit feedback, or hang out with other collectors!
+      </p>
+    </section>
+
+    <section>
+        <h2>🐛 Report Bugs</h2>
+        <p>
+            Found a bug or something not working as expected? We’d love to know!
+        </p>
+        <ul>
+            <li>🧰 Use the <strong>“Report a Bug”</strong> button at the bottom of the homepage</li>
+            <li>💬 Or share details in our <strong>#bug-reports</strong> channel on <a href="https://discord.gg/h8ha9489tr" target="_blank">Discord</a></li>
+        </ul>
+        <p>
+            Helpful bug reports include screenshots, card IDs, browser/device info, and steps to reproduce.
+        </p>
+    </section>
+
+
+    <section>
+      <h2>FAQ</h2>
+      <dl>
+        <dt>Do I need an account?</dt>
+        <dd>Nope! You can search and browse without logging in. Signing up is only needed to save collections or tag cards.</dd>
+
+        <dt>Can I submit tags?</dt>
+        <dd>Yes! Use the tag form on any card detail page. All tags are reviewed by moderators before appearing publicly.</dd>
+
+        <dt>Is this official?</dt>
+        <dd>No — this is a fan-made project and is not affiliated with Pokémon or The Pokémon Company in any way.</dd>
+
+        <dt>Why don’t some cards have tags?</dt>
+        <dd>The community is helping build the database! The more people tag, the better the tool becomes.</dd>
+      </dl>
+    </section>
+
+    <section>
+      <h2>🛠 Roadmap</h2>
+      <p>This section is updated regularly with new features in development.</p>
+
+      <h3>Currently Working On</h3>
+      <ul>
+        <li>📱 Swipe optimization for mobile tagging</li>
+        <li>🔗 Social sharing buttons for collections</li>
+        <li>🧠 Advanced AND/OR filtering in search</li>
+        <li>🎯 Tag accuracy improvements</li>
+      </ul>
+
+      <h3>Planned Features</h3>
+      <ul>
+        <li>🤖 AI-powered tag suggestions</li>
+        <li>💰 Collection value tracking</li>
+        <li>👤 Improved public profiles</li>
+        <li>🎴 Pack builder by tag themes</li>
+      </ul>
+    </section>
+
+    <section>
+        <h2>📬 Contact Support</h2>
+        <p>
+            If you have questions, need help, or just want to get in touch, feel free to reach out.
+        </p>
+        <p>
+            📧 Email us anytime at <a href="mailto:support@mycardverse.com">support@mycardverse.com</a>
+        </p>
+        <p>
+            We’re happy to help with account issues, feature requests, or general questions about the tool.
+        </p>
+    </section>
+
+
+  </main>
+
+      <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %> 
+</body>
+</html>

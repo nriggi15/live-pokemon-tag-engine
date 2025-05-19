@@ -58,6 +58,14 @@ router.get('/dashboard', (req, res) => {
   });
 });
 
+// About Page
+router.get('/about', (req, res) => {
+  res.render('about', {
+    isLoggedIn: req.session && req.session.userId,
+    role: req.session?.role || null
+  });
+});
+
 
 
 // Tag browsing page
