@@ -347,12 +347,15 @@ ${logs.join('\n')}
   `;
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST,
+    port: 465,
+    secure: true, // ⬅️ MUST be true for port 465
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     }
   });
+
 
   const mailOptions = {
     from: process.env.EMAIL_USER,

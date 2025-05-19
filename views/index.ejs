@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32">
   <!-- Mobile App Icon -->
   <link rel="apple-touch-icon" href="/img/app-icon-512.png">
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
 
@@ -77,38 +77,37 @@
     <img src="/img/cardverse-logo.png" alt="CardVerse Logo" style="height: 40px; border-radius: 6px;" />
     <span style="font-weight: bold; font-size: 1.3rem;">CardVerse</span>
   </a>
+</div>
 
-  <!-- Report a bug -->
-  <div id="bugContainer">
-    <!-- Report Bug Button -->
-    <button id="reportBugBtn" class="bug-report-btn">🐞 Report a Bug</button>
+<!-- Report a bug -->
+<div id="bugContainer" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
+  <!-- Report Bug Button -->
+  <button id="reportBugBtn" class="bug-report-btn">🐞 Report a Bug</button>
 
-    <!-- Modal -->
-    <div id="bugFormModal" style="display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%); background: white; padding: 20px; z-index: 999; border: 1px solid #ccc; border-radius: 8px;">
-      <h3>Report a Bug</h3>
-      <textarea id="bugMessage" placeholder="Describe the issue (optional)" rows="4" style="width: 100%;"></textarea>
-      <br>
-        <!-- Hidden fields for user info -->
-        <input type="hidden" id="bugUsername" value="<%= username || '' %>">
-        <input type="hidden" id="bugEmail" value="<%= email || '' %>">
-      <button id="submitBug">Submit Report</button>
-       <!-- Success Message -->
-       <p id="bugSuccessMsg" style="display:none; color: green; margin-top: 10px;">✅ Report sent! Thank you.</p>
-    </div>
+  <!-- Modal -->
+  <div id="bugFormModal" style="display: none; position: fixed; top: 70px; right: 20px; background: white; padding: 20px; z-index: 999; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);">
+    <h3>Report a Bug</h3>
+    <textarea id="bugMessage" placeholder="Describe the issue (optional)" rows="4" style="width: 100%;"></textarea>
+    <br>
+      <!-- Hidden fields for user info -->
+      <input type="hidden" id="bugUsername" value="<%= username || '' %>">
+      <input type="hidden" id="bugEmail" value="<%= email || '' %>">
+    <button id="submitBug">Submit Report</button>
+      <!-- Success Message -->
+      <p id="bugSuccessMsg" style="display:none; color: green; margin-top: 10px;">✅ Report sent! Thank you.</p>
   </div>
-
 </div>
 
 <!-- Centered Header Titles -->
 <div style="text-align: center; margin-top: 20px;">
-  <h1 style="margin-bottom: 0;">Pokémon Card Tagger</h1>
-  <h2 style="margin-top: 0;">Explore by Tag</h2>
+<h1 style="margin-bottom: 0;">Pokémon Card Tagger</h1>
+<h2 style="margin-top: 0;">Explore by Tag</h2>
 </div>
 
 
 
 <!-- BEGIN SIDE BAR -->
-<%- include('partials/sidebar') %>
+<!--  -->
 <!-- END SIDE BAR -->
 
 <!-- Tag Usage Stats POPUP ONLY, button is in #sidebar -->
@@ -208,10 +207,25 @@
       });
   </script> 
   
-  <!-- Add Role-Aware Link Visibility -->
   <script>
+    // Toggle bug modal
+    const reportBugBtn = document.getElementById('reportBugBtn');
+    const bugFormModal = document.getElementById('bugFormModal');
 
+    reportBugBtn?.addEventListener('click', () => {
+      bugFormModal.style.display = 'block';
+    });
+
+    // Close modal on outside click
+    document.addEventListener('click', function (event) {
+      const isClickInside = bugFormModal.contains(event.target) || reportBugBtn.contains(event.target);
+
+      if (!isClickInside) {
+        bugFormModal.style.display = 'none';
+      }
+    });
   </script>
+
   
       <!-- Bottom Navigation Bar -->
   <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>  
