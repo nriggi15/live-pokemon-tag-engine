@@ -1,11 +1,5 @@
 General Updates:
--New /blog post
--Fixed tag cloud buttons redirecting search, now show working, random tags
--updated /explore styling
--/search 
--updated icons and branding
--report a bug button
--popup new visit added
+-Social buttons added to cardpopup, /cardID, collections
 
 Features Added:
 -popup on load home page for new users
@@ -17,6 +11,6 @@ Bugs Discovered:
 -
 
 Bug Fixes:
--Fixed tag cloud buttons
+-
 
-v1.5.63 - Report a bug added
+v1.5.63 - Social sharing!

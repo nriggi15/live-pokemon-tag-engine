@@ -74,7 +74,19 @@
   <div class="card-page-container">
     <div class="card-header">
       <div style="display: flex; flex-direction: column; align-items: center;">
-        <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
+        
+        
+        <div style="display: flex; justify-content: center; position: relative;">
+          <div style="position: relative; display: inline-block;">
+            <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
+            <button id="shareCardBtn"
+              title="Share this card"
+              style="position: absolute; bottom: -30px; right: 0; font-size: 0.85rem; padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+              🔗 Share
+            </button>
+          </div>
+        </div>
+
 
         <div style="margin-top: 0.75rem; text-align: center;">
             <% if (tags.length) { %>
@@ -365,6 +377,33 @@
       tagStatus.style.opacity = '0';
       setTimeout(() => tagStatus.remove(), 500);
     }, 3000);
+  }
+</script>
+
+<script>
+  const shareBtn = document.getElementById('shareCardBtn');
+  if (shareBtn) {
+    const url = window.location.href;
+    shareBtn.addEventListener('click', async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: document.title,
+            url
+          });
+        } catch (err) {
+          console.error('❌ Share canceled or failed:', err);
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          shareBtn.textContent = '✅ Link Copied!';
+          setTimeout(() => shareBtn.textContent = '🔗 Share', 1500);
+        } catch {
+          alert('❌ Failed to copy link.');
+        }
+      }
+    });
   }
 </script>
 

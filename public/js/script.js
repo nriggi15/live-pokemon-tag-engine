@@ -869,9 +869,25 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     <div class="popup-content">
       <span class="close-button">&times;</span>
       <br>
-      <img src="${card.images.large}" alt="${card.name}" />
-      <h2><a href="#" class="name-link">${card.name}</a></h2>
-      <p><strong>Set:</strong> <a href="#" class="set-link">${card.set.name}</a></p>
+
+      <div style="display: flex; justify-content: center; position: relative;">
+        <div style="position: relative; display: inline-block;">
+          <img src="${card.images.large}" alt="${card.name}" />
+          <button id="shareCardBtn"
+            title="Share this card"
+            style="position: absolute; bottom: -22px; right: 0; font-size: 0.85rem; padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            🔗 Share
+          </button>
+        </div>
+      </div>
+
+
+
+        <div style="position: relative;">
+          <h2 style="text-align: center; margin-bottom: 0;"><a href="#" class="name-link">${card.name}</a></h2>
+          <p style="text-align: center; margin-top: 0;"><strong>Set:</strong> <a href="#" class="set-link">${card.set.name}</a></p>
+        </div>
+
       <p><strong>Card Number:</strong> <span class="${isSecretRare ? 'secret-rare' : ''}">${cardNumDisplay}</span></p>
       <p><strong>Rarity:</strong> ${card.rarity || 'Unknown'}</p>
       <p><strong>Artist:</strong> <a href="#" class="artist-link">${card.artist}</a></p>
@@ -904,6 +920,33 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
 
     </div>
   `;
+
+  const shareBtn = popup.querySelector('#shareCardBtn');
+
+    if (shareBtn) {
+      const shareUrl = `${location.origin}/card/${card.id}`;
+      shareBtn.addEventListener('click', async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: `${card.name} – CardVerse`,
+              url: shareUrl
+            });
+          } catch (err) {
+            console.error('Share canceled or failed:', err);
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(shareUrl);
+            shareBtn.textContent = '✅ Link Copied!';
+            setTimeout(() => shareBtn.textContent = '🔗 Share', 1500);
+          } catch {
+            alert('❌ Failed to copy link.');
+          }
+        }
+      });
+    }
+
 
       // 🎨 Artist click to search
     const artistLink = popup.querySelector('.artist-link');

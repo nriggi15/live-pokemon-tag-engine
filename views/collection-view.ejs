@@ -51,17 +51,27 @@
     }
 
   </style>
+  
 </head>
 <body>
   <%- include('partials/sidebar') %>
 
-  <div class="collection-header">
+  <div class="collection-header" style="position: relative;">
+    <div style="position: absolute; top: 0; right: 0;">
+      <button id="shareCollectionBtn" style="padding: 6px 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        🔗 Share Collection
+      </button>
+      <div style="margin-top: 0.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <a id="twitterShare" target="_blank">🐦</a>
+        <a id="redditShare" target="_blank">👽</a>
+      </div>
+    </div>
     <h2 id="collectionName">Loading...</h2>
     <p id="ownerInfo"></p>
     <p id="cardCount"></p>
     <p id="collectionValue">Loading value...</p>
-
   </div>
+
 
   <div class="card-grid" id="cardGrid">Loading cards...</div>
 
@@ -202,6 +212,31 @@
         document.body.innerHTML = '<h2>❌ Error loading collection.</h2>';
       }
     } // END loadCollection function
+
+    document.getElementById('shareCollectionBtn').addEventListener('click', async () => {
+      const shareUrl = `${location.origin}/collection/${collectionId}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'Check out this collection on CardVerse!', url: shareUrl });
+        } catch (err) {
+          console.error('❌ Share cancelled:', err);
+        }
+      } else {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert('✅ Link copied to clipboard!');
+        } catch {
+          alert('❌ Failed to copy link.');
+        }
+      }
+    });
+
+    document.getElementById('twitterShare').href =
+      `https://twitter.com/intent/tweet?text=Check out this awesome Pokémon card collection!&url=${encodeURIComponent(location.href)}`;
+
+    document.getElementById('redditShare').href =
+      `https://www.reddit.com/submit?url=${encodeURIComponent(location.href)}&title=Check out this Pokémon card collection on CardVerse!`;
+
 
     // New functions
 
