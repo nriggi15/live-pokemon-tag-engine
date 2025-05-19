@@ -938,17 +938,15 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     </div>
   `;
 
-    const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const isLocal = location.hostname.includes('localhost') || location.hostname.includes('127.0.0.1');
+
     const query = `${card.name} ${card.set.name}`.replace(/\s+/g, '+').replace(/[^a-zA-Z0-9+]/g, '');
+    const utmSearchUrl = `https://www.ebay.com/sch/i.html?_nkw=${query}&utm_source=cardverse&utm_medium=cardpopup&utm_campaign=shop_links`;
+    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(utmSearchUrl)}`;
 
-    // Add UTM tags to help you track clicks by context (popup vs page)
-    const utmSearchUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&utm_source=cardverse&utm_medium=cardpopup&utm_campaign=shop_links`;
+    const finalLink = isLocal ? utmSearchUrl : ebayAffiliate;
+    popup.querySelector('#ebayAffiliateLink').href = finalLink;
 
-    const ebayLink = isLocal
-      ? utmSearchUrl
-      : `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(utmSearchUrl)}`;
-
-    popup.querySelector('#ebayAffiliateLink').href = ebayLink;
     popup.querySelector('#ebayAffiliateLink').addEventListener('click', () => {
       trackEvent('shop_click', {
         shop: 'ebay',

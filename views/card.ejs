@@ -167,7 +167,7 @@
 
         <div style="margin-top: 1rem;">
           <strong>🛒 Shop:</strong>
-          <a href="<%= isLocalhost ? ebayDirect : ebayAffiliate %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
+          <a href="<%= ebayFinal %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
           <span style="margin: 0 6px;">|</span>
           <% if (card.tcgplayer?.url) { %>
             <a href="<%= card.tcgplayer.url %>" target="_blank" class="link">Find on TCGPlayer</a>

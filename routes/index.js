@@ -209,12 +209,12 @@ router.get('/card/:id', async (req, res) => {
     const type = req.query.type;
 
     // eBay Search URLs
+    const isLocalhost = req.hostname.includes('localhost') || req.hostname.includes('127.0.0.1');
     const baseQuery = `${card.name} ${card.set.name}`.replace(/\s+/g, '+').replace(/[^a-zA-Z0-9+]/g, '');
-    const utmUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(baseQuery)}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
+    const searchUrl = `https://www.ebay.com/sch/i.html?_nkw=${baseQuery}&utm_source=cardverse&utm_medium=cardpage&utm_campaign=shop_links`;
+    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(searchUrl)}`;
+    const ebayFinal = isLocalhost ? searchUrl : ebayAffiliate;
 
-    const ebayDirect = utmUrl;
-    const ebayAffiliate = `https://rover.ebay.com/rover/1/5339111116/0?ff3=4&toolid=10001&campid=5339111116&customid=${card.id}&mpre=${encodeURIComponent(utmUrl)}`;
-    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
 
     res.render('card', {
       card,
@@ -228,7 +228,8 @@ router.get('/card/:id', async (req, res) => {
       message: message ? { text: message, type } : null,
       ebayAffiliate,
       ebayDirect,
-      isLocalhost
+      isLocalhost,
+      ebayFinal
     });
 
 
