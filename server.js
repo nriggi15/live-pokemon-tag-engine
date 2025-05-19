@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config(); // Always first
 
+app.set('trust proxy', 1);
+
 import express from 'express';
 import session from 'express-session';
 import mongoose from 'mongoose';
