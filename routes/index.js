@@ -4,12 +4,16 @@ import fetch from 'node-fetch';
 import Tag from '../models/NewTag.js';
 import Collection from '../models/Collection.js'; // ✅ Adjust to match your model path
 import TagSubmission from '../models/TagSubmission.js'; // adjust if needed
-
+import nodemailer from 'nodemailer';
+import { bugReportLimiter } from '../middleware/rateLimiter.js';
+import { requireLogin } from '../middleware/auth.js';
 
 router.get('/', (req, res) => {
   res.render('index', {
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
+    username: req.session.username || '',
+    email: req.session.email || '',
     isDarkMode: req.session?.darkMode || false,
     page: 'index',
     layout: 'layout',
@@ -301,6 +305,70 @@ router.get('/api/untagged-cards', async (req, res) => {
   }
 });
 
+router.post('/report-bug', async (req, res) => {
+    const { message, logs, browserInfo, url } = req.body;
+    const userId = req.session?.userId;
+
+    let username = 'Anonymous';
+    let email = '(not provided)';
+
+    if (userId) {
+      try {
+        const user = await User.findById(userId).lean();
+        if (user) {
+          username = user.username || username;
+          email = user.email || email;
+        }
+      } catch (err) {
+        console.warn('⚠️ Failed to fetch user info for bug report:', err);
+      }
+    }
+
+  const timestamp = new Date().toLocaleString();
+
+
+
+  const emailBody = `
+🐞 BUG REPORT
+
+User ID: ${userId || 'Anonymous'}
+User: ${username || 'Anonymous'}
+Email: ${email || '(not provided)'}
+Page: ${url}
+Browser: ${browserInfo}
+Timestamp: ${timestamp}
+
+
+Message:
+${message || '(No message provided)'}
+
+Recent Console Logs:
+${logs.join('\n')}
+  `;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    subject: '🐞 New Bug Report',
+    text: emailBody
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.sendStatus(200);
+  } catch (err) {
+    console.error('Bug report email failed:', err);
+    res.status(500).json({ error: 'Failed to send bug report.' });
+  }
+});
 
 
 

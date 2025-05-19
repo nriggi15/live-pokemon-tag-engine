@@ -27,4 +27,10 @@ const resendLimiter = rateLimit({
   message: { error: 'Too many verification email requests. Please try again later.' }
 });
 
-export { loginLimiter, tagSubmissionLimiter, registerLimiter, resendLimiter };
+const bugReportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: { error: 'Too many bug reports submitted from this IP. Please try again later.' }
+});
+
+export { loginLimiter, tagSubmissionLimiter, registerLimiter, resendLimiter, bugReportLimiter };

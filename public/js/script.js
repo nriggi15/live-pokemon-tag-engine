@@ -213,6 +213,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });    
   }
 
+  // First load Popup on index
+  const popup = document.getElementById("introPopup");
+  const closeBtn = document.getElementById("closeIntroPopup");
+  const checkbox = document.getElementById("dontShowAgainCheckbox");
+
+  // Show popup if not disabled
+  if (!localStorage.getItem("cardverse_intro_hidden")) {
+    popup.classList.remove("hidden");
+  }
+
+  closeBtn?.addEventListener("click", () => {
+    popup.classList.add("hidden");
+
+    if (checkbox.checked) {
+      localStorage.setItem("cardverse_intro_hidden", "true");
+    }
+  });
+
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.popup').forEach(popup => {
@@ -330,6 +349,50 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       }
+
+
+
+      const capturedLogs = [];
+    ['log', 'error', 'warn'].forEach(method => {
+      const original = console[method];
+      console[method] = (...args) => {
+        capturedLogs.push(`[${method.toUpperCase()}] ${args.join(' ')}`);
+        original.apply(console, args);
+      };
+    });
+
+    document.getElementById('reportBugBtn').addEventListener('click', () => {
+      document.getElementById('bugFormModal').style.display = 'block';
+    });
+
+    document.getElementById('submitBug').addEventListener('click', async () => {
+      const message = document.getElementById('bugMessage').value;
+      const payload = {
+        message,
+        logs: capturedLogs.slice(-50),
+        browserInfo: navigator.userAgent,
+        url: window.location.href
+      };
+
+
+      const res = await fetch('/report-bug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        document.getElementById('bugSuccessMsg').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('bugFormModal').style.display = 'none';
+          document.getElementById('bugSuccessMsg').style.display = 'none';
+          document.getElementById('bugMessage').value = '';
+        }, 2500);
+      } else {
+        alert('❌ Something went wrong. Please try again later.');
+      }
+    });
+
 
 // END DOMCONTENT LOADER
 //

@@ -16,6 +16,38 @@
 </head>
 <body>
 
+  <div id="introPopup" class="popup hidden">
+    <div class="popup-content">
+        <h2>👋 Welcome to CardVerse!</h2>
+        <p>Explore Pokémon cards by tags like <b>cute</b>, <b>colorful</b>, <b>SIR</b>, and more.</p>
+        <p>Search by Pokémon name, browse tag categories, or contribute your own tags.</p>
+        <p>Create an account to add tags, save favorites, create and share collections, and more!</p>
+        <hr />
+        <h3>❗ STILL TESTING - PLEASE SUBMIT FEEDBACK ❗</h3>
+        <p>Constant updates and new features are being added, please use the 'report a bug' button in the top of this home page if found.</p>
+        <p>Got feedback? Ideas? Found a bug? Tagging questions? Join our Discord to help us grow or just hang out!</p>
+        <!-- <img src="/img/discord-server-preview.png" alt="Discord server preview" style="max-width: 100%; border-radius: 8px; margin: 10px 0;" /> -->
+        <p><a href="https://discord.gg/h8ha9489tr" target="_blank" style="font-weight: bold; color: #5865F2;">👉 Join the Discord Server</a></p>
+        <p><a href="https://github.com/nriggi15/live-pokemon-tag-engine" target="_blank" style="font-weight: bold; color: #5865F2;">👉 Follow the project on Github</a></p>
+        <hr />
+        <h3>🛠️ Current Features</h3>
+        <ul style="text-align: left; padding-left: 20px;">
+          <li><b><u><a href="/register">Register an Account:</a></u></b> Access tagging, collections, and favorites. Help the community grow!</li>
+          <li><b>Explore Page:</b> Browse curated tag categories to discover unique and fun card themes. Checkout the new Leaderboards!</li>
+          <li><b>Card Database:</b> Find cards by name, type, rarity, set, custom tags, and more with advanced filtering.</li>
+          <li><b>Tagging Center:</b> Swipe through cards and help the community by suggesting relevant tags.</li>
+          <li><b>User Profiles:</b> Track your tagged cards, favorites, and collections with your own public profile.</li>
+          <li><b>Collections:</b> Organize and showcase your favorite cards. Make them public or keep them private.</li>
+        </ul>
+        <label>
+          <input type="checkbox" id="dontShowAgainCheckbox" />
+          Don’t show this again
+        </label>
+        <br /><br />
+        <button id="closeIntroPopup">Got it!</button>
+    </div>
+</div>
+
 
 <!-- Top-left logo -->
 <div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
@@ -23,6 +55,26 @@
     <img src="/img/cardverse-logo.png" alt="CardVerse Logo" style="height: 40px; border-radius: 6px;" />
     <span style="font-weight: bold; font-size: 1.3rem;">CardVerse</span>
   </a>
+
+  <!-- Report a bug -->
+  <div id="bugContainer">
+    <!-- Report Bug Button -->
+    <button id="reportBugBtn" class="bug-report-btn">🐞 Report a Bug</button>
+
+    <!-- Modal -->
+    <div id="bugFormModal" style="display: none; position: fixed; top: 20%; left: 50%; transform: translateX(-50%); background: white; padding: 20px; z-index: 999; border: 1px solid #ccc; border-radius: 8px;">
+      <h3>Report a Bug</h3>
+      <textarea id="bugMessage" placeholder="Describe the issue (optional)" rows="4" style="width: 100%;"></textarea>
+      <br>
+        <!-- Hidden fields for user info -->
+        <input type="hidden" id="bugUsername" value="<%= username || '' %>">
+        <input type="hidden" id="bugEmail" value="<%= email || '' %>">
+      <button id="submitBug">Submit Report</button>
+       <!-- Success Message -->
+       <p id="bugSuccessMsg" style="display:none; color: green; margin-top: 10px;">✅ Report sent! Thank you.</p>
+    </div>
+  </div>
+
 </div>
 
 <!-- Centered Header Titles -->
