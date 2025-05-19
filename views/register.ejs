@@ -117,6 +117,9 @@
 
     const formData = new FormData(form);
     const body = Object.fromEntries(formData.entries());
+    console.log('👉 Outgoing register payload:', body);
+
+
     body['termsAccepted'] = document.getElementById('termsCheckbox').checked ? 'true' : 'false';
     body['g-recaptcha-response'] = grecaptcha.getResponse(); // Add captcha token
 
