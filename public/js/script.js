@@ -635,6 +635,17 @@ async function searchCustomTags(tag) {
   resetSearchState();
   searchInput.value = '';
   searchMode = 'custom';
+    // ✅ Log search term to backend
+    try {
+      await fetch('/api/log-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ term: tag.trim().toLowerCase() })
+      });
+    } catch (err) {
+      console.error('❌ Failed to log custom tag search:', err);
+    }
+
   document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
   const isTaggingCenter = window.location.pathname.includes('/tagging-center');
   const cardResults = isTaggingCenter
