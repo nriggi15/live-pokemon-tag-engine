@@ -394,6 +394,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+
+  const filterBtn = document.getElementById('filterBtn');
+  const filterPanel = document.getElementById('filterPanel');
+
+  if (filterBtn && filterPanel) {
+    filterBtn.addEventListener('click', () => {
+      const isHidden = filterPanel.style.display === 'none';
+      filterPanel.style.display = isHidden ? 'block' : 'none';
+    });
+  }
+
+
+
+
+
 // END DOMCONTENT LOADER
 //
 //

@@ -155,6 +155,7 @@ router.get('/adv-search', async (req, res) => {
 
 //Card-ID page
 router.get('/card/:id', async (req, res) => {
+  console.log('📥 Card route hit for:', req.params.id);
   const cardId = req.params.id;
   const { q, cardType, format, type, rarity, set, artist, sort } = req.query;
 
@@ -223,7 +224,8 @@ router.get('/card/:id', async (req, res) => {
 
 
 
-    const ebayFinal = isLocalhost ? searchUrl : ebayAffiliate;
+    const ebayFinal = ebayAffiliate;
+
 
 
     res.render('card', {

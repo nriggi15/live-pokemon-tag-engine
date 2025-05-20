@@ -382,6 +382,77 @@ router.get('/search', async (req, res) => {
 
 
 
+// GET /api/advanced-tag-search?q=#cute and clefairy not #fire
+router.get('/advanced-tag-search', async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ message: 'Missing search query' });
+
+  const tokens = q.match(/#\w+|\w+|and|or|not/gi) || [];
+  const parsed = [];
+
+  let currentOp = 'AND';
+  for (let token of tokens) {
+    token = token.toLowerCase();
+
+    if (['and', 'or', 'not'].includes(token)) {
+      currentOp = token.toUpperCase();
+    } else {
+      parsed.push({
+        type: token.startsWith('#') ? 'tag' : 'name',
+        value: token.replace(/^#/, ''),
+        op: currentOp,
+      });
+
+      if (currentOp !== 'NOT') currentOp = 'AND';
+    }
+  }
+
+  try {
+    let includeSet = new Set();
+    let excludeSet = new Set();
+    let init = true;
+
+    for (const condition of parsed) {
+      const { type, value, op } = condition;
+
+      let resultSet = new Set();
+
+      if (type === 'tag') {
+        const tagDocs = await NewTag.find({ tag: value, status: 'approved' });
+        tagDocs.forEach(doc => resultSet.add(doc.cardId));
+      }
+
+      if (type === 'name') {
+        const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${value}"`);
+        const data = await apiRes.json();
+        data.data.forEach(card => resultSet.add(card.id));
+      }
+
+      if (op === 'NOT') {
+        resultSet.forEach(id => excludeSet.add(id));
+      } else if (init) {
+        includeSet = resultSet;
+        init = false;
+      } else if (op === 'AND') {
+        includeSet = new Set([...includeSet].filter(id => resultSet.has(id)));
+      } else if (op === 'OR') {
+        resultSet.forEach(id => includeSet.add(id));
+      }
+    }
+
+    // Final filtering
+    const finalResults = [...includeSet].filter(id => !excludeSet.has(id));
+    res.json({ cards: finalResults });
+  } catch (err) {
+    console.error('❌ Error in advanced-tag-search:', err);
+    res.status(500).json({ message: 'Search failed' });
+  }
+});
+
+
+
+
+
 
 
 export default router;
