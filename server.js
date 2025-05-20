@@ -27,11 +27,20 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // ✅ Middleware (in correct order)
-app.use(session({
+/* app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // true only if using HTTPS
+  cookie: { secure: false }
+})); */
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production' // true only in production
+  }
 }));
 
 app.use(express.json());
