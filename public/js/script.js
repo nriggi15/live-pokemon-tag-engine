@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Show popup if not disabled
   if (!localStorage.getItem("cardverse_intro_hidden")) {
-    popup.classList.remove("hidden");
+    if (popup) popup.classList.remove("hidden");
   }
 
   closeBtn?.addEventListener("click", () => {

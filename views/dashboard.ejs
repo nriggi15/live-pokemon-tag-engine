@@ -23,7 +23,7 @@
       margin-bottom: 1rem;
     }
 
-    button {
+    #dashboard-wrapper button {
       padding: 10px 16px;
       background-color: #007bff;
       color: white;
@@ -31,6 +31,15 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
+/*     button {
+      padding: 10px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    } */
 
     button:hover {
       background-color: #0056b3;
@@ -42,8 +51,9 @@
   }
 
   body.dark-mode .info-box {
-    background-color: #1e1e1e;
+    background-color: #2a2a2a;
     color: #f0f0f0;
+    border: 1px solid #444;
   }
 
   body.dark-mode button {
@@ -61,10 +71,9 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
 </head>
 <body>
-  <%- include('partials/sidebar') %>
 
   <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
 
 
@@ -87,7 +96,7 @@
 
         <div class="info-box" id="profileSection">
           <img id="dashboardAvatar" src="https://cdn-icons-png.flaticon.com/512/188/188987.png" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 0.5rem;" />
-          <div id="dashboardBio" style="font-style: italic; color: #555;">Loading bio...</div>
+          <div id="dashboardBio" style="font-style: italic;">Loading bio...</div>
         </div>
             <!-- Edit Buttons -->
         <div id="editProfileControls">

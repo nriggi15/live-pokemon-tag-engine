@@ -7,6 +7,8 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
+  <!-- GOOGLE ANALYTICS -->
+  <%- include('partials/analytics') %>
 
   <title>Moderator Hub</title>
   <style>
@@ -68,6 +70,15 @@
 
   <div id="pendingTagsContainer">
     <h3>Pending Tag Submissions</h3>
+
+    <div id="bulkControls" style="margin-bottom: 1rem;">
+      <button onclick="selectAllChecks()">☑️ Select All</button>
+      <button onclick="unselectAllChecks()">🚫 Unselect All</button>
+      <button onclick="bulkModerate('approve')">🟢 Bulk Approve</button>
+      <button onclick="bulkModerate('deny')">🔴 Bulk Deny</button>
+    </div>
+
+
     <div id="pendingTagsList">Loading...</div>
   </div>  
 </div>
@@ -97,6 +108,15 @@
       list.innerHTML = '';
       data.forEach(sub => {
         const entryDiv = document.createElement('div');
+
+        //Batch Checkboxes
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('bulk-check');
+        checkbox.value = sub._id;
+        checkbox.style.marginRight = '10px';
+
+        entryDiv.appendChild(checkbox);
         entryDiv.classList.add('tag-entry');
         entryDiv.style.display = 'flex';
         entryDiv.style.alignItems = 'center';
@@ -105,12 +125,46 @@
         entryDiv.style.paddingBottom = '0.5rem';
         entryDiv.style.gap = '1rem';
 
+/*         const cardImage = document.createElement('img');
+        cardImage.src = `https://images.pokemontcg.io/${sub.cardId.split('-')[0]}/${sub.cardId.split('-')[1]}.png`;
+        cardImage.alt = sub.cardId;
+        cardImage.style.height = '80px';
+        cardImage.style.cursor = 'pointer';
+        cardImage.style.flexShrink = '0'; */
+
+        const imageWrapper = document.createElement('div');
+        imageWrapper.style.display = 'flex';
+        imageWrapper.style.flexDirection = 'column';
+        imageWrapper.style.alignItems = 'center';
+        imageWrapper.style.minWidth = '100px';
+
+        const nameLabel = document.createElement('p');
+        nameLabel.textContent = sub.cardName || 'Unknown';
+        nameLabel.style.margin = '0 0 4px 0';
+        nameLabel.style.fontWeight = 'bold';
+        nameLabel.style.fontSize = '0.9rem';
+        nameLabel.style.textAlign = 'center';
+
         const cardImage = document.createElement('img');
         cardImage.src = `https://images.pokemontcg.io/${sub.cardId.split('-')[0]}/${sub.cardId.split('-')[1]}.png`;
         cardImage.alt = sub.cardId;
         cardImage.style.height = '80px';
         cardImage.style.cursor = 'pointer';
         cardImage.style.flexShrink = '0';
+
+        cardImage.addEventListener('click', async () => {
+          try {
+            const res = await fetch(`https://api.pokemontcg.io/v2/cards/${sub.cardId}`);
+            const data = await res.json();
+            openCardPopup(data.data, { mode: 'view' });
+          } catch (err) {
+            console.error('❌ Failed to load card for popup:', err);
+          }
+        });
+
+        imageWrapper.appendChild(nameLabel);
+        imageWrapper.appendChild(cardImage);
+
 
         cardImage.addEventListener('click', async () => {
           try {
@@ -132,7 +186,9 @@
           <button onclick="moderateTag('${sub._id}', 'deny')">❌ Deny</button>
         `;
 
-        entryDiv.appendChild(cardImage);
+        // entryDiv.appendChild(cardImage);
+        entryDiv.appendChild(imageWrapper);
+
         entryDiv.appendChild(infoDiv);
         list.appendChild(entryDiv);
       });
@@ -155,6 +211,42 @@
       console.error('Moderation failed:', err);
     }
   }
+
+  //Batch buttons
+  function selectAllChecks() {
+  document.querySelectorAll('.bulk-check').forEach(cb => cb.checked = true);
+}
+
+function unselectAllChecks() {
+  document.querySelectorAll('.bulk-check').forEach(cb => cb.checked = false);
+}
+
+async function bulkModerate(action) {
+  const selected = Array.from(document.querySelectorAll('.bulk-check:checked')).map(cb => cb.value);
+
+  if (selected.length === 0) {
+    alert('Please select at least one submission.');
+    return;
+  }
+
+  const confirmMsg = action === 'approve'
+    ? `Approve ${selected.length} selected submission(s)?`
+    : `Deny ${selected.length} selected submission(s)?`;
+
+  if (!confirm(confirmMsg)) return;
+
+  for (const id of selected) {
+    try {
+      await fetch(`/api/mod/newtags/${id}/${action}`, { method: 'POST' });
+    } catch (err) {
+      console.error(`❌ Failed to ${action} tag ID: ${id}`, err);
+    }
+  }
+
+  // Refresh after processing
+  fetchPendingTags();
+}
+
 
   // Initial load
   fetchPendingTags();

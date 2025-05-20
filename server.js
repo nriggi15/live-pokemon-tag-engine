@@ -120,9 +120,9 @@ app.get('/login-test', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login-test.html'));
 });
 
-app.get('/', (req, res) => {
+/* app.get('/', (req, res) => {
   res.render('index', { page: 'index' });
-});
+}); */
 
 app.get('/terms', (req, res) => {
   res.render('terms');

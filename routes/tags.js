@@ -73,12 +73,30 @@ router.post('/tag-submissions/:cardId', requireLogin, requireVerified, async (re
 router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
   try {
     const submissions = await TagSubmission.find({ status: 'pending' }).populate('submittedBy', 'username');
-    res.json(submissions);
+
+    const results = await Promise.all(submissions.map(async sub => {
+      let cardName = 'Unknown';
+      try {
+        const response = await fetch(`https://api.pokemontcg.io/v2/cards/${sub.cardId}`);
+        const data = await response.json();
+        cardName = data?.data?.name || 'Unknown';
+      } catch (err) {
+        console.warn(`⚠️ Could not fetch card ${sub.cardId}:`, err.message);
+      }
+
+      return {
+        ...sub.toObject(),
+        cardName
+      };
+    }));
+
+    res.json(results);
   } catch (err) {
     console.error('Error fetching pending tags:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // POST //mod/newtags/:id/approve
 router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res) => {

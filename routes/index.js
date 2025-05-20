@@ -16,6 +16,7 @@ router.get('/', (req, res) => {
     email: req.session.email || '',
     isDarkMode: req.session?.darkMode || false,
     page: 'index',
+    currentPage: 'index',
     layout: 'layout',
     title: 'Home',
   });

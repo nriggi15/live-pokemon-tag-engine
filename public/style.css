@@ -103,7 +103,6 @@ h1 {
   cursor: pointer;
 }
 
-
 .dark-mode #sidebar {
   background-color: #333;
   color: white;
@@ -192,12 +191,6 @@ body.dark-mode .dashboard-right {
   background-color: #1e1e1e;
   color: #f0f0f0;
   border: 1px solid #333;
-}
-
-body.dark-mode .info-box {
-  background-color: #2a2a2a;
-  color: #f0f0f0;
-  border: 1px solid #444;
 }
 
 body.dark-mode #user-submissions-table th {

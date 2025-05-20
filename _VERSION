@@ -1,5 +1,6 @@
 General Updates:
--Testing ebay affiliate links, as they are broken
+-Fixed bottom-nav styling and button functionality
+-Added :page: identifiers to all viewable pages for EJS layout purposes
 
 Features Added:
 -
@@ -13,4 +14,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.71 - 
+v1.5.722 -  Bug Fixes

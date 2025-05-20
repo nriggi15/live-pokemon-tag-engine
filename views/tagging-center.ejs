@@ -75,7 +75,7 @@
 
 
   <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav') %>
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
   <!-- Scripts -->
   <script src="/js/script.js"></script>
