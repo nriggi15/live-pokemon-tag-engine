@@ -186,6 +186,48 @@ h1 {
 
 /* END SIDE BAR */
 
+body.dark-mode .dashboard-left,
+body.dark-mode .dashboard-main,
+body.dark-mode .dashboard-right {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #333;
+}
+
+body.dark-mode .info-box {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  border: 1px solid #444;
+}
+
+body.dark-mode #user-submissions-table th {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  border-bottom: 1px solid #444;
+}
+
+.dashboard-grid a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.dashboard-grid a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Dark mode override */
+body.dark-mode .dashboard-grid a {
+  color: #66b0ff;
+}
+
+body.dark-mode .dashboard-grid a:hover {
+  color: #3399ff;
+}
+
+
 #tagStatsPopup {
   position: fixed;
   top: 0;

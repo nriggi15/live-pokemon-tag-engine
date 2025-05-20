@@ -17,6 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const tagStatsList = document.getElementById('tagStatsList');
   const closeStatsBtn = tagStatsPopup?.querySelector('.close-button');
 
+    // Initialize from localStorage
+  const isDark = localStorage.getItem('darkMode') === 'true';
+  document.body.classList.toggle('dark-mode', isDark);
+
+    // Listen for the toggle button
+  document.getElementById('toggleDarkModeBtn')?.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  });
 
   // ✅ Auto-hide sidebar on page load if on mobile
   if (window.innerWidth <= 768) {
@@ -404,9 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
       filterPanel.style.display = isHidden ? 'block' : 'none';
     });
   }
-
-
-
 
 
 // END DOMCONTENT LOADER

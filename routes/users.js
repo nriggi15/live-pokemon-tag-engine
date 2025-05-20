@@ -510,14 +510,28 @@ router.get('/admin/activity-details', requireAdmin, async (req, res) => {
       }
 
       case 'tag-submissions': {
-        const tags = await TagSubmission.find({ createdAt: { $gte: since } }, 'tag cardId createdAt');
-        return res.json(tags.map(t => `Tag "${t.tag}" submitted on card ${t.cardId} at ${t.createdAt.toLocaleString()}`));
+        const tags = await TagSubmission.find({ createdAt: { $gte: since } })
+          .populate('submittedBy', 'username')
+          .select('tag cardId createdAt submittedBy');
+
+        return res.json(tags.map(t => {
+          const username = t.submittedBy?.username || 'unknown';
+          return `Tag "${t.tag}" submitted on card ${t.cardId} by user ${username} at ${t.createdAt.toLocaleString()}`;
+        }));
       }
 
+
       case 'tag-approvals': {
-        const tags = await NewTag.find({ reviewedAt: { $gte: since }, status: 'approved' }, 'tag cardId reviewedAt');
-        return res.json(tags.map(t => `Tag "${t.tag}" approved for ${t.cardId} at ${t.reviewedAt.toLocaleString()}`));
+        const tags = await NewTag.find({ reviewedAt: { $gte: since }, status: 'approved' })
+          .populate('reviewedBy', 'username')
+          .select('tag cardId reviewedAt reviewedBy');
+
+        return res.json(tags.map(t => {
+          const reviewer = t.reviewedBy?.username || 'unknown';
+          return `Tag "${t.tag}" approved for ${t.cardId} by ${reviewer} at ${t.reviewedAt.toLocaleString()}`;
+        }));
       }
+
 
       case 'tag-denials': {
         const tags = await TagSubmission.find({ reviewedAt: { $gte: since }, status: 'denied' }, 'tag cardId reviewedAt');

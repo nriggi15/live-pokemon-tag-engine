@@ -324,6 +324,23 @@
   <script src="/js/advanced-search.js"></script>
   <!-- <script type="module" src="/js/react/assets/main-U_irmcaW.js"></script> -->
 
+<script>
+  const saveSearchURL = () => {
+    try {
+      localStorage.setItem('lastSearchURL', window.location.href);
+    } catch (err) {
+      console.warn('Could not save search URL:', err);
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('#results-container a[href^="/card/"]');
+    links.forEach(link => {
+      link.addEventListener('pointerdown', saveSearchURL); // triggers earlier than click
+    });
+  });
+</script>
+
 
 
 </body>

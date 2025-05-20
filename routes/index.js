@@ -227,21 +227,30 @@ router.get('/card/:id', async (req, res) => {
     const ebayFinal = ebayAffiliate;
 
 
+console.log('🧪 from param:', req.query.from);
 
-    res.render('card', {
-      card,
-      tags,
-      similarCards,
-      setCards,
-      collectionsWithCard,
-      isLoggedIn: !!req.session.userId,
-      role: req.session.role || 'guest',
-      marketPrice,
-      message: message ? { text: message, type } : null,
-      ebayAffiliate,
-      isLocalhost,
-      ebayFinal
-    });
+res.render('card', {
+  layout: 'layout',               // ✅ explicitly include layout (if you use one)
+  title: `${card.name} | Pokémon Card`,  // optional but helpful
+  page: 'card',                   // optional but good for nav
+
+  card,
+  tags,
+  similarCards,
+  setCards,
+  collectionsWithCard,
+  isLoggedIn: !!req.session.userId,
+  role: req.session.role || 'guest',
+  marketPrice,
+  message: message ? { text: message, type } : null,
+  ebayAffiliate,
+  isLocalhost,
+  ebayFinal,
+  from: req.query.from ? encodeURIComponent(req.query.from) : ''
+});
+
+
+
 
 
 

@@ -162,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // On click, go to the card page
         cardEl.addEventListener('click', () => {
           localStorage.setItem('lastSearchURL', window.location.href);
-          window.location.href = `/card/${card.id}`;
+          const fromURL = encodeURIComponent(window.location.href);
+          window.location.href = `/card/${card.id}?from=${fromURL}`;
+
         });
 
           // ⬇️ Add this to mirror preview if too close to screen edge

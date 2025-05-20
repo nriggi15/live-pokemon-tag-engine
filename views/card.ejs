@@ -218,7 +218,11 @@
       <div class="card-grid" id="similarCards">
         <% if (similarCards.length) { %>
             <% similarCards.forEach(c => { %>
-                <a href="/card/<%= c.id %>">
+              <a href="/card/<%= c.id %><%= typeof from !== 'undefined' && from ? '?from=' + from : '' %>">
+
+
+
+
                 <img src="<%= c.images.small %>" alt="<%= c.name %>" title="<%= c.name %>">
                 </a>
             <% }) %>
@@ -233,8 +237,12 @@
       <h2>More from <%= card.set.name %></h2>
       <div class="card-grid" id="setCards">
         <% if (setCards.length) { %>
-            <% setCards.forEach(c => { %>
-                <a href="/card/<%= c.id %>">
+          <% setCards.forEach(c => { %>
+            <a href="/card/<%= c.id %><%= typeof from !== 'undefined' && from ? '?from=' + from : '' %>">
+
+
+
+
                 <img src="<%= c.images.small %>" alt="<%= c.name %>" title="<%= c.name %>">
                 </a>
             <% }) %>
@@ -284,8 +292,13 @@
 
   <script>
     function goBackToSearch() {
-      const lastSearch = localStorage.getItem('lastSearchURL');
-      window.location.href = lastSearch || '/search';
+      const urlParams = new URLSearchParams(window.location.search);
+      const from = urlParams.get('from');
+      if (from) {
+        window.location.href = decodeURIComponent(from);
+      } else {
+        window.location.href = '/search';
+      }
     }
   </script>
 
