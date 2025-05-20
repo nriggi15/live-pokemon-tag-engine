@@ -1,7 +1,7 @@
 // middleware/rateLimiter.js
 import rateLimit from 'express-rate-limit';
 
-// Limit: 10 requests per 15 minutes per IP
+// Limit: 10 requests per 1 minute per IP
 const tagSubmissionLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
