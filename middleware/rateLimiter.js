@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 
 // Limit: 10 requests per 15 minutes per IP
 const tagSubmissionLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: { error: 'Too many tag submissions from this IP. Please try again later.' }
 });
