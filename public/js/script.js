@@ -1,4 +1,12 @@
+  //Import Image Maps
+  // public/js/script.js (or wherever your frontend logic lives)
+import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
+import { largeImageMap } from '/img/pokemonLarge/largeImageMap.js';
+import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("🚀 script.js is running");
+
   // 👇 ALL OF THIS SHOULD BE INSIDE HERE:
   const sidebar = document.getElementById('sidebar');
   const minimizeBtn = document.getElementById('minimizeSidebarBtn');
@@ -124,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  fetch('/api/whoami')
+/*   fetch('/api/whoami')
   .then(res => res.json())
   .then(data => {
     const { userId, role } = data;
@@ -137,6 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const modLink = document.getElementById('modLink');
 
     if (userId) {
+
+      const myProfileBtn = document.getElementById('myProfileBtn');
+      if (myProfileBtn) {
+        fetch(`/api/user-profile/${userId}`)
+          .then(res => res.json())
+          .then(profile => {
+            if (profile?.username) {
+              myProfileBtn.href = `/user/${profile.username}`;
+              myProfileBtn.classList.remove('hidden');
+            }
+          })
+          .catch(() => {
+            myProfileBtn.style.display = 'none';
+          });
+      }
+
+
       registerBtn?.classList.add('hidden');
       loginBtn?.classList.add('hidden');
       logoutBtn?.classList.remove('hidden');
@@ -160,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   .catch(err => {
     console.error('Failed to fetch user role:', err);
-  });
+  }); */
 
   if (viewSetsBtn && setsPopup && closeSetsPopup && setsList) {
     viewSetsBtn.addEventListener('click', async () => {
@@ -318,8 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
             registerBtn?.classList.add('hidden');
             loginBtn?.classList.add('hidden');
-
+            
             const myProfileBtn = document.getElementById('myProfileBtn');
+            console.log('👀 Looking for #myProfileBtn:', myProfileBtn);
+            
             if (myProfileBtn) {
               fetch(`/api/user-profile/${data.userId}`)
                 .then(res => res.json())

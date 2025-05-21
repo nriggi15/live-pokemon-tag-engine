@@ -1,3 +1,5 @@
+import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
+import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
 document.addEventListener('DOMContentLoaded', () => {
     console.log("🧠 dashboard.js is running ✅");
 
@@ -5,17 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
         (async () => {
           try {
             const res = await fetch('/api/whoami');
+            if (!res.ok) throw new Error('Non-200 status from /api/whoami');
             const data = await res.json();
 
-            document.getElementById('username').textContent = data.username || 'Unknown';
+            document.getElementById('dashboardAvatarLink').href = `/user/${data.username}`;
             document.getElementById('userId').textContent = data.userId || 'Unknown';
             document.getElementById('role').textContent = data.role || 'N/A';
+            document.getElementById('username').textContent = data.username || 'Unknown';
 
             const profileRes = await fetch(`/api/user-profile/${data.userId}`);
             const profile = await profileRes.json();
 
             document.getElementById('dashboardAvatar').src = profile.avatarUrl || '/images/default-avatar.png';
             document.getElementById('dashboardBio').textContent = profile.bio || 'This user has not written a bio yet.';
+            document.getElementById('dashboardFavorite').textContent = profile.favoritePokemon || 'Not set';
 
                 // 🧠 Save initial values
             document.getElementById('editAvatarUrl').value = profile.avatarUrl || '';
@@ -41,12 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
             saveBtn.addEventListener('click', async () => {
               const newAvatar = document.getElementById('editAvatarUrl').value.trim();
               const newBio = document.getElementById('editBio').value.trim();
+              const newFavorite = document.getElementById('favoriteSelect').value.trim();
+
 
               try {
                 const res = await fetch(`/api/user-profile/${data.userId}`, {
                   method: 'PATCH',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ avatarUrl: newAvatar, bio: newBio })
+                  body: JSON.stringify({ avatarUrl: newAvatar, bio: newBio, favoritePokemon: newFavorite })
                 });
 
                 if (res.ok) {
@@ -71,10 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('userId').textContent = 'Error';
             document.getElementById('role').textContent = 'Error';
           }
-        })();
+        })(); // End Profile Fetch
 
 
-
+    //Fetch all pokemon names from .json file locally to reduce request loads... we really need to start worrying about load times..
+    Object.keys(pixelImageMap).forEach((name, index) => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = `#${index + 1} ${name}`;
+      favoriteSelect.appendChild(opt);
+    });
       
     // ✅ Load tag submissions table
     const tableBody = document.querySelector('#user-submissions-table tbody');
@@ -85,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(submissions => {
           console.log("📄 Received submissions:", submissions);
 
-                    // 🔢 Compute tag status counts
           const stats = {
             approved: 0,
             denied: 0,
@@ -100,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else stats.pending++;
           });
 
-          // 📊 Render progress stats
+          // Render stats
           const statsList = document.getElementById('statsList');
           statsList.innerHTML = `
             <li>✅ Approved: ${stats.approved}</li>
@@ -109,25 +121,178 @@ document.addEventListener('DOMContentLoaded', () => {
             <li>🧮 Total: ${stats.total}</li>
           `;
 
+          const pageSize = 25;
+          let currentPage = 1;
+          let currentSort = { field: 'createdAt', direction: 1 };
 
-          submissions.forEach(sub => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${sub.tag}</td>
-              <td>${sub.cardId}</td>
-              <td>${sub.status}</td>
-              <td>${new Date(sub.createdAt).toLocaleDateString()}</td>
-            `;
-            tableBody.appendChild(row);
+          document.querySelectorAll('#user-submissions-table th').forEach(th => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => {
+              const field = th.dataset.sort;
+              if (!field) return;
+
+              if (currentSort.field === field) {
+                currentSort.direction *= -1; // toggle asc/desc
+              } else {
+                currentSort = { field, direction: 1 };
+              }
+
+              submissions.sort((a, b) => {
+                let aVal = a[field];
+                let bVal = b[field];
+
+                if (field === 'createdAt') {
+                  aVal = new Date(aVal);
+                  bVal = new Date(bVal);
+                }
+
+                if (aVal < bVal) return -1 * currentSort.direction;
+                if (aVal > bVal) return 1 * currentSort.direction;
+                return 0;
+              });
+
+              renderPage(currentPage);
+            });
           });
+
+
+          //Sorting Indicators for dashboard
+          function updateSortIndicators() {
+            document.querySelectorAll('#user-submissions-table th').forEach(th => {
+              const field = th.dataset.sort;
+              if (!field) return;
+
+              const label = th.getAttribute('data-label');
+              const isSorted = field === currentSort.field;
+
+              // Only update text content, not innerHTML
+              th.textContent = label + (isSorted ? (currentSort.direction === 1 ? ' ▲' : ' ▼') : '  ');
+
+              th.classList.toggle('sorted', isSorted);
+            });
+          }
+
+
+
+
+
+          const totalPages = Math.ceil(submissions.length / pageSize);
+          const tableBody = document.querySelector('#user-submissions-table tbody');
+          const pagination = document.getElementById('submissionPagination');
+          const pageInput = document.getElementById('submissionPageInput');
+
+          function renderPage(page) {
+            tableBody.innerHTML = '';
+            const start = (page - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = submissions.slice(start, end);
+
+            pageData.forEach(sub => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${sub.tag}</td>
+                <td>${sub.cardId}</td>
+                <td>${sub.status}</td>
+                <td>${new Date(sub.createdAt).toLocaleDateString()}</td>
+              `;
+              tableBody.appendChild(row);
+            });
+
+            pageInput.value = `${currentPage} / ${totalPages}`;
+            updateSortIndicators();
+
+          }
+
+          // Navigation controls
+          document.getElementById('prevSubmissionPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+              currentPage--;
+              renderPage(currentPage);
+            }
+          });
+
+          document.getElementById('nextSubmissionPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+              currentPage++;
+              renderPage(currentPage);
+            }
+          });
+
+          pageInput.addEventListener('change', () => {
+            const val = parseInt(pageInput.value.split('/')[0].trim());
+            if (!isNaN(val) && val >= 1 && val <= totalPages) {
+              currentPage = val;
+              renderPage(currentPage);
+            }
+          });
+
+          // Sort by default: Date ascending
+          submissions.sort((b, a) => new Date(a.createdAt) - new Date(b.createdAt));
+          renderPage(currentPage);
+          updateSortIndicators();
         })
+
         .catch(err => {
           console.error('Failed to load tag submissions:', err);
         });
     } else {
       console.warn("🚫 Tag submission table not found");
     }
+
+
+
+
+  }); // END OF DOME
+  //////////////////
+  //////////////////
+
+
+  // 🎨 Avatar Picker Logic
+const chooseBtn = document.getElementById('chooseAvatarBtn');
+const avatarPopup = document.getElementById('avatarPopup');
+const avatarGrid = document.getElementById('avatarGrid');
+const closePopup = document.getElementById('closeAvatarPopup');
+const avatarInput = document.getElementById('editAvatarUrl');
+const dashboardAvatar = document.getElementById('dashboardAvatar');
+
+chooseBtn?.addEventListener('click', () => {
+  avatarPopup.classList.remove('hidden');
+  avatarGrid.innerHTML = '';
+
+  Object.entries(avatarImageMap).forEach(([name, filename]) => {
+    const img = document.createElement('img');
+    img.src = `/img/avatars/${filename}`;
+    img.alt = name;
+    img.title = name;
+    img.style.width = '60px';
+    img.style.height = '60px';
+    img.style.borderRadius = '50%';
+    img.style.cursor = 'pointer';
+    img.style.border = '2px solid transparent';
+
+    // If it's the current avatar
+    if (avatarInput.value.includes(filename)) {
+      img.style.borderColor = '#007bff';
+    }
+
+    img.addEventListener('click', () => {
+      const url = `/img/avatars/${filename}`;
+      avatarInput.value = url;
+      dashboardAvatar.src = url;
+
+      avatarPopup.classList.add('hidden');
+    });
+
+    avatarGrid.appendChild(img);
   });
+});
+
+closePopup?.addEventListener('click', () => {
+  avatarPopup.classList.add('hidden');
+});
+
+
+
   
   async function loadCollections() {
   const list = document.getElementById('collectionList');

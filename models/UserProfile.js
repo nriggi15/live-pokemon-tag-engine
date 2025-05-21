@@ -24,7 +24,10 @@ const userProfileSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  favoritePokemon: {
+    type: String
+  },
 });
 
 const UserProfile = mongoose.model('UserProfile', userProfileSchema);

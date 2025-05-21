@@ -7,8 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
 
   <title>Moderator Hub</title>
   <style>
@@ -67,8 +65,6 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
 </head>
 <body>
-  <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
   <div id="moderator-container">
   <h2>🛠️ Moderator Hub</h2>
@@ -262,7 +258,7 @@ async function bulkModerate(action) {
   fetchPendingTags();
 </script>
 
-<script src="/js/script.js"></script>
+<script type="module" src="/js/script.js"></script>
   
 </body>
 </html>

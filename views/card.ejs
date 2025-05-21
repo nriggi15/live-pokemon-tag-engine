@@ -285,11 +285,6 @@
     background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeLoginModal()">
   </div>
 
-
-
-
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
-
   <script>
     function goBackToSearch() {
       const urlParams = new URLSearchParams(window.location.search);

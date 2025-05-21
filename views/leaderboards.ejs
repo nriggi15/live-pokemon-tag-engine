@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   <link rel="stylesheet" href="/css/leaderboards.css" />
 
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
 </head>
 <body>
   <main class="leaderboards-content">
@@ -68,8 +66,6 @@
     </div>
 
   </main>
-
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
   <script src="/js/leaderboards.js" defer></script>
 </body>
 </html>

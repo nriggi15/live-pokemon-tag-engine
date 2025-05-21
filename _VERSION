@@ -1,18 +1,24 @@
 General Updates:
--Fixed various bottom nav bar bugs
--Fixed darkmode issues around the tool
--Added Cards cache for fasting load things in various places around the tool
+-Added user dashboard styling, more the come in the future!! (Stay tuned)
+-Image library & assets added
+-Account/user avatars! Edit in your bio (higher res coming soon!)
+-User Profiles Updated
+-New Dashboard Options
+-Big thanks for the early users of the discord server!
+-Mod page updated
 
 Features Added:
--
+-Favorite pokemon (cute pixel art!!)
+-New route for favorite pokemon in UserProfiles
 
 Technical Updates:
--
+-Image library added!
+-Fixed mod tag queue route
 
 Bugs Discovered:
 -
 
 Bug Fixes:
--
+-My Profile button no longer broken
 
-v1.5.723 -  
+v1.6.2 -  

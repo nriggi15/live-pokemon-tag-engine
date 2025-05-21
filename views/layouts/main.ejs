@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/style.css" />
+
+  <% 
+    const safeRole = typeof role !== 'undefined' ? role : 'guest';
+    const safePage = typeof page !== 'undefined' ? page : 'unknown';
+    const safeIsLoggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : false;
+  %>
+
+  <!-- Bottom Navigation Bar -->
+  <%- include('../partials/bottom-nav', {
+    isLoggedIn: safeIsLoggedIn,
+    role: safeRole,
+    page: safePage
+  }) %>
+
+  <!-- GOOGLE ANALYTICS -->
+  <%- include('../partials/analytics') %>
+</head>
+
+<body class="<%= isDarkMode ? 'dark-mode' : '' %>">
+  <main class="main-container">
+    <%- body %>
+  </main>
+</body>
+</html>

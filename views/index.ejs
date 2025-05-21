@@ -13,10 +13,6 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
 
-
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
-
 </head>
 <body>
 
@@ -206,18 +202,12 @@
         bugFormModal.style.display = 'none';
       }
     });
-  </script>
-
-  
-      <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
-  
-  
+  </script> 
       <!-- Run the JS Script file, put most things above this -->
       <script src="/js/search.js"></script>
 
       <!-- Shared utilities like sidebar, dark mode, back to top -->
-      <script src="/js/script.js"></script>
+      <script type="module" src="/js/script.js"></script>
   
 
 </body>

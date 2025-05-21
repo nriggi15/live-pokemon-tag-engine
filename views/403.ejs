@@ -1,0 +1,11 @@
+<div style="margin-top: 1.5rem; font-size: 1.25rem; color: #666;">
+  <% if (message?.toLowerCase().includes('admin')) { %>
+    <p>👑 Admin access only</p>
+  <% } else if (message?.toLowerCase().includes('login')) { %>
+    <p>🔐 You must log in</p>
+  <% } else if (message?.toLowerCase().includes('moderator')) { %>
+    <p>🛡️ Moderator access only</p>
+  <% } else { %>
+    <p><%= message %></p>
+  <% } %>
+</div>
