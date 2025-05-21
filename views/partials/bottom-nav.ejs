@@ -56,6 +56,30 @@
 
 <form id="logoutForm" action="/api/logout" method="GET" style="display: none;"></form>
 
+
+
+
+<!-- Login Popup -->
+<div id="loginModal" style="display: none; position: fixed; top: 20vh; left: 50%; transform: translateX(-50%);
+  background: white; border-radius: 10px; padding: 1rem; z-index: 9999; width: 300px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+  <h3 style="margin-top: 0;">🔐 Login</h3>
+  <form id="loginPopupForm">
+    <input type="email" name="email" placeholder="Email" required style="width: 100%; margin-bottom: 0.5rem;" />
+    <input type="password" name="password" placeholder="Password" required style="width: 100%; margin-bottom: 0.5rem;" />
+    <button type="submit" style="width: 100%; padding: 6px 0;">Log In</button>
+    <p id="loginPopupError" style="color: red; font-size: 0.85rem;"></p>
+  </form>
+</div>
+
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeLoginModal()">
+</div>
+
+
+
+
+
+
 <script>
   let openPanelId = null;
 
@@ -96,4 +120,74 @@
   document.getElementById('logoutBtn')?.addEventListener('click', function () {
     document.getElementById('logoutForm').submit();
   });
+
+
+//Login Popup
+  function openLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+  }
+
+  document.getElementById('loginBtn')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    openLoginModal();
+
+    // ✅ Collapse the account panel
+    const accountPanel = document.getElementById('accountPanel');
+    if (accountPanel) {
+      accountPanel.style.display = 'none';
+    }
+  });
+
+
+  document.getElementById('loginPopupForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value.trim();
+    const password = form.password.value.trim();
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        window.location.reload(); // ✅ Start session and refresh
+      } else {
+        document.getElementById('loginPopupError').textContent = result.message || 'Login failed';
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      document.getElementById('loginPopupError').textContent = 'Unexpected error during login';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // Close login modal if open
+      const loginModal = document.getElementById('loginModal');
+      const overlay = document.getElementById('overlay');
+
+      if (loginModal?.style.display === 'block') {
+        loginModal.style.display = 'none';
+        overlay.style.display = 'none';
+      }
+
+      // Close all open panels
+      document.querySelectorAll('.nav-panel').forEach(panel => {
+        panel.style.display = 'none';
+      });
+      openPanelId = null;
+    }
+  });
+
 </script>

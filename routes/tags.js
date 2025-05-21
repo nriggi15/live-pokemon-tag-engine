@@ -113,6 +113,7 @@ router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
     }
 
     let fallbackUsed = false;
+    let fallbackCount = 0;
 
     const results = await Promise.all(submissions.map(async sub => {
       let cardName = cardMap[sub.cardId]?.name;

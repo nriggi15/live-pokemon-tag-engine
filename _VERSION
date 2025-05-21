@@ -1,18 +1,34 @@
 General Updates:
--Fixed various bottom nav bar bugs
--Fixed darkmode issues around the tool
--Added Cards cache for fasting load things in various places around the tool
+-Added user dashboard styling, more the come in the future!! (Stay tuned)
+-Image library & assets added
+-Account/user avatars! Edit in your bio (higher res coming soon!)
+-User Profiles Updated
+-New Dashboard Options
+-Big thanks for the early users of the discord server!
+-Mod page updated
+-Reorganized code for main search functions
+-Replaced Show All Tagged Cards button with the sets popup (since sidebar is not retired)
+-updated admin tools
+-discord messages to the #production-pushes channel via middleware githubwebhook
 
 Features Added:
--
+-Favorite pokemon (cute pixel art!!)
+-New route for favorite pokemon in UserProfiles
+-Working TCGPlayer affiliate links
+-Site-wide mobile login (login popup via bottom-nav)
+-silent GitHub webhook for discord integration
 
 Technical Updates:
--
+-Image library added!
+-Fixed mod tag queue route
+-Updated various dark mode styling
 
 Bugs Discovered:
 -
 
 Bug Fixes:
--
+-My Profile button no longer broken
+-Fixed search #all
+-moved share button on /card page, no longer covering tags
 
-v1.5.723 -  
+v1.6.4 - Fixed Search

@@ -267,12 +267,19 @@ router.get('/whoami', async (req, res) => {
 router.get('/reset-password', (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).send('Missing reset token');
-  res.render('reset-password', { token });
+  res.render('reset-password', {
+    token,
+    layout: 'layouts/main',
+  });
 });
 
-
-router.get('/forgot-password', (req, res) => {
-  res.render('forgot-password');
+router.get('/reset-password', (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).send('Missing reset token');
+  res.render('reset-password', { 
+    token,
+    layout: 'layouts/main',
+  });
 });
  
 

@@ -54,7 +54,6 @@
   
 </head>
 <body>
-  <%- include('partials/sidebar') %>
 
   <div class="collection-header" style="position: relative;">
     <div style="position: absolute; top: 0; right: 0;">
@@ -77,8 +76,6 @@
 
   <a href="javascript:history.back()" id="backBtn">← Back to Profile</a>
 
-    <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
 
 
@@ -266,7 +263,7 @@
     loadCollection();
   </script>
   <script src="/js/tagging-center.js" defer></script>
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 </body>

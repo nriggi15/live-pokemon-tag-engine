@@ -154,6 +154,7 @@
       min-width: 0;
     }
 
+
     #filterBtn {
       flex: 0 0 auto;
     }
@@ -193,9 +194,6 @@
 
   </style>
 
-
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
 </head>
 <body>
 
@@ -318,9 +316,8 @@
   </div>
 
       <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
   <script src="/js/advanced-search.js"></script>
   <!-- <script type="module" src="/js/react/assets/main-U_irmcaW.js"></script> -->
 
