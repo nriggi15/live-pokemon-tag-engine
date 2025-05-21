@@ -1,5 +1,4 @@
 ---
-// src/pages/blog/index.astro
 import { getCollection } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 
@@ -12,12 +11,41 @@ const posts = await getCollection('posts');
 
   <ul>
     {posts.map(post => (
-      <li>
-        <a href={`/blog/${post.slug}`}>
+      <li style="margin-bottom: 2rem; list-style: none;">
+        <a href={`/blog/${post.slug}`} style="text-decoration: none; color: inherit;">
+          {post.data.image && post.data.image.trim() !== "" && (
+            <img 
+              src={post.data.image} 
+              alt={`Image for ${post.data.title}`} 
+              style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 0.5rem;" 
+              loading="lazy" 
+            />
+          )}
           <h2>{post.data.title}</h2>
         </a>
+
         <p>{post.data.description}</p>
         <small>Published on {new Date(post.data.pubDate).toLocaleDateString()}</small>
+
+        {post.data.tags && post.data.tags.length > 0 && (
+          <div style="margin-top: 0.5rem;">
+            {post.data.tags.map(tag => (
+              <span 
+                style="
+                  display: inline-block;
+                  background-color: #f2f2f2;
+                  color: #333;
+                  padding: 0.2rem 0.5rem;
+                  border-radius: 4px;
+                  font-size: 0.8rem;
+                  margin-right: 0.4rem;
+                "
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
       </li>
     ))}
   </ul>

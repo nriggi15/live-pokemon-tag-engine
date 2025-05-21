@@ -2,6 +2,9 @@
 title: "Top 5 Most Colorful Pokémon Cards"
 description: "We’re spotlighting five of the most vibrant, eye-popping cards that truly burst off the page. These picks were handpicked from CardVerse’s colorful tag pool!"
 pubDate: 2025-05-17
+author: "CardVerse Team"
+tags: []
+image: ""
 ---
 
 # Top 5 Most Colorful Pokémon Cards

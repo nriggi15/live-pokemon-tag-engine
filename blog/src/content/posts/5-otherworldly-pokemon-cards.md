@@ -2,6 +2,9 @@
 title: "5 Pokémon Cards That Look Like They're From Another Universe"
 description: "These cards break the mold — abstract, surreal, cosmic. Let’s explore five Pokémon cards that look like they belong in a different dimension."
 pubDate: 2025-05-17
+author: "CardVerse Team"
+tags: []
+image: ""
 ---
 
 # 5 Pokémon Cards That Look Like They're From Another Universe
