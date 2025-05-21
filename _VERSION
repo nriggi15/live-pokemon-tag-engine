@@ -1,9 +1,12 @@
+CardVerse 2.0 Patch Notes 5/21/2025:
+
 General Updates:
--Added user dashboard styling, more the come in the future!! (Stay tuned)
+-Converted entire site to new layout module
 -Image library & assets added
+-Added user dashboard styling, more the come in the future!! (Stay tuned)
 -Account/user avatars! Edit in your bio (higher res coming soon!)
 -User Profiles Updated
--New Dashboard Options
+-New Dashboard / Profile Options (More to come in the future, stay tuned!)
 -Big thanks for the early users of the discord server!
 -Mod page updated
 -Reorganized code for main search functions
@@ -24,11 +27,11 @@ Technical Updates:
 -Updated various dark mode styling
 
 Bugs Discovered:
--
+-Too many to count...lots of trial and error but is stable (seemingly)!
 
 Bug Fixes:
 -My Profile button no longer broken
 -Fixed search #all
 -moved share button on /card page, no longer covering tags
 
-v1.6.4 - Fixed Search
+v2.0 - Full Restructure and Overhaul
