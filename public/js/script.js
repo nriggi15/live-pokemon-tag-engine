@@ -218,66 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Failed to fetch user role:', err);
   }); */
 
-  if (viewSetsBtn && setsPopup && closeSetsPopup && setsList) {
-    viewSetsBtn.addEventListener('click', async () => {
-      console.log('🟢 Sets button clicked');
-      setsList.innerHTML = '<li>Loading...</li>';
-      setsPopup.classList.remove('hidden');
-    
-      try {
-        const response = await fetch('https://api.pokemontcg.io/v2/sets');
-        const data = await response.json();
-    
-        setsList.innerHTML = ''; // Clear loading text
-    
-        data.data.forEach(set => {
-          const li = document.createElement('li');
-          li.classList.add('set-entry');
-          li.innerHTML = `
-            <h3>${set.name}</h3>
-            <p><strong>Series:</strong> ${set.series}</p>
-            <p><strong>Set ID:</strong> ${set.id}</p>
-            <p><strong>Release Date:</strong> ${set.releaseDate || 'Unknown'}</p>
-            <p><strong>Cards:</strong> ${set.printedTotal || '?'} printed / ${set.total} total</p>
-            ${set.ptcgoCode ? `<p><strong>PTCGO Code:</strong> ${set.ptcgoCode}</p>` : ''}
-            <img src="${set.images.logo}" alt="${set.name} logo"
-              class="set-logo"
-              data-set-id="${set.id}"
-              title="Click to view cards from this set" />
-            <hr />
-          `;
-          setsList.appendChild(li);
-        });
-    
-        // ✅ Bind listeners AFTER the DOM has all logos
-        document.querySelectorAll('.set-logo').forEach(img => {
-          img.addEventListener('click', () => {
-            const setId = img.dataset.setId;
-            if (setId) {
-              searchInput.value = setId;
-              searchCards(`set.id:${setId}`);
-              setsPopup.classList.add('hidden');
-            }
-          });
-        });
-    
-      } catch (error) {
-        console.error('Error fetching sets:', error);
-        setsList.innerHTML = '<li>Error loading sets</li>';
-      }
-    });
-    
-    closeSetsPopup.addEventListener('click', () => {
-      setsPopup.classList.add('hidden');
-    });
-    
-    setsPopup.addEventListener('click', (e) => {
-      if (e.target === setsPopup) {
-        setsPopup.classList.add('hidden');
-      }
-    });    
-  }
-
   // First load Popup on index
   const popup = document.getElementById("introPopup");
   const closeBtn = document.getElementById("closeIntroPopup");
@@ -332,6 +272,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   loadRecentCards();
+
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('popup-open')) return;
+
+    if (e.key === 'ArrowRight') showNextCard();
+    if (e.key === 'ArrowLeft') showPreviousCard();
+  });
+
+
   const toggleBtn = document.getElementById('toggleDropdownBtn');
   const dropdown = document.getElementById('dropdownContent');
 
@@ -982,6 +931,7 @@ async function searchCustomTags(tag) {
 
 window.searchCards = searchCards;
 window.searchCustomTags = searchCustomTags;
+window.showCards = showCards;
 
 
 
@@ -1092,7 +1042,8 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
         <strong>🛒 Shop:</strong>
         <a id="ebayAffiliateLink" href="#" target="_blank" style="margin-left: 0.5rem;">Search on eBay</a>
         <span style="margin: 0 6px;">|</span>
-        <a href="#" target="_blank" style="opacity: 0.6; pointer-events: none; cursor: default;">Find on TCGPlayer</a>
+        <a id="tcgplayerAffiliateLink" href="#" target="_blank">Find on TCGPlayer</a>
+        
       </div>
 
 
@@ -1145,8 +1096,31 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
         value: 1
       });
     }
+    const tcgplayerLink = popup.querySelector('#tcgplayerAffiliateLink');
+    if (tcgplayerLink && card.tcgplayer?.url) {
+      const encoded = encodeURIComponent(card.tcgplayer.url);
+      tcgplayerLink.href = `https://partner.tcgplayer.com/c/6242559/1830156/21018?u=${encoded}`;
+      tcgplayerLink.style.opacity = '1';
+      tcgplayerLink.style.pointerEvents = 'auto';
+      tcgplayerLink.style.cursor = 'pointer';
 
-
+      tcgplayerLink.addEventListener('click', () => {
+        trackEvent('tcgplayer_click_card', {
+          shop: 'TCGplayer',
+          card_id: card.id,
+          card_name: card.name,
+          set: card.set?.name || '',
+          source: 'popup'
+        });
+      });
+    } else if (tcgplayerLink) {
+      console.warn('🧪 Missing TCGPlayer URL for card:', card.name, card.tcgplayer);
+      tcgplayerLink.href = '#';
+      tcgplayerLink.style.opacity = '0.6';
+      tcgplayerLink.style.pointerEvents = 'none';
+      tcgplayerLink.style.cursor = 'not-allowed';
+      tcgplayerLink.textContent += ' (Unavailable)';
+    }
 
   const shareBtn = popup.querySelector('#shareCardBtn');
 
@@ -1247,14 +1221,6 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     }
   });
 
-  function handleArrowNav(e) {
-    if (e.key === 'ArrowRight') showNextCard();
-    if (e.key === 'ArrowLeft') showPreviousCard();
-  }
-
-  document.addEventListener('keydown', handleArrowNav);
-
-
 
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
@@ -1267,7 +1233,6 @@ popup.addEventListener('click', (e) => {
   if (e.target === popup) {
     popup.remove();
     document.body.classList.remove('popup-open');
-    document.removeEventListener('keydown', handleArrowNav); // ✅ clean up
   }
 });
 
@@ -1584,6 +1549,6 @@ function showPreviousCard() {
 
 
 
-
-
+  window.searchCards = searchCards;
+  window.loadApprovedTags = loadApprovedTags;
   window.openCardPopup = openCardPopup;

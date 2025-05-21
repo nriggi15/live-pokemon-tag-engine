@@ -31,6 +31,10 @@
       margin-bottom: 0.5rem;
     }
 
+    #shareCardBtn + .card-section {
+      margin-top: 1rem;
+    }
+
     .card-section {
       margin-top: 2rem;
     }
@@ -79,11 +83,6 @@
         <div style="display: flex; justify-content: center; position: relative;">
           <div style="position: relative; display: inline-block;">
             <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
-            <button id="shareCardBtn"
-              title="Share this card"
-              style="position: absolute; bottom: -30px; right: 0; font-size: 0.85rem; padding: 6px 10px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
-              🔗 Share
-            </button>
           </div>
         </div>
 
@@ -137,7 +136,13 @@
 
         <% } %>
         </div>
-
+        <div style="text-align: center; margin-top: 1rem;">
+          <button id="shareCardBtn"
+            title="Share this card"
+            style="font-size: 0.9rem; padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            🔗 Share
+          </button>
+        </div>
 
     </div>
 
@@ -169,13 +174,22 @@
           <strong>🛒 Shop:</strong>
           <a href="<%= ebayFinal %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
           <span style="margin: 0 6px;">|</span>
-          <% if (card.tcgplayer?.url) { %>
-            <a href="<%= card.tcgplayer.url %>" target="_blank" class="link">Find on TCGPlayer</a>
+          <% if (card.tcgplayer?.url) { 
+              const encodedUrl = encodeURIComponent(card.tcgplayer.url);
+          %>
+          <a 
+            href="https://partner.tcgplayer.com/c/6242559/1830156/21018?u=<%= encodedUrl %>" 
+            target="_blank" 
+            class="link" 
+            id="tcgplayerLink"
+          >
+            Find on TCGPlayer
+          </a>
+
           <% } else { %>
             <span style="opacity: 0.6; pointer-events: none;">Find on TCGPlayer</span>
           <% } %>
         </div>
-
       </br>
         <% if (marketPrice) { %>
           <div class="market-price">
@@ -421,6 +435,35 @@
   }
 </script>
 
+<script>
+  function trackEvent(name, params = {}) {
+    if (typeof gtag === 'function') {
+      gtag('event', name, {
+        event_category: 'Outbound',
+        event_label: params.card_name || '',
+        value: 1,
+        ...params
+      });
+    } else {
+      console.log('📦 Simulated GA event:', name, params);
+    }
+  }
+</script>
+
+<script>
+  const tcgplayerLink = document.getElementById("tcgplayerLink");
+  if (tcgplayerLink) {
+    tcgplayerLink.addEventListener("click", () => {
+      trackEvent("tcgplayer_click_card", {
+        shop: "TCGplayer",
+        card_id: "<%= card.id %>",
+        card_name: "<%= card.name %>",
+        set: "<%= card.set && card.set.name ? card.set.name : '' %>",
+        source: "card_page"
+      });
+    });
+  }
+</script>
 
 </body>
 </html>

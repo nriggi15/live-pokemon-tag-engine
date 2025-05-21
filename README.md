@@ -13,17 +13,34 @@
 - `storeRecentSearch()` / `storeRecentlyViewedCard()` / `loadRecentCards()` → Search + view history tracking
 - `applyCardColorTheme()` → Styles links in popup by type color
 - `openCardPopup()` → Full detail popup with tagging, price, and collection controls
+- `toggleLoadMoreButton()` → Manages visibility of "🔁 Load More" button
+- Global dark mode toggle + sidebar behavior
+- Tag stats modal with interactive list
+- `#surpriseBtn` → Random tag search
+- `#filterBtn` → Toggles advanced filter panel
 
 ### ✅ search.js (Search UI Enhancer)
 - `createTagCloud()` → Builds tag and rarity cloud for quick searches
+  - Includes rarity buttons (IR, SIR, UR), Chase button, and dynamically injected `📦 View All Card Sets` button
+  - Handles full fetch + render + close logic for the `setsPopup`
 - `loadRandomCards()` → Loads "🌟 Featured Cards" carousel on landing
-- `initSearchPage()` → Tag button row + manual query system setup
-- Event listeners for `searchBtn`, `tagSearchBtn`, enter key, etc.
-- Uses `searchCards()` / `searchCustomTags()` from `script.js` via `window.*`
+- `initSearchPage()` → Manual tag & name search buttons, Enter key handling, and advanced tag query UI
+- `runQueryBtn` → Executes multi-tag queries with AND/OR logic
+- Dynamically binds search inputs and buttons
+- Manages advanced query preview
+- Popup open/close behavior for `setsPopup` handled in `createTagCloud()`
 
 ### 🌐 Key Globals (Shared across modules)
-- `window.searchCards`, `window.searchCustomTags` → Allow interop across JS files
-- `window.searchResults`, `window.currentPopupIndex` → Manage popup navigation state
+- `window.searchCards`, `window.searchCustomTags`, `window.showCards` → Allow interop across files
+- `window.searchResults`, `window.currentPopupIndex` → Manage popup card navigation state
+- `window.API_KEY` → Injected from `.env` at runtime via EJS
 
 ### 🔐 Environment
 - API key stored in `.env` as:```env POKEMON_API_KEY
+
+### 🆕 Recent Additions (v1.7 updates)
+- `Replaced old "🧩 Show All Tagged Cards" with new 📦 View All Card Sets in tag cloud`
+- `Added full setsPopup rendering logic inside createTagCloud() (no longer in script.js)`
+- `Removed redundant popup binding from DOMContentLoaded`
+- `All tag search, rarity buttons, and card set functionality now scoped cleanly inside search.js`
+- `script.js now handles only persistent UI like dark mode, nav, and favorites`

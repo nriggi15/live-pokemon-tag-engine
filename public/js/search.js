@@ -71,7 +71,8 @@ async function createTagCloud() {
     btn.classList.add('rarity-button');
     btn.addEventListener('click', () => {
       searchInput.value = label;
-      searchCards(query);
+      //searchCards(query);
+      window.searchCards(query);
     });
     rarityRow.appendChild(btn);
   });
@@ -88,43 +89,79 @@ async function createTagCloud() {
       searchCustomTags('chase');
     });
 
+    const viewSetsBtn = document.createElement('button');
+    viewSetsBtn.id = 'viewSetsBtn';
+    viewSetsBtn.textContent = '📦 View All Card Sets';
+    viewSetsBtn.classList.add('rarity-button');
+    viewSetsBtn.style.marginLeft = '0.5rem';
     rarityRow.appendChild(chaseBtn);
+    rarityRow.appendChild(viewSetsBtn);
+    tagCloud.appendChild(rarityRow);
 
-  const showAllBtn = document.createElement('button');
-  showAllBtn.textContent = '🧩 Show All Tagged Cards';
-  showAllBtn.addEventListener('click', () => {
-    tagSearchInput.value = '#all';
-    resultsCount.textContent = 'Loading...';
-    resultsCount.classList.remove('hidden');
-    fetch('/all-tagged-cards')
-      .then(res => res.json())
-      .then(cardIds => {
-        if (cardIds.length === 0) {
-          cardResults.innerHTML = '<p>No tagged cards found.</p>';
-          document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
-          return;
-        }
-        const cardPromises = cardIds.map(async (id) => {
-          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`, {
-            headers: { 'X-Api-Key': API_KEY }
-          });
-          const data = await res.json();
-          return data.data;
+    viewSetsBtn.addEventListener('click', async () => {
+      const setsPopup = document.getElementById('setsPopup');
+      const closeSetsPopup = document.getElementById('closeSetsPopup');
+      const setsList = document.getElementById('setsList');
+
+      if (!setsPopup || !setsList || !closeSetsPopup) return;
+
+      setsList.innerHTML = '<li>Loading...</li>';
+      setsPopup.classList.remove('hidden');
+
+      try {
+        const response = await fetch('https://api.pokemontcg.io/v2/sets');
+        const data = await response.json();
+
+        setsList.innerHTML = ''; // Clear loading text
+
+        data.data.forEach(set => {
+          const li = document.createElement('li');
+          li.classList.add('set-entry');
+          li.innerHTML = `
+            <h3>${set.name}</h3>
+            <p><strong>Series:</strong> ${set.series}</p>
+            <p><strong>Set ID:</strong> ${set.id}</p>
+            <p><strong>Release Date:</strong> ${set.releaseDate || 'Unknown'}</p>
+            <p><strong>Cards:</strong> ${set.printedTotal || '?'} printed / ${set.total} total</p>
+            ${set.ptcgoCode ? `<p><strong>PTCGO Code:</strong> ${set.ptcgoCode}</p>` : ''}
+            <img src="${set.images.logo}" alt="${set.name} logo"
+              class="set-logo"
+              data-set-id="${set.id}"
+              title="Click to view cards from this set" />
+            <hr />
+          `;
+          setsList.appendChild(li);
         });
-        return Promise.all(cardPromises);
-      })
-      .then(cards => {
-        if (cards) showCards(cards);
-      })
-      .catch(err => {
-        console.error('Error fetching tagged cards:', err);
-        cardResults.innerHTML = '<p>Error loading tagged cards.</p>';
-        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
-      });
-  });
-  rarityRow.appendChild(showAllBtn);
 
-  tagCloud.appendChild(rarityRow);
+        document.querySelectorAll('.set-logo').forEach(img => {
+          img.addEventListener('click', () => {
+            const setId = img.dataset.setId;
+            if (setId) {
+              searchInput.value = setId;
+              //searchCards(`set.id:${setId}`);
+              window.searchCards(`set.id:${setId}`);
+              setsPopup.classList.add('hidden');
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching sets:', error);
+        setsList.innerHTML = '<li>Error loading sets</li>';
+      }
+
+      closeSetsPopup.addEventListener('click', () => {
+        setsPopup.classList.add('hidden');
+      });
+
+      setsPopup.addEventListener('click', (e) => {
+        if (e.target === setsPopup) {
+          setsPopup.classList.add('hidden');
+        }
+      });
+    });
+
+
+
 }
 
 
@@ -143,7 +180,8 @@ function initSearchPage() {
       trackEvent('pokemon_search', {
         query: val
       });
-      searchCards(val);
+      //searchCards(val);
+      window.searchCards(val);
     }
   });
 
@@ -174,7 +212,7 @@ function initSearchPage() {
   searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const query = searchInput.value.trim();
-      if (query !== '') searchCards(query);
+      if (query !== '') window.searchCards(query);
     }
   });
 
@@ -320,7 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const val = searchInput.value.trim();
     if (val) {
       trackEvent('search_click', { tag: 'Pokemon API Search' });
-      searchCards(val);
+      //searchCards(val);
+      window.searchCards(val);
     }
   });
 

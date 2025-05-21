@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import 'dotenv/config';
 dotenv.config(); // Always first
 
 import express from 'express';
@@ -17,6 +18,7 @@ import { tagSubmissionLimiter } from './middleware/rateLimiter.js';
 import TagSubmission from './models/TagSubmission.js';
 import favoritesRouter from './routes/favorites.js';
 
+import githubWebhookHandler from './middleware/githubWebhook.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -464,6 +466,7 @@ app.get(/^\/.*\.html$/, (req, res) => {
   res.status(403).send('Access to raw HTML files is forbidden.');
 });
 
+app.post('/middleware/github-webhook', githubWebhookHandler);
 
 // ✅ Start the server
 app.listen(port, () => {

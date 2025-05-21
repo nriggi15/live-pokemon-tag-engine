@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${user.email}</td>
             <td>${user.role}</td>
             <td>${user.banned ? 'Yes' : 'No'}</td>
-            <td>${user.verified ? '✅' : '❌'}</td> <!-- ✅ New verified column -->
+            <td>${user.verified ? '✅' : '❌'}</td>
+            <td>${new Date(user.createdAt).toLocaleDateString()}</td>
             <td>
               <button class="promote-btn" data-id="${user._id}" ${disabled}>🔼 Promote</button>
               <button class="demote-btn" data-id="${user._id}" ${disabled}>🔽 Demote</button>
