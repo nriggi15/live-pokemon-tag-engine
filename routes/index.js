@@ -19,6 +19,7 @@ router.get('/', (req, res) => {
     currentPage: 'index',
     layout: 'layout',
     title: 'Home',
+    layout: 'layouts/main',
   });
 });
 
@@ -27,20 +28,25 @@ router.get('/', (req, res) => {
 router.get('/explore', (req, res) => {
   const isLoggedIn = !!req.session.userId;
   const role = req.session.role || 'guest';
+  const isDarkMode = req.session.darkMode || false;
 
   res.render('explore', {
+    layout: 'layouts/main',
     page: 'explore',
     isLoggedIn,
-    role
+    role,
+    isDarkMode
   });
 });
 
 router.get('/search', (req, res) => {
   res.render('search', {
     isLoggedIn: !!req.session.userId,
+    username: req.session.username || '',
     page: 'search',
     role: req.session.role || 'guest',
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 });
 
@@ -48,19 +54,10 @@ router.get('/search', (req, res) => {
 router.get('/leaderboards', (req, res) => {
   res.render('leaderboards', { 
     isLoggedIn: req.session.userId,
+    username: req.session.username || '',
+    layout: 'layouts/main',
     role: req.session.role,page: 'search',
     page: 'leaderboards',
-    isDarkMode: req.session?.darkMode || false,
-  });
-});
-
-
-router.get('/dashboard', (req, res) => {
-  res.render('dashboard', {
-    page: 'dashboard',  // ✅ Add this
-    isLoggedIn: !!req.session.userId,
-    role: req.session.role || 'guest',
-    page: 'dashboard',
     isDarkMode: req.session?.darkMode || false,
   });
 });
@@ -69,6 +66,8 @@ router.get('/dashboard', (req, res) => {
 router.get('/about', (req, res) => {
   res.render('about', {
     isLoggedIn: req.session && req.session.userId,
+    username: req.session.username || '',
+    layout: 'layouts/main',
     role: req.session?.role || null,
     page: 'about',
     isDarkMode: req.session?.darkMode || false,
@@ -81,7 +80,9 @@ router.get('/about', (req, res) => {
 router.get('/tags', (req, res) => {
   res.render('tags', { 
     title: 'Browse Tags',
+    username: req.session.username || '',
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 });
 
@@ -89,6 +90,8 @@ router.get('/tags', (req, res) => {
 router.get('/bottom-nav-test', (req, res) => {
     res.render('bottom-nav-test', {
         title: 'Bottom Nav Test',
+        layout: 'layouts/main',
+        username: req.session.username || '',
         page: 'bottom-test',
         isLoggedIn: !!req.session.userId,
         role: req.session.role || null,
@@ -102,6 +105,7 @@ router.get('/tagging-center', (req, res) => {
 
   res.render('tagging-center', {
     page: 'tagging-center',
+    layout: 'layouts/main',
     isLoggedIn,
     role
   });
@@ -242,10 +246,9 @@ router.get('/card/:id', async (req, res) => {
 console.log('🧪 from param:', req.query.from);
 
 res.render('card', {
-  layout: 'layout',               // ✅ explicitly include layout (if you use one)
+  layout: 'layouts/main', // ✅ explicitly include layout (if you use one)             
   title: `${card.name} | Pokémon Card`,  // optional but helpful
   page: 'card',                   // optional but good for nav
-
   card,
   tags,
   similarCards,
@@ -419,6 +422,14 @@ ${logs.join('\n')}
   }
 });
 
+router.get('/403', (req, res) => {
+  res.status(403).render('403', {
+    layout: 'layouts/main', // or your default layout
+    title: 'Access Denied',
+    message: 'You do not have permission to view this page.',
+    isDarkMode: req.session?.darkMode || false
+  });
+});
 
 
 export default router;

@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="/css/tagging-center.css" />
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
 </head>
 <body>
 <main id="taggingCenterContent">
@@ -73,12 +71,8 @@
 </div>
 </main>
 
-
-  <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
-
   <!-- Scripts -->
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
   <script src="/js/tagging-center.js" defer></script>
     
 

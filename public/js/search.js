@@ -1,12 +1,9 @@
 // /public/js/search.js
 
-const API_KEY = 'fe0b02a8-634f-4944-9880-188a8869e920';
+const API_KEY = window.API_KEY;
 
 const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur']; // Add more or load from file/db
 
-let currentQuery = null;
-let currentPage = 1;
-let searchMode = null;
 
 const searchInput = document.getElementById('searchInput');
 const tagCloud = document.getElementById('tagCloud');
@@ -18,60 +15,6 @@ const refreshBtn = document.getElementById('refreshBtn');
 
 window.searchResults = []; // 🔒 stores the current search result set
 
-
-// Load More Button
-const loadMoreBtn = document.createElement('button');
-loadMoreBtn.textContent = '🔁 Load More';
-loadMoreBtn.classList.add('load-more-btn');
-loadMoreBtn.addEventListener('click', () => {
-  if (searchMode === 'pokemon' && currentQuery) {
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // ✅ scroll immediately
-    searchCards(currentQuery, currentPage + 1);
-  }
-});
-
-function toggleLoadMoreButton(show) {
-  if (show) {
-    if (!loadMoreContainer.contains(loadMoreBtn)) {
-      loadMoreContainer.appendChild(loadMoreBtn);
-    }
-  } else {
-    if (loadMoreContainer.contains(loadMoreBtn)) {
-      loadMoreBtn.remove();
-    }
-  }
-}
-
-function resetSearchState() {
-  currentQuery = null;
-  currentPage = 1;
-  searchMode = null;
-  toggleLoadMoreButton(false);
-}
-
-function buildQuery(input) {
-  const tagToQueryMap = {
-    pink: 'types:Psychic OR name:pink',
-    cute: 'name:pikachu OR name:eevee OR name:jigglypuff OR name:clefairy',
-    flying: 'subtypes:Flying OR abilities.name:Flying',
-    charizard: 'name:charizard',
-    sunshine: 'name:sun OR name:light OR set.name:Sun'
-  };
-  const tag = input.toLowerCase();
-  if (tagToQueryMap[tag]) return tagToQueryMap[tag];
-  if (tag.includes(':')) return tag;
-  return `name:"${input}"`;
-}
-
-  function updateResultsCount(count) {
-    resultsCount.classList.remove('hidden');
-    if (count === 0) {
-      resultsCount.textContent = 'No results found.';
-    } else {
-      resultsCount.textContent = `Total ${count} card${count > 1 ? 's' : ''}`;
-    }
-  }
-  
 
 async function createTagCloud() {
   const tagCloud = document.getElementById('tagCloud');
@@ -128,7 +71,8 @@ async function createTagCloud() {
     btn.classList.add('rarity-button');
     btn.addEventListener('click', () => {
       searchInput.value = label;
-      searchCards(query);
+      //searchCards(query);
+      window.searchCards(query);
     });
     rarityRow.appendChild(btn);
   });
@@ -145,97 +89,86 @@ async function createTagCloud() {
       searchCustomTags('chase');
     });
 
+    const viewSetsBtn = document.createElement('button');
+    viewSetsBtn.id = 'viewSetsBtn';
+    viewSetsBtn.textContent = '📦 View All Card Sets';
+    viewSetsBtn.classList.add('rarity-button');
+    viewSetsBtn.style.marginLeft = '0.5rem';
     rarityRow.appendChild(chaseBtn);
+    rarityRow.appendChild(viewSetsBtn);
+    tagCloud.appendChild(rarityRow);
 
-  const showAllBtn = document.createElement('button');
-  showAllBtn.textContent = '🧩 Show All Tagged Cards';
-  showAllBtn.addEventListener('click', () => {
-    tagSearchInput.value = '#all';
-    resultsCount.textContent = 'Loading...';
-    resultsCount.classList.remove('hidden');
-    fetch('/all-tagged-cards')
-      .then(res => res.json())
-      .then(cardIds => {
-        if (cardIds.length === 0) {
-          cardResults.innerHTML = '<p>No tagged cards found.</p>';
-          document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
-          return;
-        }
-        const cardPromises = cardIds.map(async (id) => {
-          const res = await fetch(`https://api.pokemontcg.io/v2/cards/${id}`, {
-            headers: { 'X-Api-Key': API_KEY }
+    viewSetsBtn.addEventListener('click', async () => {
+      const setsPopup = document.getElementById('setsPopup');
+      const closeSetsPopup = document.getElementById('closeSetsPopup');
+      const setsList = document.getElementById('setsList');
+
+      if (!setsPopup || !setsList || !closeSetsPopup) return;
+
+      setsList.innerHTML = '<li>Loading...</li>';
+      setsPopup.classList.remove('hidden');
+
+      try {
+        const response = await fetch('https://api.pokemontcg.io/v2/sets');
+        const data = await response.json();
+
+        setsList.innerHTML = ''; // Clear loading text
+
+        data.data.forEach(set => {
+          const li = document.createElement('li');
+          li.classList.add('set-entry');
+          li.innerHTML = `
+            <h3>${set.name}</h3>
+            <p><strong>Series:</strong> ${set.series}</p>
+            <p><strong>Set ID:</strong> ${set.id}</p>
+            <p><strong>Release Date:</strong> ${set.releaseDate || 'Unknown'}</p>
+            <p><strong>Cards:</strong> ${set.printedTotal || '?'} printed / ${set.total} total</p>
+            ${set.ptcgoCode ? `<p><strong>PTCGO Code:</strong> ${set.ptcgoCode}</p>` : ''}
+            <img src="${set.images.logo}" alt="${set.name} logo"
+              class="set-logo"
+              data-set-id="${set.id}"
+              title="Click to view cards from this set" />
+            <hr />
+          `;
+          setsList.appendChild(li);
+        });
+
+        document.querySelectorAll('.set-logo').forEach(img => {
+          img.addEventListener('click', () => {
+            const setId = img.dataset.setId;
+            if (setId) {
+              searchInput.value = setId;
+              //searchCards(`set.id:${setId}`);
+              window.searchCards(`set.id:${setId}`);
+              setsPopup.classList.add('hidden');
+            }
           });
-          const data = await res.json();
-          return data.data;
         });
-        return Promise.all(cardPromises);
-      })
-      .then(cards => {
-        if (cards) showCards(cards);
-      })
-      .catch(err => {
-        console.error('Error fetching tagged cards:', err);
-        cardResults.innerHTML = '<p>Error loading tagged cards.</p>';
-        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
-      });
-  });
-  rarityRow.appendChild(showAllBtn);
-
-  tagCloud.appendChild(rarityRow);
-}
-
-  function showCards(cards, append = false) {
-    if (!append) {
-      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
-      cardResults.innerHTML = '';
-      window.searchResults = cards; // ✅ set the global search result array
-    }
-  
-    if (cards.length === 0) {
-      if (!append) {
-        cardResults.innerHTML = '<p>No cards found.</p>';
-        document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+      } catch (error) {
+        console.error('Error fetching sets:', error);
+        setsList.innerHTML = '<li>Error loading sets</li>';
       }
-      return;
-    }
-  cards.forEach(card => {
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('card');
-    cardDiv.dataset.card = JSON.stringify(card);
-    cardDiv.innerHTML = `
-      <img src="${card.images.small}" alt="${card.name}" />
-      <p>${card.name}</p>
-      <p><strong>Set:</strong> ${card.set.name}</p>
-    `;
-    cardDiv.addEventListener('click', () => {
-        trackEvent('card_click', {
-          card_id: card.id,
-          source: 'search'
-        });
-      const index = window.searchResults.findIndex(c => c.id === card.id);
-      window.currentPopupIndex = index; // ✅ Track which card is active
-      openCardPopup(card, { mode: 'edit' });
+
+      closeSetsPopup.addEventListener('click', () => {
+        setsPopup.classList.add('hidden');
+      });
+
+      setsPopup.addEventListener('click', (e) => {
+        if (e.target === setsPopup) {
+          setsPopup.classList.add('hidden');
+        }
+      });
     });
 
-    cardResults.appendChild(cardDiv);
-  });
-  resultsCount.textContent = `Total ${cards.length} card${cards.length > 1 ? 's' : ''}`;
+
+
 }
 
 
 
-let approvedTagsSet = new Set();
 
-async function loadApprovedTags() {
-  try {
-    const res = await fetch('/api/tag-stats');
-    const stats = await res.json();
-    approvedTagsSet = new Set(stats.map(entry => entry.tag.toLowerCase()));
-    console.log('✅ Loaded approved tags:', approvedTagsSet.size);
-  } catch (err) {
-    console.error('❌ Failed to load tag stats:', err);
-  }
-}
+
+
 
 
 function initSearchPage() {
@@ -247,7 +180,8 @@ function initSearchPage() {
       trackEvent('pokemon_search', {
         query: val
       });
-      searchCards(val);
+      //searchCards(val);
+      window.searchCards(val);
     }
   });
 
@@ -278,7 +212,7 @@ function initSearchPage() {
   searchInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const query = searchInput.value.trim();
-      if (query !== '') searchCards(query);
+      if (query !== '') window.searchCards(query);
     }
   });
 
@@ -352,12 +286,6 @@ function initSearchPage() {
 
 }
 
-  function applyCardColorTheme([r, g, b]) {
-  const hex = `rgb(${r}, ${g}, ${b})`;
-  document.querySelectorAll('.popup-content a').forEach(link => {
-    link.style.color = hex;
-  });
-}
 
 async function loadRandomCards() {
   const cardResults = document.getElementById('cardResults');
@@ -424,8 +352,36 @@ async function loadRandomCards() {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('📌 DOM loaded in search.js');
+
+
+  document.getElementById('searchBtn')?.addEventListener('click', () => {
+    const val = searchInput.value.trim();
+    if (val) {
+      trackEvent('search_click', { tag: 'Pokemon API Search' });
+      //searchCards(val);
+      window.searchCards(val);
+    }
+  });
+
+  document.getElementById('tagSearchBtn')?.addEventListener('click', () => {
+    const val = tagSearchInput.value.trim();
+    if (val) {
+      trackEvent('search_click', { tag: 'Tag Search' });
+      searchCustomTags(val);
+    }
+  });
+
+
+
   createTagCloud();
   initSearchPage(); // ✅ Add this call
   loadApprovedTags(); 
   loadRandomCards();
 });
+
+// 👇 Make them available to inline handlers (fallback support)
+window.searchCards = searchCards;
+window.searchCustomTags = searchCustomTags;
+
+// 👇 Make them available to other modules like script.js
+//export { searchCards, searchCustomTags };

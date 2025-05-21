@@ -13,10 +13,6 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
 
-
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
-
 </head>
 <body>
 
@@ -101,8 +97,18 @@
   </div>
 </div>
 
+
 <!-- TAG CLOUD -->
   <div id="tagCloud"></div>
+
+  <div id="setsPopup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close-button" id="closeSetsPopup">&times;</span>
+    <h2>All Pokémon Card Sets</h2>
+    <ul id="setsList"></ul>
+  </div>
+</div>
+
 
   <div id="topControls">
     <button id="refreshBtn">🔄 Refresh / Clear Search</button>
@@ -115,13 +121,15 @@
     <div class="search-group">
       <label for="tagSearchInput">Search by Custom Tags</label>
       <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
-      <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button>
+      <!-- <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button> -->
+       <button id="tagSearchBtn">Tag Search</button>
     </div>
 
     <div class="search-group">
       <label for="searchInput">Search by Pokémon or Keyword</label>
       <input type="text" id="searchInput" placeholder="Search by name..." />
-      <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button>
+      <!-- <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button> -->
+       <button id="searchBtn">Search</button>
     </div>
 
     <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
@@ -206,18 +214,17 @@
         bugFormModal.style.display = 'none';
       }
     });
+  </script> 
+
+  <script>
+    window.API_KEY = "<%= process.env.POKEMON_API_KEY %>";
   </script>
 
-  
-      <!-- Bottom Navigation Bar -->
-  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
-  
-  
-      <!-- Run the JS Script file, put most things above this -->
-      <script src="/js/search.js"></script>
 
-      <!-- Shared utilities like sidebar, dark mode, back to top -->
-      <script src="/js/script.js"></script>
+  <!-- Run the JS Script file, put most things above this -->
+  <script type="module" src="/js/search.js"></script>
+  <!-- Shared utilities like sidebar, dark mode, back to top -->
+  <script type="module" src="/js/script.js"></script>
   
 
 </body>

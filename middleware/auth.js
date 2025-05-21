@@ -1,21 +1,19 @@
 // middleware/auth.js
-function requireAdmin(req, res, next) {
-  //console.log('🔐 requireAdmin → userId:', req.session?.userId, 'role:', req.session?.role);
 
-  if (req.session && req.session.userId && req.session.role === 'admin') {
+function requireAdmin(req, res, next) {
+  if (req.session?.userId && req.session?.role === 'admin') {
     return next();
   }
-  return res.status(403).send('Access denied. Admins only.');
+
+  return res.redirect('/403?message=🚫 This page is for admins only.');
 }
 
 function requireLogin(req, res, next) {
-  //console.log('🔐 requireLogin → userId:', req.session?.userId);
-
-  if (req.session && req.session.userId) {
+  if (req.session?.userId) {
     return next();
   }
 
-  return res.status(403).send('Access denied. Login required.');
+  return res.redirect('/403?message=🔐 You must be logged in to access this page.');
 }
 
 function requireModeratorOrAdmin(req, res, next) {
@@ -23,14 +21,9 @@ function requireModeratorOrAdmin(req, res, next) {
   if (req.session?.userId && (role === 'moderator' || role === 'admin')) {
     return next();
   }
-  return res.status(403).send('Access denied. Moderators only.');
+
+  return res.redirect('/403?message=🛡️ Moderators or admins only.');
 }
 
-
-//
-// //
-// //
-// // DO NOT PUT ANYTHING BELOW THIS LINE
-
+// DO NOT PUT ANYTHING BELOW THIS LINE
 export { requireAdmin, requireModeratorOrAdmin, requireLogin };
-

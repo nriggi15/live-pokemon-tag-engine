@@ -36,14 +36,8 @@
   </style>
   <link rel="stylesheet" href="/style.css" />
 
-
-    <!-- GOOGLE ANALYTICS -->
-   <!-- Google tag (gtag.js) -->
-  <%- include('partials/analytics') %>
-
 </head>
 <body>
-  <%- include('partials/sidebar') %>
   <div id="register-container">
   <h2>User Registration</h2>
   <form id="registerForm" action="/api/register" method="POST">
@@ -151,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
 
 </body>
 </html>

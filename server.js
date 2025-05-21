@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import 'dotenv/config';
 dotenv.config(); // Always first
 
 import express from 'express';
@@ -17,6 +18,7 @@ import { tagSubmissionLimiter } from './middleware/rateLimiter.js';
 import TagSubmission from './models/TagSubmission.js';
 import favoritesRouter from './routes/favorites.js';
 
+import githubWebhookHandler from './middleware/githubWebhook.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,14 +27,6 @@ app.set('trust proxy', 1);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// ✅ Middleware (in correct order)
-/* app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false }
-})); */
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -51,6 +45,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Prevent caching of protected pages
 app.use((req, res, next) => {
+  res.locals.isLoggedIn = !!req.session.userId;
+  res.locals.role = req.session.role || 'guest';
+  res.locals.isDarkMode = req.session.darkMode || false;
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
@@ -68,20 +65,21 @@ import collectionsRouter from './routes/collections.js';
 import indexRoutes from './routes/index.js';
 import tagsRoutes from './routes/tags.js';
 import leaderboardsRouter from './routes/leaderboards.js';
+import expressLayouts from 'express-ejs-layouts';
+import sessionVars from './middleware/sessionVars.js';
+
+app.use(sessionVars);
+app.use(expressLayouts);
+app.set('layout', 'layouts/main'); // uses views/layouts/main.ejs
 app.use('/api/leaderboards', leaderboardsRouter);
 app.use('/api', tagsRoutes);
-
-
-app.get('/terms-debug', (req, res) => {
-  res.send('✅ Terms route is working');
-});
-
-
-
 app.use('/', indexRoutes);
 app.use('/api', collectionsRouter);
 app.use('/api', favoritesRouter);
 
+app.get('/terms-debug', (req, res) => {
+  res.send('✅ Terms route is working');
+});
 
 // ✅ Protected Middleware
 import { requireAdmin } from './middleware/auth.js';
@@ -102,8 +100,12 @@ app.use('/', userProfilesRoute);
 // ✅ Auth-Protected Route (now truly secure)
 app.get('/admin-panel', requireAdmin, (req, res) => {
   res.render('admin-panel', { 
+    layout: 'layouts/main',
+    username: req.session.username || '',
+    isLoggedIn: req.session.userId,
     page: 'admin',
     isDarkMode: req.session?.darkMode || false,
+    role: req.session.role,page: 'search',
   });
 });
 import adminRoutes from './routes/admin.js';
@@ -114,12 +116,18 @@ app.use('/api', adminRoutes);
 app.get('/register', (req, res) => {
   res.render('register', {
     page: 'register',
+    username: req.session.username || '',
+    layout: 'layouts/main',
   });
 });
 
 app.get('/login', (req, res) => {
   res.render('login', {
     page: 'login',
+    layout: 'layouts/main',
+    username: req.session.username || '',
+    role: req.session?.role || 'guest',
+    isLoggedIn: !!req.session?.userId,
     isDarkMode: req.session?.darkMode || false,
   });
 });
@@ -128,19 +136,15 @@ app.get('/login-test', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login-test.html'));
 });
 
-/* app.get('/', (req, res) => {
-  res.render('index', { page: 'index' });
-}); */
-
 app.get('/terms', (req, res) => {
-  res.render('terms');
-});
-
-
-app.get('/reset-password', (req, res) => {
-  const token = req.query.token;
-  if (!token) return res.status(400).send('Missing reset token');
-  res.render('reset-password', { token });
+  res.render('terms', {
+    layout: 'layouts/main',
+    page: 'terms',
+    isLoggedIn: !!req.session.userId,
+    username: req.session.username || '',
+    role: req.session.role || 'guest',
+    isDarkMode: req.session?.darkMode || false
+  })
 });
 
 
@@ -385,27 +389,34 @@ app.get('/api/tag-stats', async (req, res) => {
 
 // User Dashboard
 import { requireLogin, requireModeratorOrAdmin } from './middleware/auth.js';
-app.get('/dashboard', requireLogin, async (req, res) => {
+  app.get('/dashboard', requireLogin, async (req, res) => {
+    if (!req.session.userId) {
+    return res.status(403).render('403');
+  }
+
   try {
     const user = await User.findById(req.session.userId);
+    if (!user) return res.status(403).render('403');
+
+
     res.render('dashboard', {
       page: 'dashboard',
-      userId: user?._id?.toString() || 'Unknown',
-      username: user?.username || 'Unknown',
+      userId: user._id.toString(),
+      username: user.username,
       role: req.session.role || 'user',
       isDarkMode: req.session?.darkMode || false,
+      isLoggedIn: true,
+      layout: 'layouts/main',
     });
   } catch (err) {
-    console.error('Error loading dashboard user:', err);
-    res.render('dashboard', {
-      page: 'dashboard',
-      userId: 'Unknown',
-      username: 'Unknown',
-      role: req.session.role || 'user',
-      isDarkMode: req.session?.darkMode || false,
-    });
+      console.error('❌ Error loading dashboard after login:', err);
+      console.warn('⚠️ Redirecting to /api/logout due to dashboard failure');
+    console.error('Error loading dashboard:', err);
+    return res.redirect('/api/logout');
   }
 });
+
+
 
 app.get('/collections/:id', async (req, res) => {
   const userId = req.session?.userId || null;
@@ -414,9 +425,11 @@ app.get('/collections/:id', async (req, res) => {
     page: 'collection',
     collectionId: req.params.id,
     sessionUserId: userId,
+    username: req.session.username || '',
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 
 });
@@ -426,8 +439,10 @@ app.get('/leaderboards', (req, res) => {
   res.render('leaderboards', {
     page: 'leaderboards',
     isLoggedIn: req.session.userId,
+    username: req.session.username || '',
     role: req.session.role,
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 });
 
@@ -438,7 +453,9 @@ app.get('/moderator-hub', requireModeratorOrAdmin, (req, res) => {
     page: 'moderator',
     isLoggedIn: req.session.userId,
     role: req.session.role,
+    username: req.session.username || '',
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 });
 
@@ -449,6 +466,7 @@ app.get(/^\/.*\.html$/, (req, res) => {
   res.status(403).send('Access to raw HTML files is forbidden.');
 });
 
+app.post('/middleware/github-webhook', githubWebhookHandler);
 
 // ✅ Start the server
 app.listen(port, () => {

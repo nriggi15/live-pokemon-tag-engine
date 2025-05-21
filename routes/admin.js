@@ -87,4 +87,16 @@ router.post('/admin/users/:id/ban', requireAdmin, async (req, res) => {
   }
 });
 
+// 👥 User management: fetch all users
+router.get('/admin/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}, 'username email role banned verified createdAt');
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to load users' });
+  }
+});
+
+
 export default router;
