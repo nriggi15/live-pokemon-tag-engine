@@ -279,7 +279,7 @@ res.render('card', {
 });
 
 //Submit tag on /card
-const bannedWords = ['badword1', 'nastyword2']; // expand as needed
+const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur']; // expand as needed
 
 router.post('/submit-tag', async (req, res) => {
   const { cardId, tag } = req.body;

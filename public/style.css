@@ -1108,4 +1108,109 @@ body.dark .tooltip a {
   padding-bottom: 0.5rem;
 }
 
+/* //Pulse Styling */
+.pulse-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
 
+.pulse-sub {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.pulse-feed {
+  list-style: none;
+  padding: 0;
+}
+
+.pulse-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding: 0.75rem 0;
+}
+
+.pulse-text {
+  flex: 1;
+}
+
+.card-preview {
+  width: 60px;
+  border-radius: 8px;
+  margin-left: 1rem;
+}
+
+.tag {
+  background: #ffcc00;
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.timeago {
+  display: block;
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 0.2rem;
+}
+
+.badge {
+  background-color: #00cc99;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #4caf50, #81c784);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  margin-left: 6px;
+  border-radius: 999px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  animation: pulseGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow {
+  from {
+    box-shadow: 0 0 4px rgba(0, 255, 128, 0.4);
+  }
+  to {
+    box-shadow: 0 0 10px rgba(0, 255, 128, 0.9);
+  }
+}
+
+/* body.dark-mode a {
+  color: #90caf9;
+}
+
+body.dark-mode .pulse-container {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+body.dark-mode .pulse-item {
+  border-bottom: 1px solid #333;
+}
+
+body.dark-mode .tag {
+  background-color: #ffd54f;
+  color: #000;
+}
+
+body.dark-mode .badge {
+  background: linear-gradient(45deg, #00e676, #69f0ae);
+  color: black;
+} */

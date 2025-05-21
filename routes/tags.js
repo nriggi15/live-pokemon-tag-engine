@@ -6,6 +6,7 @@ import NewTag from '../models/NewTag.js';
 import Tag from '../models/NewTag.js';
 import User from '../models/User.js';
 import Card from '../models/Cards.js';
+import logActivity from '../utils/logActivity.js';
 
 import { requireLogin, requireModeratorOrAdmin } from '../middleware/auth.js';
 import requireVerified from '../middleware/requireVerified.js';
@@ -56,6 +57,17 @@ router.post('/tag-submissions/:cardId', requireLogin, requireVerified, async (re
     });
 
     await submission.save();
+
+          console.log('🫀 Logging tag activity to Pulse:', { userId, cardId, tagName });
+    
+    // 🫀 Log to the Pulse feed
+    await logActivity({
+      type: 'tag',
+      user: userId,
+      cardId,
+      tag: tagName
+    });
+
     res.status(201).json({ success: true, message: 'Tag submitted for review.' });
 
   } catch (err) {
@@ -69,34 +81,6 @@ router.post('/tag-submissions/:cardId', requireLogin, requireVerified, async (re
 //
 //
 // Tag Submission to Mod Hub
-
-// GET /api/mod/tags/pending
-/* router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
-  try {
-    const submissions = await TagSubmission.find({ status: 'pending' }).populate('submittedBy', 'username');
-
-    const results = await Promise.all(submissions.map(async sub => {
-      let cardName = 'Unknown';
-      try {
-        const response = await fetch(`https://api.pokemontcg.io/v2/cards/${sub.cardId}`);
-        const data = await response.json();
-        cardName = data?.data?.name || 'Unknown';
-      } catch (err) {
-        console.warn(`⚠️ Could not fetch card ${sub.cardId}:`, err.message);
-      }
-
-      return {
-        ...sub.toObject(),
-        cardName
-      };
-    }));
-
-    res.json(results);
-  } catch (err) {
-    console.error('Error fetching pending tags:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-}); */
 
 // GET /api/mod/tags/pending WITH Cards collection cache
 router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
@@ -187,8 +171,43 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
       createdAt: submission.createdAt,
       status: 'approved'
     });
+        // 🔍 Check before saving
+      console.log('🧪 Checking if this is the first tag for card:', submission.cardId);
+      // 🔍 Check for existing approved tags BEFORE saving
+      await newTag.save();
 
-    await newTag.save();
+      // 🔍 Check if this is the first approved tag AFTER saving
+      const tagCountForCard = await NewTag.countDocuments({
+        cardId: submission.cardId,
+        status: 'approved'
+      });
+
+      console.log('🧮 Total approved tags after save:', tagCountForCard);
+
+      if (tagCountForCard === 1) {
+        console.log('🆕 This is the first approved tag — logging first_tag activity');
+        await logActivity({
+          type: 'first_tag',
+          user: submission.submittedBy,
+          cardId: submission.cardId,
+          tag: submission.tag,
+          message: '📍 First tag on this card!'
+        });
+      }
+
+    console.log('🫀 Logging approved tag activity to Pulse:', {
+      user: submission.submittedBy,
+      cardId: submission.cardId,
+      tag: submission.tag
+    });
+
+    await logActivity({
+      type: 'tag',
+      user: submission.submittedBy,
+      cardId: submission.cardId,
+      tag: submission.tag
+    });
+
 
     // ✅ Cache card info into the Cards collection if not already saved
     const existingCard = await Card.findOne({ cardId: submission.cardId });

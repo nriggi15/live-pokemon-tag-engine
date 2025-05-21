@@ -1,0 +1,58 @@
+<div class="pulse-container">
+  <h1>🔁 PokéPulse</h1>
+  <p class="pulse-sub">The beating heart of the community</p>
+
+  <% if (activity.length === 0) { %>
+    <p>No activity yet. Be the first to tag a card!</p>
+  <% } else { %>
+    <ul class="pulse-feed">
+      <% activity.forEach(item => { %>
+        <li class="pulse-item">
+          <div class="pulse-text">
+            <% if (item.type === 'tag') { %>
+              <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+              tagged
+              <a href="/card/<%= item.cardName %>"><%= item.cardName %></a>
+              with <span class="tag">#<%= item.tag %></span>
+
+            <% } else if (item.type === 'first_tag') { %>
+              <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+              added the very first tag on
+              <a href="/card/<%= item.cardName %>"><%= item.cardName %></a>:
+              <span class="tag">#<%= item.tag %></span>
+              <span class="badge">🆕 First tag!</span>
+
+            <% } else if (item.type === 'join') { %>
+              just joined! 🎉
+            <% } else if (item.type === 'login') { %>
+              logged in for the first time 👋
+            <% } else if (item.type === 'collection') { %>
+              added a new collection!
+            <% } else if (item.type === 'badge') { %>
+              earned a badge 🏅
+            <% } else { %>
+              <%= item.message %>
+            <% } %>
+            <span class="timeago"><%= new Date(item.createdAt).toLocaleTimeString() %></span>
+          </div>
+          <%
+            let imgUrl = '';
+            if (item.cardId && item.cardId.includes('-')) {
+              const parts = item.cardId.split('-');
+              const set = parts[0];
+              const number = parts[1];
+              imgUrl = `https://images.pokemontcg.io/${set}/${number}_hires.png`;
+            }
+          %>
+
+          <a href="/card/<%= item.cardId %>">
+            <img src="<%= imgUrl %>" alt="card preview" class="card-preview">
+          </a>
+
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>
+
+<%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>

@@ -169,6 +169,8 @@ router.post('/login', loginLimiter, async (req, res) => {
     console.log('✅ Setting session values...');
     req.session.userId = user._id;
     req.session.role = user.role;
+    req.session.isLoggedIn = true;
+
 
     try {
       const existingProfile = await UserProfile.findOne({ userId: user._id });
@@ -240,23 +242,30 @@ router.get('/whoami', async (req, res) => {
   const userId = req.session?.userId;
   const role = req.session?.role;
 
-  //console.log('📡 /whoami called — userId:', userId, 'role:', role);
-
   if (!userId) {
-    return res.json({ userId: null, role: null, username: null });
+    return res.json({
+      userId: null,
+      role: null,
+      username: null,
+      isLoggedIn: false
+    });
   }
 
   try {
     const user = await User.findById(userId).lean();
     const username = user?.username || null;
 
-    //console.log('🧠 /whoami user result:', user);
-    res.json({ userId, role, username });
+    res.json({
+      userId,
+      role,
+      username,
+      isLoggedIn: req.session?.isLoggedIn || false
+    });
   } catch (err) {
-    //console.error('❌ Failed to fetch user for /whoami:', err);
     res.status(500).json({ message: 'Failed to fetch user info' });
   }
 });
+
 
 
 

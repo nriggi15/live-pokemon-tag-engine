@@ -1,7 +1,9 @@
 <!-- /views/partials/bottom-nav.ejs -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <link rel="stylesheet" href="/css/bottom-nav.css" />
+<style>
 
+</style>
 <nav class="bottom-nav">
 <a href="#" class="nav-item" title="Tags" onclick="togglePanel('tagsPanel')">
   <i class="fas fa-tags"></i>
@@ -12,8 +14,9 @@
   <a href="/" class="nav-item" title="Home">
     <i class="fas fa-home"></i>
   </a>
-  <a href="/explore" class="nav-item" title="Explore">
-    <i class="fas fa-compass"></i>
+  <a href="/pulse" class="nav-item" title="Pulse">
+    <!-- <i class="fas fa-heart-circle-bolt"></i> -->
+     <i class="fas fa-bolt"></i>
   </a>
   <a href="#" class="nav-item" title="More" onclick="togglePanel('morePanel')">
     <i class="fas fa-ellipsis-h"></i>
@@ -52,6 +55,7 @@
 <div class="nav-panel" id="tagsPanel">
   <a href="/tagging-center">🔖 Tagging Center</a>
   <a href="/search">🔍 Card Search</a>
+  <a href="/explore">🧭 Explore Cards</a>
 </div>
 
 <form id="logoutForm" action="/api/logout" method="GET" style="display: none;"></form>
@@ -107,8 +111,6 @@
       openPanelId = null;
     }
 
-/*       const isDark = localStorage.getItem('darkMode') === 'true';
-      document.body.classList.toggle('dark-mode', isDark); */
 
       document.getElementById('toggleDarkModeBtn')?.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
@@ -154,6 +156,7 @@
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });

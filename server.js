@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import 'dotenv/config';
 dotenv.config(); // Always first
-
 import express from 'express';
 import session from 'express-session';
 import mongoose from 'mongoose';
@@ -10,17 +9,15 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const app = express();
 import SearchLog from './models/SearchLog.js';
-
 import EmailVerification from './models/EmailVerification.js';
 import User from './models/User.js';
 import { tagSubmissionLimiter } from './middleware/rateLimiter.js';
 import TagSubmission from './models/TagSubmission.js';
 import favoritesRouter from './routes/favorites.js';
-
 import githubWebhookHandler from './middleware/githubWebhook.js';
-
-const app = express();
+import pulseRoutes from './routes/pulse.js';
 const port = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
@@ -28,14 +25,30 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
+const sessionMiddleware = session({ ///////////
+  secret: process.env.SESSION_SECRET,////////////COOKIE SESSION BEGINS HERE! ALL REQUIRELOGIN GOES BELOW
+  resave: false,                ///////////////////
+  saveUninitialized: false,     /////////////////
   cookie: {
-    secure: process.env.NODE_ENV === 'production' // true only in production
+    httpOnly: true,
+    secure: false, // default is false — will override dynamically
+    sameSite: 'lax',
+    path: '/'
   }
-}));
+});
+//
+// app.use BELOW GO DOWN DOWN DOWN
+//
+//
+//
+app.use((req, res, next) => {
+  // Check if running behind proxy with HTTPS
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+    req.session.cookie.secure = true;
+  }
+  sessionMiddleware(req, res, next);
+});
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -76,7 +89,7 @@ app.use('/api', tagsRoutes);
 app.use('/', indexRoutes);
 app.use('/api', collectionsRouter);
 app.use('/api', favoritesRouter);
-
+app.use('/pulse', pulseRoutes);
 app.get('/terms-debug', (req, res) => {
   res.send('✅ Terms route is working');
 });

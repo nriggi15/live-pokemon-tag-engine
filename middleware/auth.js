@@ -8,13 +8,19 @@ function requireAdmin(req, res, next) {
   return res.redirect('/403?message=🚫 This page is for admins only.');
 }
 
-function requireLogin(req, res, next) {
-  if (req.session?.userId) {
-    return next();
-  }
+export function requireLogin(req, res, next) {
+  console.log('🧪 [requireLogin] session:', req.session);
 
-  return res.redirect('/403?message=🔐 You must be logged in to access this page.');
+  if (req.session && req.session.isLoggedIn) {
+    return next();
+  } else {
+    return res.status(403).render('403', {
+      message: '🔐 You must be logged in to access this page.'
+    });
+  }
 }
+
+
 
 function requireModeratorOrAdmin(req, res, next) {
   const role = req.session?.role;
@@ -26,4 +32,5 @@ function requireModeratorOrAdmin(req, res, next) {
 }
 
 // DO NOT PUT ANYTHING BELOW THIS LINE
-export { requireAdmin, requireModeratorOrAdmin, requireLogin };
+export { requireAdmin, requireModeratorOrAdmin };
+

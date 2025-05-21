@@ -8,7 +8,7 @@ import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 let currentQuery = null;
 let currentPage = 1;
 let searchMode = null;
-
+const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur'];
 // Load More Button
 const loadMoreBtn = document.createElement('button');
 loadMoreBtn.textContent = '🔁 Load More';
@@ -36,6 +36,13 @@ async function loadApprovedTags() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log("🚀 script.js is running");
 
+  
+  // Auto-enable dark mode for /pulse (or detect from user prefs if you prefer)
+  const isDark = localStorage.getItem('darkMode') === 'true';
+  document.body.classList.toggle('dark-mode', isDark);
+
+
+
   // 👇 ALL OF THIS SHOULD BE INSIDE HERE:
   const sidebar = document.getElementById('sidebar');
   const minimizeBtn = document.getElementById('minimizeSidebarBtn');
@@ -57,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadApprovedTags();
 
     // Initialize from localStorage
-  const isDark = localStorage.getItem('darkMode') === 'true';
-  document.body.classList.toggle('dark-mode', isDark);
+/*   const isDark = localStorage.getItem('darkMode') === 'true';
+  document.body.classList.toggle('dark-mode', isDark); */
 
     // Listen for the toggle button
   document.getElementById('toggleDarkModeBtn')?.addEventListener('click', () => {
@@ -428,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //
 
 });
+
 
 
 function toggleLoadMoreButton(show) {
@@ -1548,7 +1556,7 @@ function showPreviousCard() {
 }
 
 
-
+  window.searchCustomTags = searchCustomTags;
   window.searchCards = searchCards;
   window.loadApprovedTags = loadApprovedTags;
   window.openCardPopup = openCardPopup;

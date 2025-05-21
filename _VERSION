@@ -1,37 +1,23 @@
 CardVerse 2.0 Patch Notes 5/21/2025:
 
 General Updates:
--Converted entire site to new layout module
--Image library & assets added
--Added user dashboard styling, more the come in the future!! (Stay tuned)
--Account/user avatars! Edit in your bio (higher res coming soon!)
--User Profiles Updated
--New Dashboard / Profile Options (More to come in the future, stay tuned!)
--Big thanks for the early users of the discord server!
--Mod page updated
--Reorganized code for main search functions
--Replaced Show All Tagged Cards button with the sets popup (since sidebar is not retired)
--updated admin tools
--discord messages to the #production-pushes channel via middleware githubwebhook
+-Pulse (Live activity feed) added
 
 Features Added:
--Favorite pokemon (cute pixel art!!)
--New route for favorite pokemon in UserProfiles
--Working TCGPlayer affiliate links
--Site-wide mobile login (login popup via bottom-nav)
--silent GitHub webhook for discord integration
+-Pulse! (Activity feed)
 
 Technical Updates:
--Image library added!
--Fixed mod tag queue route
--Updated various dark mode styling
+-/Pulse activity feed created
 
 Bugs Discovered:
--Too many to count...lots of trial and error but is stable (seemingly)!
+-Discord bot not working?
+-CardPopup stacks instead of replacing, leading to crash errors if too many stack
+-main tag submission broken
 
 Bug Fixes:
--My Profile button no longer broken
--Fixed search #all
--moved share button on /card page, no longer covering tags
+-tag submission fixed
+-auto dark mode being strange on /pulse
+-fixed auto dark mode
+-dark mode now works correctly and stores locally until change
 
-v2.0 - Full Restructure and Overhaul
+v2.0.1 - Full Restructure and Overhaul
