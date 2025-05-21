@@ -42,12 +42,14 @@ const sessionMiddleware = session({ ///////////
 //
 //
 app.use((req, res, next) => {
-  // Check if running behind proxy with HTTPS
-  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
-    req.session.cookie.secure = true;
-  }
-  sessionMiddleware(req, res, next);
+  sessionMiddleware(req, res, () => {
+    if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+      req.session.cookie.secure = true;
+    }
+    next();
+  });
 });
+
 
 
 app.use(express.json());
