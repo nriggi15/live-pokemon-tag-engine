@@ -2,51 +2,62 @@
 import { getCollection } from 'astro:content';
 import Layout from '@/layouts/Layout.astro';
 
-const posts = await getCollection('posts');
+const posts = (await getCollection('posts')).sort(
+  (a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+
 ---
 
 <Layout>
   <h1>CardVerse Blog</h1>
   <p>Welcome to our community-powered Pokémon card blog!</p>
 
-  <ul>
+  <ul style="padding: 0;">
     {posts.map(post => (
       <li style="margin-bottom: 2rem; list-style: none;">
-        <a href={`/blog/${post.slug}`} style="text-decoration: none; color: inherit;">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          {/* Image on the left */}
           {post.data.image && post.data.image.trim() !== "" && (
             <img 
               src={post.data.image} 
               alt={`Image for ${post.data.title}`} 
-              style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 0.5rem;" 
+              style="width: 120px; height: auto; border-radius: 8px; flex-shrink: 0;" 
               loading="lazy" 
             />
           )}
-          <h2>{post.data.title}</h2>
-        </a>
 
-        <p>{post.data.description}</p>
-        <small>Published on {new Date(post.data.pubDate).toLocaleDateString()}</small>
+          {/* Post content on the right */}
+          <div>
+            <a href={`/blog/${post.slug}`} style="text-decoration: none; color: inherit;">
+              <h2>{post.data.title}</h2>
+            </a>
 
-        {post.data.tags && post.data.tags.length > 0 && (
-          <div style="margin-top: 0.5rem;">
-            {post.data.tags.map(tag => (
-              <span 
-                style="
-                  display: inline-block;
-                  background-color: #f2f2f2;
-                  color: #333;
-                  padding: 0.2rem 0.5rem;
-                  border-radius: 4px;
-                  font-size: 0.8rem;
-                  margin-right: 0.4rem;
-                "
-              >
-                #{tag}
-              </span>
-            ))}
+            <p>{post.data.description}</p>
+            <small>Published on {new Date(post.data.pubDate).toLocaleDateString()}</small>
+
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div style="margin-top: 0.5rem;">
+                {post.data.tags.map(tag => (
+                  <span 
+                    style="
+                      display: inline-block;
+                      background-color: #f2f2f2;
+                      color: #333;
+                      padding: 0.2rem 0.5rem;
+                      border-radius: 4px;
+                      font-size: 0.8rem;
+                      margin-right: 0.4rem;
+                    "
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </li>
     ))}
   </ul>
+
 </Layout>
