@@ -43,7 +43,7 @@
       margin-bottom: 1rem;
     }
 
-    button {
+    #moderator-container button {
       padding: 10px 16px;
       background-color: #28a745;
       color: white;
@@ -52,14 +52,24 @@
       cursor: pointer;
     }
 
+    body.dark-mode #moderator-container {
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      border: 1px solid #333;
+    }
+    
+
     button:hover {
       background-color: #1e7e34;
     }
   </style>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
 </head>
 <body>
-  <%- include('partials/sidebar') %>
+  <!-- Bottom Navigation Bar -->
+  <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
+
   <div id="moderator-container">
   <h2>🛠️ Moderator Hub</h2>
 

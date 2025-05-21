@@ -1,6 +1,7 @@
 General Updates:
--Fixed bottom-nav styling and button functionality
--Added :page: identifiers to all viewable pages for EJS layout purposes
+-Fixed various bottom nav bar bugs
+-Fixed darkmode issues around the tool
+-Added Cards cache for fasting load things in various places around the tool
 
 Features Added:
 -
@@ -14,4 +15,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v1.5.722 -  Bug Fixes
+v1.5.723 -  

@@ -1,4 +1,4 @@
-//models/Cards.js
+// models/Cards.js
 import mongoose from 'mongoose';
 
 const cardSchema = new mongoose.Schema({
@@ -9,10 +9,9 @@ const cardSchema = new mongoose.Schema({
   rarity: { type: String },
   artist: { type: String },
   images: {
-    small: { type: String },
-    large: { type: String },
-  },
-  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }]
+    small: { type: String, default: null },
+    large: { type: String, default: null }
+  }
 });
 
 const Card = mongoose.model('Card', cardSchema);

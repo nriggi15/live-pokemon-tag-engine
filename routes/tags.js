@@ -5,6 +5,7 @@ import TagSubmission from '../models/TagSubmission.js';
 import NewTag from '../models/NewTag.js';
 import Tag from '../models/NewTag.js';
 import User from '../models/User.js';
+import Card from '../models/Cards.js';
 
 import { requireLogin, requireModeratorOrAdmin } from '../middleware/auth.js';
 import requireVerified from '../middleware/requireVerified.js';
@@ -70,7 +71,7 @@ router.post('/tag-submissions/:cardId', requireLogin, requireVerified, async (re
 // Tag Submission to Mod Hub
 
 // GET /api/mod/tags/pending
-router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
+/* router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
   try {
     const submissions = await TagSubmission.find({ status: 'pending' }).populate('submittedBy', 'username');
 
@@ -89,6 +90,73 @@ router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
         cardName
       };
     }));
+
+    res.json(results);
+  } catch (err) {
+    console.error('Error fetching pending tags:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}); */
+
+// GET /api/mod/tags/pending WITH Cards collection cache
+router.get('/mod/tags/pending', requireModeratorOrAdmin, async (req, res) => {
+  try {
+    const submissions = await TagSubmission.find({ status: 'pending' })
+      .populate('submittedBy', 'username');
+
+    const cardIds = submissions.map(sub => sub.cardId);
+    const cards = await Card.find({ cardId: { $in: cardIds } }).lean();
+
+    const cardMap = {};
+    for (const card of cards) {
+      cardMap[card.cardId] = card;
+    }
+
+    let fallbackUsed = false;
+
+    const results = await Promise.all(submissions.map(async sub => {
+      let cardName = cardMap[sub.cardId]?.name;
+
+      // Fallback if missing AND not already used once
+      if (!cardName && !fallbackUsed) {
+        fallbackUsed = true;
+        fallbackCount++;
+        console.log(`⚠️ Fallback triggered (${fallbackCount})`);
+        try {
+          const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${sub.cardId}`);
+          const cardData = await cardRes.json();
+          const card = cardData?.data;
+
+          if (card) {
+            cardName = card.name;
+
+            // Save to Mongo for future lookups
+/*             await Card.create({
+              cardId: card.id,
+              name: card.name,
+              set: card.set?.name || 'Unknown',
+              number: card.number || null,
+              rarity: card.rarity || null,
+              artist: card.artist || null,
+              images: {
+                small: null,
+                large: null
+              }
+            });
+
+            console.log(`💾 Fallback saved missing card: ${card.name}`); */
+          }
+        } catch (err) {
+          console.warn(`❌ Fallback failed for ${sub.cardId}:`, err.message);
+        }
+      }
+
+      return {
+        ...sub.toObject(),
+        cardName: cardName || 'Unknown'
+      };
+    }));
+
 
     res.json(results);
   } catch (err) {
@@ -120,6 +188,40 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
     });
 
     await newTag.save();
+
+    // ✅ Cache card info into the Cards collection if not already saved
+    const existingCard = await Card.findOne({ cardId: submission.cardId });
+
+    if (!existingCard) {
+      try {
+        const cardRes = await fetch(`https://api.pokemontcg.io/v2/cards/${submission.cardId}`);
+        const cardData = await cardRes.json();
+        const card = cardData?.data;
+
+        if (card) {
+          const newCard = new Card({
+            cardId: card.id,
+            name: card.name,
+            set: card.set?.name || 'Unknown',
+            number: card.number || null,
+            rarity: card.rarity || null,
+            artist: card.artist || null,
+            images: {
+              small: null,
+              large: null
+            }
+          });
+
+          await newCard.save();
+          console.log(`✅ Saved card to Cards collection: ${card.name}`);
+        } else {
+          console.warn(`⚠️ No card data found for ${submission.cardId}`);
+        }
+      } catch (err) {
+        console.error(`❌ Failed to fetch/save card ${submission.cardId}:`, err);
+      }
+    }
+
 
     // Update the submission to mark it as approved
     submission.status = 'approved';

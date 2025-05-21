@@ -11,6 +11,7 @@ router.get('/user/:username', (req, res) => {
     page: 'profile',
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 

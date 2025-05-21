@@ -37,8 +37,10 @@ router.get('/explore', (req, res) => {
 
 router.get('/search', (req, res) => {
   res.render('search', {
-    isLoggedIn: req.session.isLoggedIn || false,
-    role: req.session.role || 'guest'
+    isLoggedIn: !!req.session.userId,
+    page: 'search',
+    role: req.session.role || 'guest',
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 
@@ -46,7 +48,9 @@ router.get('/search', (req, res) => {
 router.get('/leaderboards', (req, res) => {
   res.render('leaderboards', { 
     isLoggedIn: req.session.userId,
-    role: req.session.role
+    role: req.session.role,page: 'search',
+    page: 'leaderboards',
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 
@@ -55,7 +59,9 @@ router.get('/dashboard', (req, res) => {
   res.render('dashboard', {
     page: 'dashboard',  // ✅ Add this
     isLoggedIn: !!req.session.userId,
-    role: req.session.role || 'guest'
+    role: req.session.role || 'guest',
+    page: 'dashboard',
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 
@@ -63,7 +69,9 @@ router.get('/dashboard', (req, res) => {
 router.get('/about', (req, res) => {
   res.render('about', {
     isLoggedIn: req.session && req.session.userId,
-    role: req.session?.role || null
+    role: req.session?.role || null,
+    page: 'about',
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 
@@ -71,7 +79,10 @@ router.get('/about', (req, res) => {
 
 // Tag browsing page
 router.get('/tags', (req, res) => {
-  res.render('tags', { title: 'Browse Tags' });
+  res.render('tags', { 
+    title: 'Browse Tags',
+    isDarkMode: req.session?.darkMode || false,
+  });
 });
 
 // Bottom Navigation Bar Test Page
@@ -80,7 +91,7 @@ router.get('/bottom-nav-test', (req, res) => {
         title: 'Bottom Nav Test',
         page: 'bottom-test',
         isLoggedIn: !!req.session.userId,
-        role: req.session.role || null
+        role: req.session.role || null,
     });
 });
 
@@ -247,6 +258,7 @@ res.render('card', {
   ebayAffiliate,
   isLocalhost,
   ebayFinal,
+  isDarkMode: req.session?.darkMode || false,
   from: req.query.from ? encodeURIComponent(req.query.from) : ''
 });
 

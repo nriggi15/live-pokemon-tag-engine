@@ -101,7 +101,10 @@ app.use('/', userProfilesRoute);
 
 // ✅ Auth-Protected Route (now truly secure)
 app.get('/admin-panel', requireAdmin, (req, res) => {
-  res.render('admin-panel', { page: 'admin' });
+  res.render('admin-panel', { 
+    page: 'admin',
+    isDarkMode: req.session?.darkMode || false,
+  });
 });
 import adminRoutes from './routes/admin.js';
 app.use('/api', adminRoutes);
@@ -109,11 +112,16 @@ app.use('/api', adminRoutes);
 
 // ✅ Public Routes (not protected)
 app.get('/register', (req, res) => {
-  res.render('register', { page: 'register' });
+  res.render('register', {
+    page: 'register',
+  });
 });
 
 app.get('/login', (req, res) => {
-  res.render('login', { page: 'login' });
+  res.render('login', {
+    page: 'login',
+    isDarkMode: req.session?.darkMode || false,
+  });
 });
 
 app.get('/login-test', (req, res) => {
@@ -384,7 +392,8 @@ app.get('/dashboard', requireLogin, async (req, res) => {
       page: 'dashboard',
       userId: user?._id?.toString() || 'Unknown',
       username: user?.username || 'Unknown',
-      role: req.session.role || 'user'
+      role: req.session.role || 'user',
+      isDarkMode: req.session?.darkMode || false,
     });
   } catch (err) {
     console.error('Error loading dashboard user:', err);
@@ -392,7 +401,8 @@ app.get('/dashboard', requireLogin, async (req, res) => {
       page: 'dashboard',
       userId: 'Unknown',
       username: 'Unknown',
-      role: req.session.role || 'user'
+      role: req.session.role || 'user',
+      isDarkMode: req.session?.darkMode || false,
     });
   }
 });
@@ -405,7 +415,8 @@ app.get('/collections/:id', async (req, res) => {
     collectionId: req.params.id,
     sessionUserId: userId,
     isLoggedIn: !!req.session.userId,
-    role: req.session.role || 'guest'
+    role: req.session.role || 'guest',
+    isDarkMode: req.session?.darkMode || false,
   });
 
 });
@@ -415,14 +426,20 @@ app.get('/leaderboards', (req, res) => {
   res.render('leaderboards', {
     page: 'leaderboards',
     isLoggedIn: req.session.userId,
-    role: req.session.role
+    role: req.session.role,
+    isDarkMode: req.session?.darkMode || false,
   });
 });
 
 
 // Moderator Hub
 app.get('/moderator-hub', requireModeratorOrAdmin, (req, res) => {
-  res.render('moderator-hub', { page: 'moderator' });
+  res.render('moderator-hub', { 
+    page: 'moderator',
+    isLoggedIn: req.session.userId,
+    role: req.session.role,
+    isDarkMode: req.session?.darkMode || false,
+  });
 });
 
 
