@@ -4,6 +4,35 @@ import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
 import { largeImageMap } from '/img/pokemonLarge/largeImageMap.js';
 import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 
+
+let currentQuery = null;
+let currentPage = 1;
+let searchMode = null;
+
+// Load More Button
+const loadMoreBtn = document.createElement('button');
+loadMoreBtn.textContent = '🔁 Load More';
+loadMoreBtn.classList.add('load-more-btn');
+loadMoreBtn.addEventListener('click', () => {
+  if (searchMode === 'pokemon' && currentQuery) {
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // ✅ scroll immediately
+    searchCards(currentQuery, currentPage + 1);
+  }
+});
+
+let approvedTagsSet = new Set();
+
+async function loadApprovedTags() {
+  try {
+    const res = await fetch('/api/tag-stats');
+    const stats = await res.json();
+    approvedTagsSet = new Set(stats.map(entry => entry.tag.toLowerCase()));
+    console.log('✅ Loaded approved tags:', approvedTagsSet.size);
+  } catch (err) {
+    console.error('❌ Failed to load tag stats:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("🚀 script.js is running");
 
@@ -24,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tagStatsPopup = document.getElementById('tagStatsPopup');
   const tagStatsList = document.getElementById('tagStatsList');
   const closeStatsBtn = tagStatsPopup?.querySelector('.close-button');
+
+  loadApprovedTags();
 
     // Initialize from localStorage
   const isDark = localStorage.getItem('darkMode') === 'true';
@@ -449,6 +480,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+
+function toggleLoadMoreButton(show) {
+  if (show) {
+    if (!loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreContainer.appendChild(loadMoreBtn);
+    }
+  } else {
+    if (loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreBtn.remove();
+    }
+  }
+}
+
+function resetSearchState() {
+  currentQuery = null;
+  currentPage = 1;
+  searchMode = null;
+  toggleLoadMoreButton(false);
+}
+
+function buildQuery(input) {
+  const tagToQueryMap = {
+    pink: 'types:Psychic OR name:pink',
+    cute: 'name:pikachu OR name:eevee OR name:jigglypuff OR name:clefairy',
+    flying: 'subtypes:Flying OR abilities.name:Flying',
+    charizard: 'name:charizard',
+    sunshine: 'name:sun OR name:light OR set.name:Sun'
+  };
+  const tag = input.toLowerCase();
+  if (tagToQueryMap[tag]) return tagToQueryMap[tag];
+  if (tag.includes(':')) return tag;
+  return `name:"${input}"`;
+}
+
+function updateResultsCount(count) {
+  resultsCount.classList.remove('hidden');
+  if (count === 0) {
+    resultsCount.textContent = 'No results found.';
+  } else {
+    resultsCount.textContent = `Total ${count} card${count > 1 ? 's' : ''}`;
+  }
+}
+
+
+
+
   const typeColors = {
   Fire: '#e57373',
   Water: '#2f78ed',
@@ -601,7 +678,43 @@ async function renderFavoriteButton(term, type) {
   container.appendChild(btn);
 }
 
+function showCards(cards, append = false) {
+  if (!append) {
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+    cardResults.innerHTML = '';
+    window.searchResults = cards; // ✅ set the global search result array
+  }
 
+  if (cards.length === 0) {
+    if (!append) {
+      cardResults.innerHTML = '<p>No cards found.</p>';
+      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+    }
+    return;
+  }
+  cards.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('card');
+    cardDiv.dataset.card = JSON.stringify(card);
+    cardDiv.innerHTML = `
+      <img src="${card.images.small}" alt="${card.name}" />
+      <p>${card.name}</p>
+      <p><strong>Set:</strong> ${card.set.name}</p>
+    `;
+    cardDiv.addEventListener('click', () => {
+        trackEvent('card_click', {
+          card_id: card.id,
+          source: 'search'
+        });
+      const index = window.searchResults.findIndex(c => c.id === card.id);
+      window.currentPopupIndex = index; // ✅ Track which card is active
+      openCardPopup(card, { mode: 'edit' });
+    });
+
+    cardResults.appendChild(cardDiv);
+  });
+  resultsCount.textContent = `Total ${cards.length} card${cards.length > 1 ? 's' : ''}`;
+}
 
 async function searchCards(query, page = 1) {
   storeRecentSearch(query.trim());
@@ -867,6 +980,17 @@ async function searchCustomTags(tag) {
   }
 }
 
+window.searchCards = searchCards;
+window.searchCustomTags = searchCustomTags;
+
+
+
+function applyCardColorTheme([r, g, b]) {
+const hex = `rgb(${r}, ${g}, ${b})`;
+document.querySelectorAll('.popup-content a').forEach(link => {
+  link.style.color = hex;
+});
+}
 
 //
 //

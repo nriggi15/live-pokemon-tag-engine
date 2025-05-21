@@ -111,13 +111,15 @@
     <div class="search-group">
       <label for="tagSearchInput">Search by Custom Tags</label>
       <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
-      <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button>
+      <!-- <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button> -->
+       <button id="tagSearchBtn">Tag Search</button>
     </div>
 
     <div class="search-group">
       <label for="searchInput">Search by Pokémon or Keyword</label>
       <input type="text" id="searchInput" placeholder="Search by name..." />
-      <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button>
+      <!-- <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button> -->
+       <button id="searchBtn">Search</button>
     </div>
 
     <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
@@ -203,11 +205,16 @@
       }
     });
   </script> 
-      <!-- Run the JS Script file, put most things above this -->
-      <script src="/js/search.js"></script>
 
-      <!-- Shared utilities like sidebar, dark mode, back to top -->
-      <script type="module" src="/js/script.js"></script>
+  <script>
+    window.API_KEY = "<%= process.env.POKEMON_API_KEY %>";
+  </script>
+
+
+  <!-- Run the JS Script file, put most things above this -->
+  <script type="module" src="/js/search.js"></script>
+  <!-- Shared utilities like sidebar, dark mode, back to top -->
+  <script type="module" src="/js/script.js"></script>
   
 
 </body>

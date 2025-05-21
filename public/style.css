@@ -4,6 +4,7 @@ body {
   background-color: #f0f2f5;
   color: #333;
   text-align: center;
+  padding-bottom: 80px; /* ensures content above bottom-nav */
 }
 
 h1 {

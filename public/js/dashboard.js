@@ -62,6 +62,32 @@ document.addEventListener('DOMContentLoaded', () => {
                   document.getElementById('dashboardBio').textContent = newBio || 'This user has not written a bio yet.';
                   successMsg.classList.remove('hidden');
                   controls.classList.add('hidden');
+
+
+                  // ✅ NEW: Update favorite Pokémon text + image
+                  const favDisplay = document.getElementById('favoritePokemonDisplay');
+                  favDisplay.innerHTML = '';
+
+                  if (newFavorite && pixelImageMap[newFavorite]) {
+                    const pixelImg = document.createElement('img');
+                    pixelImg.src = `/img/151pixels/${pixelImageMap[newFavorite]}`;
+                    pixelImg.alt = newFavorite;
+                    pixelImg.style.width = '56px';
+                    pixelImg.style.height = '56px';
+                    pixelImg.style.verticalAlign = 'middle';
+                    pixelImg.style.marginRight = '0.5rem';
+
+                    const label = document.createElement('span');
+                    label.textContent = `⭐ Favorite Pokémon: ${newFavorite}`;
+                    label.style.fontSize = '1rem';
+
+                    favDisplay.appendChild(pixelImg);
+                    favDisplay.appendChild(label);
+                  } else {
+                    favDisplay.textContent = '⭐ Favorite Pokémon: Not set';
+                  }
+
+
                 } else {
                   alert('❌ Failed to save profile.');
                 }

@@ -194,6 +194,7 @@
 
 <script>
     async function loadProfile() {
+      const pixelImageMap = window.pixelImageMap;
       const pathParts = window.location.pathname.split('/');
       const username = pathParts[pathParts.length - 1];
   
@@ -209,7 +210,28 @@
           document.querySelector('#bioDisplay').textContent = data.bio || 'This user has not written a bio yet.';
           document.querySelector('.profile-avatar').src = data.avatarUrl || '/images/default-avatar.png';
           //Load favorite Pokemon
-          document.querySelector('#favoritePokemonDisplay').textContent = favorite ? `⭐ Favorite Pokémon: ${favorite}` : '';
+          const favoriteDiv = document.querySelector('#favoritePokemonDisplay');
+          favoriteDiv.innerHTML = ''; // clear existing
+
+          if (favorite && pixelImageMap[favorite]) {
+            const pixelImg = document.createElement('img');
+            pixelImg.src = `/img/151pixels/${pixelImageMap[favorite]}`;
+            pixelImg.alt = favorite;
+            pixelImg.style.width = '56px';
+            pixelImg.style.height = '56px';
+            pixelImg.style.verticalAlign = 'middle';
+            pixelImg.style.marginRight = '0.5rem';
+
+            const label = document.createElement('span');
+            label.textContent = `⭐ Favorite Pokémon: ${favorite}`;
+            label.style.fontSize = '1rem';
+
+            favoriteDiv.appendChild(pixelImg);
+            favoriteDiv.appendChild(label);
+          } else {
+            favoriteDiv.textContent = '⭐ Favorite Pokémon: Not set';
+          }
+
           // 🧠 Save reference to loaded profile ID
           window.loadedProfileUserId = data.userId || null;
           window.loadedBio = data.bio || '';
@@ -411,6 +433,7 @@
           document.getElementById('editBioBtn').classList.remove('hidden');
   
           document.getElementById('editBioBtn').addEventListener('click', () => {
+            document.getElementById('editBioBtn').classList.add('hidden');
             document.getElementById('bioDisplay').classList.add('hidden');
             document.getElementById('bioEdit').classList.remove('hidden');
             document.getElementById('bioButtons').classList.remove('hidden');
@@ -420,11 +443,17 @@
             document.getElementById('bioEdit').classList.add('hidden');
             document.getElementById('bioButtons').classList.add('hidden');
             document.getElementById('bioDisplay').classList.remove('hidden');
+            document.getElementById('editBioBtn').classList.remove('hidden');
           });
   
           document.getElementById('saveBioBtn').addEventListener('click', async () => {
+            const currentFavorite = document.querySelector('#favoritePokemonDisplay span')?.textContent?.split(':')?.[1]?.trim();
+            if (currentFavorite) {
+              document.getElementById('favoriteSelect').value = currentFavorite;
+            }
+
             const newBio = document.getElementById('bioEdit').value.trim();
-  
+            document.getElementById('editBioBtn').classList.remove('hidden');
             try {
               const res = await fetch(`/api/user-profile/${session.userId}`, {
                 method: 'PATCH',
@@ -524,6 +553,11 @@ window.onload = async () => {
   
   
   <script type="module" src="/js/script.js"></script>
+  <script type="module">
+    import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
+    window.pixelImageMap = pixelImageMap;
+  </script>
+
 
 </body>
 </html>
