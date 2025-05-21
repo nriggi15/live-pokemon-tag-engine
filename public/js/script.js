@@ -1,4 +1,41 @@
+  //Import Image Maps
+  // public/js/script.js (or wherever your frontend logic lives)
+import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
+import { largeImageMap } from '/img/pokemonLarge/largeImageMap.js';
+import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
+
+
+let currentQuery = null;
+let currentPage = 1;
+let searchMode = null;
+
+// Load More Button
+const loadMoreBtn = document.createElement('button');
+loadMoreBtn.textContent = '🔁 Load More';
+loadMoreBtn.classList.add('load-more-btn');
+loadMoreBtn.addEventListener('click', () => {
+  if (searchMode === 'pokemon' && currentQuery) {
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // ✅ scroll immediately
+    searchCards(currentQuery, currentPage + 1);
+  }
+});
+
+let approvedTagsSet = new Set();
+
+async function loadApprovedTags() {
+  try {
+    const res = await fetch('/api/tag-stats');
+    const stats = await res.json();
+    approvedTagsSet = new Set(stats.map(entry => entry.tag.toLowerCase()));
+    console.log('✅ Loaded approved tags:', approvedTagsSet.size);
+  } catch (err) {
+    console.error('❌ Failed to load tag stats:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("🚀 script.js is running");
+
   // 👇 ALL OF THIS SHOULD BE INSIDE HERE:
   const sidebar = document.getElementById('sidebar');
   const minimizeBtn = document.getElementById('minimizeSidebarBtn');
@@ -16,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tagStatsPopup = document.getElementById('tagStatsPopup');
   const tagStatsList = document.getElementById('tagStatsList');
   const closeStatsBtn = tagStatsPopup?.querySelector('.close-button');
+
+  loadApprovedTags();
 
     // Initialize from localStorage
   const isDark = localStorage.getItem('darkMode') === 'true';
@@ -124,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  fetch('/api/whoami')
+/*   fetch('/api/whoami')
   .then(res => res.json())
   .then(data => {
     const { userId, role } = data;
@@ -137,6 +176,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const modLink = document.getElementById('modLink');
 
     if (userId) {
+
+      const myProfileBtn = document.getElementById('myProfileBtn');
+      if (myProfileBtn) {
+        fetch(`/api/user-profile/${userId}`)
+          .then(res => res.json())
+          .then(profile => {
+            if (profile?.username) {
+              myProfileBtn.href = `/user/${profile.username}`;
+              myProfileBtn.classList.remove('hidden');
+            }
+          })
+          .catch(() => {
+            myProfileBtn.style.display = 'none';
+          });
+      }
+
+
       registerBtn?.classList.add('hidden');
       loginBtn?.classList.add('hidden');
       logoutBtn?.classList.remove('hidden');
@@ -160,67 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   .catch(err => {
     console.error('Failed to fetch user role:', err);
-  });
-
-  if (viewSetsBtn && setsPopup && closeSetsPopup && setsList) {
-    viewSetsBtn.addEventListener('click', async () => {
-      console.log('🟢 Sets button clicked');
-      setsList.innerHTML = '<li>Loading...</li>';
-      setsPopup.classList.remove('hidden');
-    
-      try {
-        const response = await fetch('https://api.pokemontcg.io/v2/sets');
-        const data = await response.json();
-    
-        setsList.innerHTML = ''; // Clear loading text
-    
-        data.data.forEach(set => {
-          const li = document.createElement('li');
-          li.classList.add('set-entry');
-          li.innerHTML = `
-            <h3>${set.name}</h3>
-            <p><strong>Series:</strong> ${set.series}</p>
-            <p><strong>Set ID:</strong> ${set.id}</p>
-            <p><strong>Release Date:</strong> ${set.releaseDate || 'Unknown'}</p>
-            <p><strong>Cards:</strong> ${set.printedTotal || '?'} printed / ${set.total} total</p>
-            ${set.ptcgoCode ? `<p><strong>PTCGO Code:</strong> ${set.ptcgoCode}</p>` : ''}
-            <img src="${set.images.logo}" alt="${set.name} logo"
-              class="set-logo"
-              data-set-id="${set.id}"
-              title="Click to view cards from this set" />
-            <hr />
-          `;
-          setsList.appendChild(li);
-        });
-    
-        // ✅ Bind listeners AFTER the DOM has all logos
-        document.querySelectorAll('.set-logo').forEach(img => {
-          img.addEventListener('click', () => {
-            const setId = img.dataset.setId;
-            if (setId) {
-              searchInput.value = setId;
-              searchCards(`set.id:${setId}`);
-              setsPopup.classList.add('hidden');
-            }
-          });
-        });
-    
-      } catch (error) {
-        console.error('Error fetching sets:', error);
-        setsList.innerHTML = '<li>Error loading sets</li>';
-      }
-    });
-    
-    closeSetsPopup.addEventListener('click', () => {
-      setsPopup.classList.add('hidden');
-    });
-    
-    setsPopup.addEventListener('click', (e) => {
-      if (e.target === setsPopup) {
-        setsPopup.classList.add('hidden');
-      }
-    });    
-  }
+  }); */
 
   // First load Popup on index
   const popup = document.getElementById("introPopup");
@@ -276,6 +272,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   loadRecentCards();
+
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('popup-open')) return;
+
+    if (e.key === 'ArrowRight') showNextCard();
+    if (e.key === 'ArrowLeft') showPreviousCard();
+  });
+
+
   const toggleBtn = document.getElementById('toggleDropdownBtn');
   const dropdown = document.getElementById('dropdownContent');
 
@@ -318,8 +323,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
             registerBtn?.classList.add('hidden');
             loginBtn?.classList.add('hidden');
-
+            
             const myProfileBtn = document.getElementById('myProfileBtn');
+            console.log('👀 Looking for #myProfileBtn:', myProfileBtn);
+            
             if (myProfileBtn) {
               fetch(`/api/user-profile/${data.userId}`)
                 .then(res => res.json())
@@ -421,6 +428,52 @@ document.addEventListener('DOMContentLoaded', () => {
 //
 
 });
+
+
+function toggleLoadMoreButton(show) {
+  if (show) {
+    if (!loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreContainer.appendChild(loadMoreBtn);
+    }
+  } else {
+    if (loadMoreContainer.contains(loadMoreBtn)) {
+      loadMoreBtn.remove();
+    }
+  }
+}
+
+function resetSearchState() {
+  currentQuery = null;
+  currentPage = 1;
+  searchMode = null;
+  toggleLoadMoreButton(false);
+}
+
+function buildQuery(input) {
+  const tagToQueryMap = {
+    pink: 'types:Psychic OR name:pink',
+    cute: 'name:pikachu OR name:eevee OR name:jigglypuff OR name:clefairy',
+    flying: 'subtypes:Flying OR abilities.name:Flying',
+    charizard: 'name:charizard',
+    sunshine: 'name:sun OR name:light OR set.name:Sun'
+  };
+  const tag = input.toLowerCase();
+  if (tagToQueryMap[tag]) return tagToQueryMap[tag];
+  if (tag.includes(':')) return tag;
+  return `name:"${input}"`;
+}
+
+function updateResultsCount(count) {
+  resultsCount.classList.remove('hidden');
+  if (count === 0) {
+    resultsCount.textContent = 'No results found.';
+  } else {
+    resultsCount.textContent = `Total ${count} card${count > 1 ? 's' : ''}`;
+  }
+}
+
+
+
 
   const typeColors = {
   Fire: '#e57373',
@@ -574,7 +627,43 @@ async function renderFavoriteButton(term, type) {
   container.appendChild(btn);
 }
 
+function showCards(cards, append = false) {
+  if (!append) {
+    document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+    cardResults.innerHTML = '';
+    window.searchResults = cards; // ✅ set the global search result array
+  }
 
+  if (cards.length === 0) {
+    if (!append) {
+      cardResults.innerHTML = '<p>No cards found.</p>';
+      document.getElementById('featuredHeader')?.remove(); // remove "🌟 Featured Cards" if present
+    }
+    return;
+  }
+  cards.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('card');
+    cardDiv.dataset.card = JSON.stringify(card);
+    cardDiv.innerHTML = `
+      <img src="${card.images.small}" alt="${card.name}" />
+      <p>${card.name}</p>
+      <p><strong>Set:</strong> ${card.set.name}</p>
+    `;
+    cardDiv.addEventListener('click', () => {
+        trackEvent('card_click', {
+          card_id: card.id,
+          source: 'search'
+        });
+      const index = window.searchResults.findIndex(c => c.id === card.id);
+      window.currentPopupIndex = index; // ✅ Track which card is active
+      openCardPopup(card, { mode: 'edit' });
+    });
+
+    cardResults.appendChild(cardDiv);
+  });
+  resultsCount.textContent = `Total ${cards.length} card${cards.length > 1 ? 's' : ''}`;
+}
 
 async function searchCards(query, page = 1) {
   storeRecentSearch(query.trim());
@@ -840,6 +929,18 @@ async function searchCustomTags(tag) {
   }
 }
 
+window.searchCards = searchCards;
+window.searchCustomTags = searchCustomTags;
+window.showCards = showCards;
+
+
+
+function applyCardColorTheme([r, g, b]) {
+const hex = `rgb(${r}, ${g}, ${b})`;
+document.querySelectorAll('.popup-content a').forEach(link => {
+  link.style.color = hex;
+});
+}
 
 //
 //
@@ -941,7 +1042,8 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
         <strong>🛒 Shop:</strong>
         <a id="ebayAffiliateLink" href="#" target="_blank" style="margin-left: 0.5rem;">Search on eBay</a>
         <span style="margin: 0 6px;">|</span>
-        <a href="#" target="_blank" style="opacity: 0.6; pointer-events: none; cursor: default;">Find on TCGPlayer</a>
+        <a id="tcgplayerAffiliateLink" href="#" target="_blank">Find on TCGPlayer</a>
+        
       </div>
 
 
@@ -994,8 +1096,31 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
         value: 1
       });
     }
+    const tcgplayerLink = popup.querySelector('#tcgplayerAffiliateLink');
+    if (tcgplayerLink && card.tcgplayer?.url) {
+      const encoded = encodeURIComponent(card.tcgplayer.url);
+      tcgplayerLink.href = `https://partner.tcgplayer.com/c/6242559/1830156/21018?u=${encoded}`;
+      tcgplayerLink.style.opacity = '1';
+      tcgplayerLink.style.pointerEvents = 'auto';
+      tcgplayerLink.style.cursor = 'pointer';
 
-
+      tcgplayerLink.addEventListener('click', () => {
+        trackEvent('tcgplayer_click_card', {
+          shop: 'TCGplayer',
+          card_id: card.id,
+          card_name: card.name,
+          set: card.set?.name || '',
+          source: 'popup'
+        });
+      });
+    } else if (tcgplayerLink) {
+      console.warn('🧪 Missing TCGPlayer URL for card:', card.name, card.tcgplayer);
+      tcgplayerLink.href = '#';
+      tcgplayerLink.style.opacity = '0.6';
+      tcgplayerLink.style.pointerEvents = 'none';
+      tcgplayerLink.style.cursor = 'not-allowed';
+      tcgplayerLink.textContent += ' (Unavailable)';
+    }
 
   const shareBtn = popup.querySelector('#shareCardBtn');
 
@@ -1096,14 +1221,6 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
     }
   });
 
-  function handleArrowNav(e) {
-    if (e.key === 'ArrowRight') showNextCard();
-    if (e.key === 'ArrowLeft') showPreviousCard();
-  }
-
-  document.addEventListener('keydown', handleArrowNav);
-
-
 
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
@@ -1116,7 +1233,6 @@ popup.addEventListener('click', (e) => {
   if (e.target === popup) {
     popup.remove();
     document.body.classList.remove('popup-open');
-    document.removeEventListener('keydown', handleArrowNav); // ✅ clean up
   }
 });
 
@@ -1433,6 +1549,6 @@ function showPreviousCard() {
 
 
 
-
-
+  window.searchCards = searchCards;
+  window.loadApprovedTags = loadApprovedTags;
   window.openCardPopup = openCardPopup;

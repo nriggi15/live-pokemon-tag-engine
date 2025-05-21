@@ -68,10 +68,10 @@
 
   </style>
   <link rel="stylesheet" href="style.css" />
+
 </head>
 <body>
-  <%- include('partials/sidebar') %>
-  <div id="admin-flex-container" style="display: flex; align-items: flex-start;">
+   <div id="admin-flex-container" style="display: flex; align-items: flex-start;">
    <div id="admin-left" style="width: 260px; min-width: 260px; padding-right: 1rem;">
     <div id="admin-container">
   <h2>👑 Admin Panel</h2>
@@ -158,7 +158,7 @@
 
 
   <script src="/js/admin.js"></script>
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
 
 
   <script>
@@ -176,6 +176,7 @@
             <th>Role</th>
             <th>Banned</th>
             <th>Verified</th>
+            <th>Date Registered</th>
             <th>Actions</th>
           </tr>
         </thead>

@@ -12,6 +12,7 @@ router.get('/user/:username', (req, res) => {
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
     isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
   });
 });
 
@@ -48,17 +49,21 @@ router.patch('/api/user-profile/:id', requireVerified, async (req, res) => {
       return res.status(403).json({ error: 'You are not authorized to edit this profile.' });
     }
   
-    const { bio, avatarUrl } = req.body;
+    const { bio, avatarUrl, favoritePokemon } = req.body;
 
   
     try {
       console.log('🛠 PATCH incoming bio/avatar:', { bio, avatarUrl });
 
-      const updated = await UserProfile.findOneAndUpdate(
-        { userId: sessionUserId },
-        { bio, avatarUrl },
-        { new: true }
-      );
+    const updated = await UserProfile.findOneAndUpdate(
+      { userId: sessionUserId },
+      {
+        ...(bio !== undefined && { bio }),
+        ...(avatarUrl !== undefined && { avatarUrl }),
+        ...(favoritePokemon !== undefined && { favoritePokemon })
+      },
+      { new: true }
+    );
   
       if (!updated) {
         return res.status(404).json({ error: 'Profile not found.' });

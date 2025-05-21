@@ -7,19 +7,16 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="/img/cardverse-logo.png" />
   
-  <!-- GOOGLE ANALYTICS -->
-  <%- include('partials/analytics') %>
 </head>
 <body class="<%= isDarkMode ? 'dark-mode' : '' %>">
-  <%- include('partials/top-nav') %>
+
 
   <main>
-    <%- body %>
+
   </main>
 
-    <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role, page: page }) %>
 
   <!-- Optional footer, scripts -->
-  <script src="/js/script.js"></script>
+  <script type="module" src="/js/script.js"></script>
 </body>
 </html>
