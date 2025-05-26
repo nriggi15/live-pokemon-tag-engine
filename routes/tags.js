@@ -58,16 +58,8 @@ router.post('/tag-submissions/:cardId', requireLogin, requireVerified, async (re
 
     await submission.save();
 
-          console.log('🫀 Logging tag activity to Pulse:', { userId, cardId, tagName });
+    console.log('🫀 Logging tag activity to Pulse:', { userId, cardId, tagName });
     
-    // 🫀 Log to the Pulse feed
-    await logActivity({
-      type: 'tag',
-      user: userId,
-      cardId,
-      tag: tagName
-    });
-
     res.status(201).json({ success: true, message: 'Tag submitted for review.' });
 
   } catch (err) {
@@ -174,17 +166,18 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
         // 🔍 Check before saving
       console.log('🧪 Checking if this is the first tag for card:', submission.cardId);
       // 🔍 Check for existing approved tags BEFORE saving
-      await newTag.save();
+      // 🔍 Check BEFORE saving
 
-      // 🔍 Check if this is the first approved tag AFTER saving
       const tagCountForCard = await NewTag.countDocuments({
         cardId: submission.cardId,
         status: 'approved'
-      });
+      });     
+
+      await newTag.save();
 
       console.log('🧮 Total approved tags after save:', tagCountForCard);
 
-      if (tagCountForCard === 1) {
+      if (tagCountForCard === 0) {
         console.log('🆕 This is the first approved tag — logging first_tag activity');
         await logActivity({
           type: 'first_tag',
@@ -193,24 +186,16 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
           tag: submission.tag,
           message: '📍 First tag on this card!'
         });
+      } else {
+        await logActivity({
+          type: 'tag',
+          user: submission.submittedBy,
+          cardId: submission.cardId,
+          tag: submission.tag
+        });
       }
 
-    console.log('🫀 Logging approved tag activity to Pulse:', {
-      user: submission.submittedBy,
-      cardId: submission.cardId,
-      tag: submission.tag
-    });
-
-    await logActivity({
-      type: 'tag',
-      user: submission.submittedBy,
-      cardId: submission.cardId,
-      tag: submission.tag
-    });
-
-
-    // ✅ Cache card info into the Cards collection if not already saved
-    const existingCard = await Card.findOne({ cardId: submission.cardId });
+      const existingCard = await Card.findOne({ cardId: submission.cardId });
 
     if (!existingCard) {
       try {
@@ -251,6 +236,8 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
 
     res.json({ success: true, message: 'Tag approved and saved to NewTag collection.' });
 
+    // ✅ Cache card info into the Cards collection if not already saved
+    
   } catch (err) {
     console.error('❌ Error approving tag:', err);
     res.status(500).json({ message: 'Server error during tag approval' });

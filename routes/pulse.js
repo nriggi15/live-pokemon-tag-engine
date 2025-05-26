@@ -31,12 +31,14 @@ router.get('/', requireLogin, async (req, res) => {
     }
 
     res.render('pulse', {
+      layout: 'layouts/main',
       page: 'pulse',
       title: 'PokéPulse',
       activity,
-      isLoggedIn: req.session.isLoggedIn || false,
+      isLoggedIn: !!req.session.userId,
       role: req.session.role || 'guest',
-      currentUser: req.session.userId || null
+      currentUser: req.session.userId || null,
+      username: req.session.username || '',
     });
   } catch (err) {
     console.error('Error loading PokéPulse:', err);

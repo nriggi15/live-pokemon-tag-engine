@@ -217,11 +217,20 @@ router.get('/card/:id', async (req, res) => {
     const similarCards = (similarData.data || []).filter(c => c.id !== card.id);
 
     // Set Cards
-    const setRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${card.set.id}&pageSize=20`, {
+    const setRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${card.set.id}&orderBy=number&pageSize=250`, {
       headers: { 'X-Api-Key': process.env.POKEMON_API_KEY }
     });
+
     const setData = await setRes.json();
-    const setCards = (setData.data || []).filter(c => c.id !== card.id);
+    const currentNum = parseInt(card.number, 10);
+    const lower = currentNum - 10;
+    const upper = currentNum + 10;
+
+    const setCards = (setData.data || []).filter(c => {
+      const n = parseInt(c.number, 10);
+      return !isNaN(n) && n !== currentNum && n >= lower && n <= upper;
+    });
+
 
     const collectionsWithCard = await Collection.find({ cards: cardId, visibility: 'public' })
     .limit(5)

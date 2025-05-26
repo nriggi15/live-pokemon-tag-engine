@@ -19,7 +19,6 @@
     %>
 
     <ul class="pulse-feed">
-      <% activity.slice(0, 5).forEach(item => { console.log('🔍', item.type, item.status, item.cardId, item.user?.username); }) %>
 
     <% activity.forEach(item => {
       const tagKey = `${item.cardId}-${item.user._id}`;
@@ -35,26 +34,21 @@
 
       <li class="pulse-item">
         <div class="pulse-text">
-          <% if (item.type === 'first_tag') { %>
+         <% if (item.type === 'first_tag') { %>
+          <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+          added the very first tag on
+          <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
+          <span class="tag">#<%= item.tag %></span>
+          <span class="badge">🆕 First tag!</span>
+        <% } else if (item.type === 'tag') { %>
+          <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+          tagged
+          <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
+          <span class="tag">#<%= item.tag %></span>
+        <% } %>
 
-              <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
-              added the very first tag on
-              <a href="/card/<%= item.cardName %>"><%= item.cardName %></a>:
-              <span class="tag">#<%= item.tag %></span>
-              <span class="badge">🆕 First tag!</span>
+            <span class="timeago" data-time="<%= item.createdAt %>"></span>
 
-            <% } else if (item.type === 'join') { %>
-              just joined! 🎉
-            <% } else if (item.type === 'login') { %>
-              logged in for the first time 👋
-            <% } else if (item.type === 'collection') { %>
-              added a new collection!
-            <% } else if (item.type === 'badge') { %>
-              earned a badge 🏅
-            <% } else { %>
-              <%= item.message %>
-            <% } %>
-            <span class="timeago"><%= new Date(item.createdAt).toLocaleTimeString() %></span>
           </div>
           <%
             let imgUrl = '';
@@ -77,3 +71,36 @@
 </div>
 
 <%- include('partials/bottom-nav', { isLoggedIn: isLoggedIn, role: role }) %>
+<script type="module" src="/js/script.js"></script>
+
+<script>
+  function timeAgo(date) {
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours   = Math.floor(minutes / 60);
+    const days    = Math.floor(hours / 24);
+
+    if (seconds < 60) return 'just now';
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+    if (hours < 24)   return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+    if (days < 7)     return `${days} day${days !== 1 ? 's' : ''} ago`;
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  document.querySelectorAll('.timeago').forEach(el => {
+    const raw = el.dataset.time;
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) {
+      el.textContent = timeAgo(parsed);
+    } else {
+      el.textContent = '⏰';
+    }
+  });
+</script>
+

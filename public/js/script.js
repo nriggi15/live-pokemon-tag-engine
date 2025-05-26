@@ -428,6 +428,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 🔧 Bug Report Modal Logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const reportBugBtn = document.getElementById('reportBugBtn');
+    const bugFormModal = document.getElementById('bugFormModal');
+
+    if (reportBugBtn && bugFormModal) {
+      reportBugBtn.addEventListener('click', () => {
+        bugFormModal.style.display = 'block';
+      });
+
+      document.addEventListener('click', function (event) {
+        const isClickInside = bugFormModal.contains(event.target) || reportBugBtn.contains(event.target);
+        if (!isClickInside) {
+          bugFormModal.style.display = 'none';
+        }
+      });
+    }
+  });
+
+
 
 // END DOMCONTENT LOADER
 //

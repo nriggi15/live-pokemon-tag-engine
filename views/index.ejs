@@ -49,33 +49,6 @@
 </div>
 
 
-<!-- Top-left logo -->
-<div style="position: absolute; top: 20px; left: 20px; z-index: 10;">
-  <a href="/" class="site-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit;">
-    <img src="/img/cardverse-logo.png" alt="CardVerse Logo" style="height: 40px; border-radius: 6px;" />
-    <span style="font-weight: bold; font-size: 1.3rem;">CardVerse</span>
-  </a>
-</div>
-
-<!-- Report a bug -->
-<div id="bugContainer" style="position: absolute; top: 20px; right: 20px; z-index: 10;">
-  <!-- Report Bug Button -->
-  <button id="reportBugBtn" class="bug-report-btn">🐞 Report a Bug</button>
-
-  <!-- Modal -->
-  <div id="bugFormModal" style="display: none; position: fixed; top: 70px; right: 20px; background: white; padding: 20px; z-index: 999; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.15);">
-    <h3>Report a Bug</h3>
-    <textarea id="bugMessage" placeholder="Describe the issue (optional)" rows="4" style="width: 100%;"></textarea>
-    <br>
-      <!-- Hidden fields for user info -->
-      <input type="hidden" id="bugUsername" value="<%= username || '' %>">
-      <input type="hidden" id="bugEmail" value="<%= email || '' %>">
-    <button id="submitBug">Submit Report</button>
-      <!-- Success Message -->
-      <p id="bugSuccessMsg" style="display:none; color: green; margin-top: 10px;">✅ Report sent! Thank you.</p>
-  </div>
-</div>
-
 <!-- Centered Header Titles -->
 <div style="text-align: center; margin-top: 20px;">
 <h1 style="margin-bottom: 0;">Pokémon Card Tagger</h1>

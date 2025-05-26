@@ -3,6 +3,9 @@ CardVerse 2.0 Patch Notes 5/21/2025:
 General Updates:
 -denial comments
 -full details link added to card popup
+-fixed pulse to show 1 tag per new tag entry
+-explore cards renamed to discover
+-updated header across site
 
 Features Added:
 -denial comments, shown in dashboard
@@ -13,12 +16,8 @@ Technical Updates:
 Bugs Discovered:
 -Discord bot not working?
 -CardPopup stacks instead of replacing, leading to crash errors if too many stack
--main tag submission broken
 
 Bug Fixes:
--tag submission fixed
--auto dark mode being strange on /pulse
--fixed auto dark mode
--dark mode now works correctly and stores locally until change
+-
 
-v2.0.2 - Full Restructure and Overhaul
+v2.0.3 - Small features and fixed

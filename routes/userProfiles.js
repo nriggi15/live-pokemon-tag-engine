@@ -9,6 +9,7 @@ router.get('/user/:username', (req, res) => {
   res.render('user-profile', {
     username: req.params.username,
     page: 'profile',
+    title: 'User Profile',
     isLoggedIn: !!req.session.userId,
     role: req.session.role || 'guest',
     isDarkMode: req.session?.darkMode || false,

@@ -18,10 +18,12 @@ import TagSubmission from './models/TagSubmission.js';
 import favoritesRouter from './routes/favorites.js';
 import githubWebhookHandler from './middleware/githubWebhook.js';
 import pulseRoutes from './routes/pulse.js';
+import expressLayouts from 'express-ejs-layouts';
 const port = process.env.PORT || 3000;
 
+app.use(expressLayouts);
+app.set('layout', 'layout');
 app.set('trust proxy', 1);
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -80,7 +82,6 @@ import collectionsRouter from './routes/collections.js';
 import indexRoutes from './routes/index.js';
 import tagsRoutes from './routes/tags.js';
 import leaderboardsRouter from './routes/leaderboards.js';
-import expressLayouts from 'express-ejs-layouts';
 import sessionVars from './middleware/sessionVars.js';
 
 app.use(sessionVars);
