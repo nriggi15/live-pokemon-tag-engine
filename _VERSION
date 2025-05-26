@@ -1,17 +1,11 @@
-CardVerse 2.0 Patch Notes 5/21/2025:
-
 General Updates:
--denial comments
--full details link added to card popup
--fixed pulse to show 1 tag per new tag entry
--explore cards renamed to discover
--updated header across site
+-bulk approval reworked
 
 Features Added:
--denial comments, shown in dashboard
+-
 
 Technical Updates:
--denial comment updated in database
+-reworked the bulk approval system in tag moderation
 
 Bugs Discovered:
 -Discord bot not working?
@@ -20,4 +14,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v2.0.3 - Small features and fixed
+v2.0.4 - Small features and fixes

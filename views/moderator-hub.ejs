@@ -289,17 +289,22 @@ async function bulkModerate(action) {
 
   if (!confirm(confirmMsg)) return;
 
-  for (const id of selected) {
-    try {
-      await fetch(`/api/mod/newtags/${id}/${action}`, { method: 'POST' });
-    } catch (err) {
-      console.error(`❌ Failed to ${action} tag ID: ${id}`, err);
-    }
-  }
+  try {
+    await Promise.all(selected.map(id =>
+      fetch(`/api/mod/newtags/${id}/${action}`, { method: 'POST' })
+        .catch(err => {
+          console.error(`❌ Failed to ${action} tag ID: ${id}`, err);
+        })
+    ));
 
-  // Refresh after processing
-  fetchPendingTags();
+    // ✅ All done
+    fetchPendingTags();
+  } catch (err) {
+    console.error('❌ One or more requests failed:', err);
+    alert('Some requests may have failed. Check the console for details.');
+  }
 }
+
 
 
   // Initial load
