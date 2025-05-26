@@ -81,7 +81,7 @@
       <button onclick="selectAllChecks()">☑️ Select All</button>
       <button onclick="unselectAllChecks()">🚫 Unselect All</button>
       <button onclick="bulkModerate('approve')">🟢 Bulk Approve</button>
-      <button onclick="bulkModerate('deny')">🔴 Bulk Deny</button>
+      <button class="hidden" onclick="bulkModerate('deny')">🔴 Bulk Deny</button>
     </div>
 
 
@@ -89,7 +89,19 @@
   </div>  
 </div>
 
+<!-- Denial Comment Popup -->
+<div id="denyPopup" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:1rem; border:2px solid #888; border-radius:10px; z-index:1000; max-width:90vw; width:400px;">
+  <h3>📝 Deny Tag Submission</h3>
+  <p>Please provide a reason for denial:</p>
+  <textarea id="denyComment" rows="4" style="width:100%; margin-bottom:1rem;"></textarea>
+  <button id="submitDenyBtn">🚫 Submit Denial</button>
+  <button onclick="closeDenyPopup()">❌ Cancel</button>
+</div>
+
+
   <script>
+    let currentDenyId = null;
+
     function logout() {
       fetch('/api/logout').then(() => location.href = '/login');
     }
@@ -189,7 +201,7 @@
           <p><strong>Submitted By:</strong> ${sub.submittedBy?.username || 'Unknown'}</p>
           <p><strong>Date:</strong> ${new Date(sub.createdAt).toLocaleString()}</p>
           <button onclick="moderateTag('${sub._id}', 'approve')">✅ Approve</button>
-          <button onclick="moderateTag('${sub._id}', 'deny')">❌ Deny</button>
+          <button onclick="openDenyPopup('${sub._id}')">❌ Deny</button>
         `;
 
         // entryDiv.appendChild(cardImage);
@@ -217,6 +229,42 @@
       console.error('Moderation failed:', err);
     }
   }
+
+  //Popup Denial Comment
+  function openDenyPopup(id) {
+    currentDenyId = id;
+    document.getElementById('denyComment').value = '';
+    document.getElementById('denyPopup').style.display = 'block';
+  }
+
+  function closeDenyPopup() {
+    currentDenyId = null;
+    document.getElementById('denyPopup').style.display = 'none';
+  }
+
+  document.getElementById('submitDenyBtn').addEventListener('click', async () => {
+    const comment = document.getElementById('denyComment').value.trim();
+    if (!currentDenyId) return;
+
+    try {
+      const res = await fetch(`/api/mod/newtags/${currentDenyId}/deny`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ denialComment: comment })
+      });
+
+      if (res.ok) {
+        closeDenyPopup();
+        fetchPendingTags(); // refresh list
+      } else {
+        alert('❌ Failed to deny tag.');
+      }
+    } catch (err) {
+      console.error('❌ Error denying tag:', err);
+    }
+  });
+
+
 
   //Batch buttons
   function selectAllChecks() {

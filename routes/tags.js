@@ -260,6 +260,8 @@ router.post('/mod/newtags/:id/approve', requireModeratorOrAdmin, async (req, res
 
 // POST /mod/newtags/:id/deny
 router.post('/mod/newtags/:id/deny', requireModeratorOrAdmin, async (req, res) => {
+  const { denialComment } = req.body;
+
   try {
     const tag = await TagSubmission.findById(req.params.id);
     if (!tag || tag.status !== 'pending') {
@@ -267,16 +269,19 @@ router.post('/mod/newtags/:id/deny', requireModeratorOrAdmin, async (req, res) =
     }
 
     tag.status = 'denied';
+    tag.denialComment = denialComment || '';
     tag.reviewedAt = new Date();
     tag.reviewedBy = req.session.userId;
+
     await tag.save();
 
-    res.json({ message: 'Tag denied and archived' });
+    res.json({ message: 'Tag denied with comment' });
   } catch (err) {
     console.error('❌ Error denying tag:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 //Fetch pending tags

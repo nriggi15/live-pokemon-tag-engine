@@ -1051,7 +1051,12 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
         <a id="ebayAffiliateLink" href="#" target="_blank" style="margin-left: 0.5rem;">Search on eBay</a>
         <span style="margin: 0 6px;">|</span>
         <a id="tcgplayerAffiliateLink" href="#" target="_blank">Find on TCGPlayer</a>
-        
+      </div>
+
+      <div style="margin-top: 1rem; text-align: center;">
+        <a href="/card/${card.id}" target="_blank" style="font-weight: bold; color: #007bff; text-decoration: underline;">
+          🔍 View Full Details
+        </a>
       </div>
 
 

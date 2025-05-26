@@ -3,19 +3,40 @@
   <p class="pulse-sub">The beating heart of the community</p>
 
   <% if (activity.length === 0) { %>
+    <% console.log('🔎 Pulse activity length:', activity.length); %>
+
+    <% console.log('🧪 Pulse activity count:', activity.length); %>
+
     <p>No activity yet. Be the first to tag a card!</p>
   <% } else { %>
-    <ul class="pulse-feed">
-      <% activity.forEach(item => { %>
-        <li class="pulse-item">
-          <div class="pulse-text">
-            <% if (item.type === 'tag') { %>
-              <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
-              tagged
-              <a href="/card/<%= item.cardName %>"><%= item.cardName %></a>
-              with <span class="tag">#<%= item.tag %></span>
+    <%
+      const firstTagKeys = new Set();
+      activity.forEach(item => {
+        if (item.type === 'first_tag') {
+          firstTagKeys.add(`${item.cardId}-${item.user._id}`);
+        }
+      });
+    %>
 
-            <% } else if (item.type === 'first_tag') { %>
+    <ul class="pulse-feed">
+      <% activity.slice(0, 5).forEach(item => { console.log('🔍', item.type, item.status, item.cardId, item.user?.username); }) %>
+
+    <% activity.forEach(item => {
+      const tagKey = `${item.cardId}-${item.user._id}`;
+      const isDuplicateTag = item.type === 'tag' && firstTagKeys.has(tagKey);
+      const isUnapproved = (item.type === 'tag' || item.type === 'first_tag') && item.status !== 'approved';
+
+      if (true) {
+
+    %>
+
+
+<% console.log('🔍 Rendering item:', item.type, item.cardId, item.tag, item.status); %>
+
+      <li class="pulse-item">
+        <div class="pulse-text">
+          <% if (item.type === 'first_tag') { %>
+
               <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
               added the very first tag on
               <a href="/card/<%= item.cardName %>"><%= item.cardName %></a>:
@@ -50,7 +71,7 @@
           </a>
 
         </li>
-      <% }) %>
+        <% } }) %>
     </ul>
   <% } %>
 </div>

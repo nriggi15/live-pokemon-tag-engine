@@ -218,11 +218,29 @@ document.addEventListener('DOMContentLoaded', () => {
               row.innerHTML = `
                 <td>${sub.tag}</td>
                 <td>${sub.cardId}</td>
-                <td>${sub.status}</td>
-                <td>${new Date(sub.createdAt).toLocaleDateString()}</td>
+                <td>
+                  ${sub.status}
+                  ${
+                    sub.status === 'denied' && sub.denialComment
+                      ? `<br><a href="#" class="toggle-denial" data-id="${sub._id}" style="color:#c00; font-size:0.9rem;">Why?</a>
+                        <div class="denial-reason" id="reason-${sub._id}" style="display:none; margin-top:0.5rem; font-style:italic; color:#a00;">${sub.denialComment}</div>`
+                      : ''
+                  }
+                </td>
+                <td>${new Date(sub.createdAt).toLocaleString()}</td>
               `;
               tableBody.appendChild(row);
             });
+
+            document.querySelectorAll('.toggle-denial').forEach(link => {
+            link.addEventListener('click', e => {
+              e.preventDefault();
+              const id = link.dataset.id;
+              const div = document.getElementById(`reason-${id}`);
+              div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            });
+          });
+
 
             pageInput.value = `${currentPage} / ${totalPages}`;
             updateSortIndicators();

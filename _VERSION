@@ -1,13 +1,14 @@
 CardVerse 2.0 Patch Notes 5/21/2025:
 
 General Updates:
--Pulse (Live activity feed) added
+-denial comments
+-full details link added to card popup
 
 Features Added:
--Pulse! (Activity feed)
+-denial comments, shown in dashboard
 
 Technical Updates:
--/Pulse activity feed created
+-denial comment updated in database
 
 Bugs Discovered:
 -Discord bot not working?
@@ -20,4 +21,4 @@ Bug Fixes:
 -fixed auto dark mode
 -dark mode now works correctly and stores locally until change
 
-v2.0.1 - Full Restructure and Overhaul
+v2.0.2 - Full Restructure and Overhaul

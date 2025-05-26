@@ -9,6 +9,10 @@ const tagSubmissionSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'denied'],
     default: 'pending'
   },
+  denialComment: {
+    type: String,
+    default: ''
+  },
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reviewedAt: { type: Date },
   createdAt: { type: Date, default: Date.now }
