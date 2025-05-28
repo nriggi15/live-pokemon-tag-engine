@@ -1,3 +1,8 @@
+# Global Styles
+
+### Global Layout
+-`Main global layout controlled by /layouts/main.ejs`
+
 # 🔍 Card Search System Overview (script.js vs search.js)
 
 ### ✅ script.js (Main Search Logic + Shared Utils)

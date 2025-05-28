@@ -1,17 +1,14 @@
 General Updates:
--local database
--cards page reworked
--search page url parsing
+-added FAQs page
+-footer added to layout
+-disclaimer added to footer
 
 Features Added:
--
+-Footer
 
 Technical Updates:
--search page now reachable via /search?q=Charizard or the like
--back to search button mostly working, still spotty in some areas
--Trying to optimize that /card page - this page loads ALOT of resourceses from outside the server and we are evaluating how to boost overall load times
--Reworked the More From This Set
--Reworked /card details, now loads data from local server, if that card's details are not yet stored, load from pokemonAPI AND save locally
+-FAQs created
+-Footed created and added to layout
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
@@ -19,4 +16,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v2.0.6 - Search Fixes
+v2.0.7 - Footer & FAQs

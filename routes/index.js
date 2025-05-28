@@ -51,6 +51,19 @@ router.get('/search', (req, res) => {
   });
 });
 
+// FAQ Page
+router.get('/faq', (req, res) => {
+  res.render('faq', {
+    isLoggedIn: !!req.session.userId,
+    username: req.session.username || '',
+    page: 'faq',
+    role: req.session.role || 'guest',
+    isDarkMode: req.session?.darkMode || false,
+    layout: 'layouts/main',
+  });
+});
+
+
 
 router.get('/leaderboards', (req, res) => {
   res.render('leaderboards', { 

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FAQ | CardVerse</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .faq-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .faq-section {
+      border-bottom: 1px solid #ccc;
+      padding: 1rem 0;
+    }
+
+    .faq-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-content {
+      display: none;
+      padding-top: 0.5rem;
+    }
+
+    .faq-section:target .faq-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="faq-container">
+    <h1>Frequently Asked Questions</h1>
+
+    <!-- SECTION: Community Guidelines & Vision -->
+<!-- SECTION: Community Guidelines & Vision -->
+    <div id="community" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            Community Guidelines & Vision
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p><strong>Welcome to CardVerse — a community-built Pokémon card discovery engine.</strong></p>
+
+            <p>This project was born out of a love for collecting and a need for better ways to <em>explore</em> the art, themes, and quirks of Pokémon cards. But it’s not just a search engine — it’s a shared space built by <em>you</em>, the fans. <strong>Community is the core of everything we do.</strong></p>
+
+            <p><strong>Here’s what makes this special:</strong></p>
+            <ul>
+            <li>✨ <strong>Tag cards:</strong> Submit creative, descriptive tags that bring each card to life</li>
+            <li>🧠 <strong>Discover together:</strong> Use tags to find Pokémon you’ve never seen before</li>
+            <li>👥 <strong>Build collections:</strong> Group your favorites, make them public, and browse others</li>
+            <li>🤝 <strong>Connect:</strong> Spot collectors with similar tastes, shared themes, or styles</li>
+            <li>🗳️ <strong>Vote & moderate:</strong> Help shape what tags stay and which get filtered out</li>
+            </ul>
+
+            <p><strong>Be respectful.</strong> Every user contributes a piece of the bigger picture. Harassment, hate speech, spam, and cheating are not welcome here and may result in a ban.</p>
+
+            <p><strong>Be creative. Be generous. Be part of something evolving.</strong> When you make an account, you're not just logging in — you're joining a growing Poké-collective built by people like you.</p>
+
+            <p>💬 <strong>Want to get even more involved?</strong> <a href="https://discord.gg/h8ha9489tr" target="_blank">Join our Discord</a> to chat with other collectors, suggest features, report bugs, and help shape the future of CardVerse in real-time.</p>
+        </div>
+    </div>
+
+
+
+    <!-- SECTION: Tag Submission Guidelines -->
+    <div id="tagsubmissionguidelines" class="faq-section">
+      <div class="faq-title" onclick="toggleFAQ(this)">
+        Tag Submission Guidelines
+        <span>➕</span>
+      </div>
+        <div class="faq-content">
+        <p>To keep our tagging system consistent, helpful, and fun, please follow these rules when submitting tags:</p>
+
+        <p><strong>✅ What Tags Are:</strong></p>
+        <ul>
+            <li>Descriptive of what you see on the card — visual elements, themes, feelings, or style.</li>
+            <li>Can include other Pokémon pictured on the card (e.g., <code>piplup</code>, <code>friends</code>, <code>teamup</code>).</li>
+            <li>Can be subjective (e.g., <code>epic</code>, <code>nostalgic</code>, <code>adorable</code>) as long as it fits the card content.</li>
+        </ul>
+
+        <p><strong>❌ What Tags Are Not:</strong></p>
+        <ul>
+            <li>Tags about the set, release date, or metadata (e.g., <code>base set</code>, <code>2021</code>, <code>promo</code>) are not allowed.</li>
+            <li>Profanity, slurs, or offensive terms are strictly banned.</li>
+            <li>No brand names, website names, or self-promotion.</li>
+        </ul>
+
+        <p><strong>✍️ Tag Format Rules:</strong></p>
+        <ul>
+            <li>Single word only, unless two words are absolutely necessary.</li>
+            <li>20 characters max per tag.</li>
+            <li>All lowercase letters only.</li>
+            <li>Use only letters and a few numbers if essential (e.g., <code>3d</code> is allowed).</li>
+            <li>No punctuation, no emojis, no underscores, no hyphens.</li>
+            <li>English only.</li>
+        </ul>
+
+        <p><strong>⚠️ Duplicate Prevention:</strong></p>
+        <ul>
+            <li>Avoid synonyms or similar tags on the same card: use either <code>cute</code> or <code>adorable</code>, not both.</li>
+            <li>Variants like <code>arm</code> vs. <code>arms</code> — only one is allowed. Use the most relevant version.</li>
+            <li>If a tag already exists on the card, don't re-submit it.</li>
+        </ul>
+
+        <p><strong>📌 Submission Limit:</strong><br />
+            You can submit up to <strong>15 tags per card</strong>.
+        </p>
+        </div>
+    </div>
+
+    <!-- Future sections go here -->
+
+    <!-- SECTION: What are Tags and Why Use Them -->
+    <div id="whataretags" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            What are Tags and Why Use Them?
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p>Tags are short descriptors that capture the visual, thematic, or emotional essence of a card. They help organize and surface cards that share similar traits, making discovery easier and more fun.</p>
+            <p>For example, if you're searching for cards that feature <code>dragons</code>, <code>rainbows</code>, or <code>sleeping</code> Pokémon, tags make it easy to find them—even if those words don’t appear in the official card text.</p>
+            <p>Adding helpful, creative tags benefits the whole community and makes the search engine more powerful for everyone!</p>
+        </div>
+    </div>
+
+    <!-- SECTION: How Does Tag Moderation Work -->
+    <div id="tagmoderation" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            How Does Tag Moderation Work?
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p>Every tag you submit is reviewed by a moderator before it appears publicly. This helps us ensure that all tags follow the <a href="/faq#tagsubmissionguidelines">Tag Submission Guidelines</a>.</p>
+            <p>Moderators review tags for clarity, accuracy, duplicates, profanity, and relevance to the card content. If a tag violates the rules or is too vague (e.g., <code>cool</code> on every card), it may be rejected.</p>
+            <p>Approved tags appear on the card shortly after review. Rejected tags are silently removed without affecting your account, unless abuse is detected.</p>
+        </div>
+    </div>
+
+    <!-- SECTION: What Are Collections and How Do They Work -->
+    <div id="collections" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            What Are Collections and How Do They Work?
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p>Collections let you group and save your favorite cards for easy access and sharing. Each user starts with a default <code>Favorites</code> collection and can create additional ones.</p>
+            <p>You can:</p>
+            <ul>
+            <li>💾 Add or remove cards from collections</li>
+            <li>🔒 Make collections public or private</li>
+            <li>📦 Create custom-named collections (e.g., <code>pink cards</code>, <code>team fire</code>)</li>
+            <li>🖱️ Reorder cards with drag-and-drop</li>
+            </ul>
+            <p>Collections are visible on your profile if public, and they include a quick preview and share link.</p>
+        </div>
+    </div>
+
+    <!-- SECTION: Can I Suggest New Features or Report Bugs -->
+    <div id="feedback" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            Can I Suggest New Features or Report Bugs?
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p>Absolutely! We’re building this together with the community. You can report issues or suggest new features through any of these channels:</p>
+            <ul>
+            <li>🐛 <strong>Bug Report Form:</strong> Available in your dashboard or footer links</li>
+            <li>💬 <strong>Discord:</strong> Join the community and post in <code>#feature-requests</code></li>
+            <li>🔧 <strong>GitHub:</strong> Submit issues if you're technical</li>
+            </ul>
+            <p>Your input directly shapes the future of the platform!</p>
+        </div>
+    </div>
+
+    <!-- SECTION: What Do User Roles Mean -->
+    <div id="userroles" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            What Do User Roles Mean? (User, Mod, Admin)
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <ul>
+            <li><strong>User:</strong> Can tag cards, create collections, customize profile, and upvote tags</li>
+            <li><strong>Moderator:</strong> Can review and approve/reject tag submissions</li>
+            <li><strong>Admin:</strong> Full access including managing users, reviewing moderation logs, and analytics</li>
+            </ul>
+            <p>We plan to add a leaderboard and reward system for contributors in future updates!</p>
+        </div>
+    </div>
+
+    <!-- SECTION: How Do I Share My Profile or Collection -->
+    <div id="shareprofile" class="faq-section">
+        <div class="faq-title" onclick="toggleFAQ(this)">
+            How Do I Share My Profile or Collection?
+            <span>➕</span>
+        </div>
+        <div class="faq-content">
+            <p>Every user profile and collection has a unique link. You can copy the link from your browser or use the <strong>share</strong> button on the collection page.</p>
+            <p>Public collections can be viewed by anyone with the link. Private collections are only visible to you.</p>
+            <p>Sharing tip: some share buttons include a preview image of your collection!</p>
+        </div>
+    </div>
+
+
+
+  </div>
+
+  <script>
+    function toggleFAQ(header) {
+        const section = header.parentElement;
+        const sectionId = section.id;
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('span');
+        const isOpen = content.style.display === 'block';
+
+        // Close all others
+        document.querySelectorAll('.faq-content').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.faq-title span').forEach(s => s.textContent = '➕');
+
+        if (!isOpen) {
+            content.style.display = 'block';
+            icon.textContent = '➖';
+            // ✅ Update the URL hash without reloading the page
+            history.replaceState(null, null, `#${sectionId}`);
+        } else {
+            history.replaceState(null, null, `#`);
+        }
+    }
+
+
+    // Auto-expand based on URL hash
+    window.addEventListener('DOMContentLoaded', () => {
+      const target = document.querySelector(location.hash + ' .faq-content');
+      if (target) {
+        target.style.display = 'block';
+        const icon = document.querySelector(location.hash + ' .faq-title span');
+        if (icon) icon.textContent = '➖';
+      }
+    });
+  </script>
+</body>
+</html>
