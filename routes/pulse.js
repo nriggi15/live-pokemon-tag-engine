@@ -9,11 +9,17 @@ import Card from '../models/Cards.js'; // ✅ don't forget this import
 router.get('/', requireLogin, async (req, res) => {
   console.log('🧠 /pulse route session:', req.session);
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 15;
+    const skip = (page - 1) * limit;
+
     const activity = await Activity.find({})
       .sort({ createdAt: -1 })
-      .limit(50)
+      .skip(skip)
+      .limit(limit)
       .populate('user', 'username')
       .lean();
+
 
     // 🔍 Pull unique cardIds from activity
     const cardIds = activity.map(a => a.cardId).filter(Boolean);
@@ -29,6 +35,19 @@ router.get('/', requireLogin, async (req, res) => {
     for (const a of activity) {
       a.cardName = cardMap[a.cardId] || a.cardId;
     }
+
+    if (req.xhr) {
+      console.log('📦 Serving partial for page', page);
+      return res.render('partials/pulse-items', { activity, layout: false }, (err, html) => {
+        if (err) {
+          console.error('❌ EJS Render Error:', err);
+          return res.status(500).send('Error loading more pulse');
+        }
+        res.send(html);
+      });
+    }
+
+
 
     res.render('pulse', {
       layout: 'layouts/main',

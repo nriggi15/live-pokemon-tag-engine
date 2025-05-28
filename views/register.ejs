@@ -10,15 +10,21 @@
     }
 
     body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
       font-family: sans-serif;
-      padding: 2rem;
       background-color: #f2f4f8;
-      max-width: 400px;
-      margin: auto;
+      padding: 2rem;
+      margin: 0;
     }
+
+    .register-container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
 
     input {
       width: 100%;
@@ -38,7 +44,7 @@
 
 </head>
 <body>
-  <div id="register-container">
+  <div id="register-container" class="register-container">
   <h2>User Registration</h2>
   <form id="registerForm" action="/api/register" method="POST">
     <input type="text" name="username" placeholder="Username" required />
@@ -51,9 +57,11 @@
     <select name="role" required>
       <option value="user">User</option>
       <!-- <option value="moderator">Moderator</option> -->
-      <option value="guest">Guest</option>
+      <option class="hidden" value="guest">Guest</option>
       <!-- 🚫 Never expose admin here -->
     </select>
+    <br />
+    <br />
 
      <!-- CAPTCHA widget -->
       <div class="g-recaptcha" data-sitekey="6LfTWjorAAAAAOzAKzu3rimbKBqjCwzWuIun2lsA"></div>
@@ -81,7 +89,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  spamMsg.textContent ='If you cannot find a verification email - Please check your Spam folder after registering to check for our email, mark as NOT SPAM, and then you should get the link to verify. Please reach out to support@mycardverse.com';
+  spamMsg.innerHTML = 'Please reach out to <a href="mailto:support@mycardverse.com">support@mycardverse.com</a> for any issues with registration.';
 });
   const form = document.getElementById('registerForm');
   const container = document.getElementById('register-container');

@@ -1,0 +1,29 @@
+<% activity.forEach(item => { %>
+  <li class="pulse-item">
+    <div class="pulse-text">
+      <% if (item.type === 'first_tag') { %>
+        <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+        added the very first tag on
+        <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
+        <span class="tag">#<%= item.tag %></span>
+        <span class="badge">🆕 First tag!</span>
+      <% } else if (item.type === 'tag') { %>
+        <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
+        tagged
+        <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
+        <span class="tag">#<%= item.tag %></span>
+      <% } %>
+      <span class="timeago" data-time="<%= item.createdAt %>"></span>
+    </div>
+    <% 
+      let imgUrl = '';
+      if (item.cardId && item.cardId.includes('-')) {
+        const [set, number] = item.cardId.split('-');
+        imgUrl = `https://images.pokemontcg.io/${set}/${number}_hires.png`;
+      }
+    %>
+    <a href="/card/<%= item.cardId %>">
+      <img src="<%= imgUrl %>" alt="card preview" class="card-preview">
+    </a>
+  </li>
+<% }); %>

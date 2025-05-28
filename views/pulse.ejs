@@ -19,54 +19,35 @@
     %>
 
     <ul class="pulse-feed">
-
-    <% activity.forEach(item => {
-      const tagKey = `${item.cardId}-${item.user._id}`;
-      const isDuplicateTag = item.type === 'tag' && firstTagKeys.has(tagKey);
-      const isUnapproved = (item.type === 'tag' || item.type === 'first_tag') && item.status !== 'approved';
-
-      if (true) {
-
-    %>
-
-
-<% console.log('🔍 Rendering item:', item.type, item.cardId, item.tag, item.status); %>
-
-      <li class="pulse-item">
-        <div class="pulse-text">
-         <% if (item.type === 'first_tag') { %>
-          <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
-          added the very first tag on
-          <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
-          <span class="tag">#<%= item.tag %></span>
-          <span class="badge">🆕 First tag!</span>
-        <% } else if (item.type === 'tag') { %>
-          <strong><a href="/user/<%= item.user.username %>"><%= item.user.username %></a></strong>
-          tagged
-          <a href="/card/<%= item.cardId %>"><%= item.cardName %></a>:
-          <span class="tag">#<%= item.tag %></span>
-        <% } %>
-
-            <span class="timeago" data-time="<%= item.createdAt %>"></span>
-
-          </div>
-          <%
-            let imgUrl = '';
-            if (item.cardId && item.cardId.includes('-')) {
-              const parts = item.cardId.split('-');
-              const set = parts[0];
-              const number = parts[1];
-              imgUrl = `https://images.pokemontcg.io/${set}/${number}_hires.png`;
-            }
-          %>
-
-          <a href="/card/<%= item.cardId %>">
-            <img src="<%= imgUrl %>" alt="card preview" class="card-preview">
-          </a>
-
-        </li>
-        <% } }) %>
+      <%- include('partials/pulse-items', { activity }) %>
     </ul>
+    <div id="pulse-loader" style="text-align:center; padding: 2rem; display:none;">
+      <p>Loading more activity...</p>
+    </div>
+    <div id="pulse-end" style="text-align:center; padding: 2rem; display:none;">
+      <p>🎉 You've reached the end of the feed.</p>
+    </div>
+
+    <button id="backToTop" style="
+      position: fixed;
+      bottom: 80px;
+      right: 40px;
+      padding: 0.75rem 1.25rem;
+      background: #fecd4c;
+      color: #000;
+      border: none;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    ">
+      ↑ Top
+    </button>
+
+
   <% } %>
 </div>
 
@@ -92,6 +73,68 @@
       year: 'numeric'
     });
   }
+
+    let currentPage = 1;
+    let loading = false;
+    let endReached = false;
+
+    async function loadMorePulse() {
+      if (loading || endReached) return;
+
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+      if (!nearBottom) return;
+
+      loading = true;
+      document.getElementById('pulse-loader').style.display = 'block';
+
+      currentPage++;
+      try {
+        const res = await fetch(`/pulse?page=${currentPage}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const html = await res.text();
+
+        if (html.trim()) {
+          document.querySelector('.pulse-feed').insertAdjacentHTML('beforeend', html);
+
+          // Re-render timestamps
+          document.querySelectorAll('.timeago').forEach(el => {
+            const raw = el.dataset.time;
+            const parsed = new Date(raw);
+            if (!isNaN(parsed)) {
+              el.textContent = timeAgo(parsed);
+            }
+          });
+        } else {
+          // No more content
+          endReached = true;
+          document.getElementById('pulse-end').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error loading more pulse:', err);
+      }
+
+      document.getElementById('pulse-loader').style.display = 'none';
+      loading = false;
+    }
+
+    window.addEventListener('scroll', loadMorePulse);
+
+    const backToTop = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 600) {
+        backToTop.style.display = 'block';
+      } else {
+        backToTop.style.display = 'none';
+      }
+    });
+
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+
 
   document.querySelectorAll('.timeago').forEach(el => {
     const raw = el.dataset.time;

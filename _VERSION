@@ -2,9 +2,12 @@ General Updates:
 -added FAQs page
 -footer added to layout
 -disclaimer added to footer
+-Register page styling updated
 
 Features Added:
 -Footer
+-Pulse infinite scroll
+-Pulse back to top button
 
 Technical Updates:
 -FAQs created
@@ -16,4 +19,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v2.0.7 - Footer & FAQs
+v2.0.71 - Footer & FAQs
