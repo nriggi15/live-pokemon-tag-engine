@@ -272,12 +272,13 @@
         <% collectionsWithCard.forEach(col => { %>
         <div style="margin-bottom: 2rem; text-align: center;">
             <p style="font-weight: bold; margin-bottom: 0.5rem;"><%= col.name %></p>
-            <div
-            class="card-grid collection-preview"
-            id="collection-<%= col._id %>"
-            data-card-ids="<%= col.cards.slice(0, 3).join(',') %>"
-            style="justify-content: center;"
-            ></div>
+            <div class="card-grid" style="justify-content: center;">
+              <% col.previewCards.forEach(card => { %>
+                <a href="/card/<%= card.cardId %>">
+                  <img src="<%= card.images.small %>" alt="<%= card.name %>" title="<%= card.name %>" style="height: 100px;" />
+                </a>
+              <% }) %>
+            </div>
         </div>
         <% }) %>
 
@@ -375,7 +376,7 @@
 <script>
   const loadedCollections = new Set();
 
-  document.querySelectorAll('.collection-preview').forEach(async (container) => {
+/*   document.querySelectorAll('.collection-preview').forEach(async (container) => {
     const id = container.id;
     if (loadedCollections.has(id)) return;
     loadedCollections.add(id);
@@ -396,7 +397,7 @@
         console.error(`❌ Error loading card ${cardId}:`, err);
       }
     }
-  });
+  }); */
 </script>
 
 <script>

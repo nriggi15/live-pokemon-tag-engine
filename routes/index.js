@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import fetch from 'node-fetch';
 import Tag from '../models/NewTag.js';
+import Card from '../models/Cards.js'; // ✅ Make sure path is correct
 import Collection from '../models/Collection.js'; // ✅ Adjust to match your model path
 import TagSubmission from '../models/TagSubmission.js'; // adjust if needed
 import nodemailer from 'nodemailer';
@@ -176,27 +177,96 @@ router.get('/card/:id', async (req, res) => {
   const { q, cardType, format, type, rarity, set, artist, sort } = req.query;
 
   try {
-    const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
-      headers: {
-        'X-Api-Key': process.env.POKEMON_API_KEY
-      }
-    });
-
-    const cardData = await apiRes.json();
-    const card = cardData.data;
 
 
-    let marketPrice = null;
+    // Get data from MongoDB, else load from API then save to DB
+    let card = await Card.findOne({ cardId });
 
-    if (card?.tcgplayer?.prices) {
-      for (const variant in card.tcgplayer.prices) {
-        const price = card.tcgplayer.prices[variant]?.market;
-        if (typeof price === 'number') {
-          marketPrice = price;
-          break; // use first valid price
+    const needsRefresh = !card || !card.images?.large || !card.set?.id || !card.types?.length;
+
+    if (!card || needsRefresh) {
+      const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
+        headers: {
+          'X-Api-Key': process.env.POKEMON_API_KEY
         }
+      });
+
+      const cardData = await apiRes.json();
+      const apiCard = cardData.data;
+
+      if (!apiCard) {
+        return res.status(404).render('404');
+      }
+
+      const updatedCard = {
+        cardId: apiCard.id,
+        name: apiCard.name,
+        set: {
+          id: apiCard.set?.id || '',
+          name: apiCard.set?.name || '',
+          printedTotal: apiCard.set?.printedTotal || null
+        },
+        number: apiCard.number || '',
+        images: {
+          small: apiCard.images?.small || '',
+          large: apiCard.images?.large || ''
+        },
+        supertype: apiCard.supertype || '',
+        subtypes: apiCard.subtypes || [],
+        level: apiCard.level || '',
+        hp: apiCard.hp || '',
+        types: apiCard.types || [],
+        evolvesFrom: apiCard.evolvesFrom || '',
+        attacks: apiCard.attacks?.map(a => ({
+          name: a.name,
+          text: a.text || ''
+        })) || [],
+        rules: apiCard.rules || [],
+        weaknesses: apiCard.weaknesses || [],
+        resistances: apiCard.resistances || [],
+        rarity: apiCard.rarity || '',
+        artist: apiCard.artist || '',
+        lastUpdated: new Date()
+      };
+
+      if (!card) {
+        card = await Card.create(updatedCard);
+      } else {
+        await Card.updateOne({ cardId }, updatedCard);
+        card = await Card.findOne({ cardId }); // re-load updated version
       }
     }
+
+
+
+
+    // Get market price TCGPlayer
+    // Fetch live market price from TCG API
+    let marketPrice = null;
+
+    try {
+      const livePriceRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
+        headers: {
+          'X-Api-Key': process.env.POKEMON_API_KEY
+        }
+      });
+
+      const liveData = await livePriceRes.json();
+      const tcgplayer = liveData.data?.tcgplayer;
+
+      if (tcgplayer?.prices) {
+        for (const variant in tcgplayer.prices) {
+          const price = tcgplayer.prices[variant]?.market;
+          if (typeof price === 'number') {
+            marketPrice = price;
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('⚠️ Failed to fetch live market price:', err);
+    }
+
 
 
 
@@ -210,31 +280,81 @@ router.get('/card/:id', async (req, res) => {
     }
 
     // Similar Cards
-    const similarRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(card.name)}"&pageSize=10`, {
+    let similarCards = [];
+    if (card.types?.length) {
+      let query = `types:"${card.types[0]}"`;
+      if (card.subtypes?.length) {
+        query += ` AND subtypes:"${card.subtypes[0]}"`;
+      }
+
+      const similarRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(query)}&pageSize=12`, {
+        headers: { 'X-Api-Key': process.env.POKEMON_API_KEY }
+      });
+
+      const similarData = await similarRes.json();
+      similarCards = (similarData.data || []).filter(c => c.id !== card.id);
+    }
+
+
+
+
+    //Old Similar Cards *** WORKS WELL, just loads alot of results and lags the page, above is an attempt at OR logic to return similar cards, but not exact name match
+/*     const similarRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(card.name)}"&pageSize=10`, {
       headers: { 'X-Api-Key': process.env.POKEMON_API_KEY }
     });
     const similarData = await similarRes.json();
-    const similarCards = (similarData.data || []).filter(c => c.id !== card.id);
+    const similarCards = (similarData.data || []).filter(c => c.id !== card.id); */
 
     // Set Cards
-    const setRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${card.set.id}&orderBy=number&pageSize=250`, {
-      headers: { 'X-Api-Key': process.env.POKEMON_API_KEY }
-    });
-
-    const setData = await setRes.json();
     const currentNum = parseInt(card.number, 10);
-    const lower = currentNum - 10;
-    const upper = currentNum + 10;
+    const nearbyIds = [];
 
-    const setCards = (setData.data || []).filter(c => {
-      const n = parseInt(c.number, 10);
-      return !isNaN(n) && n !== currentNum && n >= lower && n <= upper;
+    for (let n = currentNum - 10; n <= currentNum + 10; n++) {
+      if (n !== currentNum && n > 0) {
+        nearbyIds.push(`${card.set.id}-${n}`);
+      }
+    }
+
+    let setCards = [];
+
+    if (nearbyIds.length > 0) {
+      const idQuery = nearbyIds.map(id => `id:${id}`).join(' OR ');
+      const nearbyRes = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(idQuery)}`, {
+        headers: { 'X-Api-Key': process.env.POKEMON_API_KEY }
+      });
+
+      const nearbyData = await nearbyRes.json();
+      setCards = nearbyData.data || [];
+    }
+
+
+
+    let collectionsWithCard = await Collection.find({ cards: cardId, visibility: 'public' })
+      .limit(5)
+      .lean();
+
+    // 🔄 Flatten card IDs from all previews
+    const previewCardIds = new Set();
+    collectionsWithCard.forEach(col => {
+      col.previewIds = col.cards.slice(0, 3);
+      col.previewIds.forEach(id => previewCardIds.add(id));
     });
 
+    // 🔍 Batch lookup from local card DB
+    const previewCards = await Card.find({ cardId: { $in: [...previewCardIds] } }).lean();
 
-    const collectionsWithCard = await Collection.find({ cards: cardId, visibility: 'public' })
-    .limit(5)
-    .lean(); // use .lean() for faster read-only results
+    // 🔗 Map cardId → card
+    const previewCardMap = {};
+    previewCards.forEach(c => {
+      previewCardMap[c.cardId] = c;
+    });
+
+    // 🧩 Attach preview card objects to each collection
+    collectionsWithCard = collectionsWithCard.map(col => ({
+      ...col,
+      previewCards: col.previewIds.map(id => previewCardMap[id]).filter(Boolean)
+    }));
+
 
 
 

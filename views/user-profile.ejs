@@ -43,6 +43,11 @@
       margin-bottom: 0.5rem;
     }
 
+    body.dark-mode .username {
+      color: #f0f0f0;
+    }
+
+
     .bio {
       font-style: italic;
       color: #555;
@@ -116,6 +121,51 @@
           "center"
           "right";
       }
+    }
+
+    body.dark-mode .main-container {
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .profile-left,
+    body.dark-mode .profile-center,
+    body.dark-mode .profile-right {
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+    }
+
+    /* 🌙 Dark Mode Fixes */
+    body.dark-mode .username {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .bio {
+      color: #ccc;
+    }
+
+    body.dark-mode .section-heading {
+      color: #f0f0f0;
+      border-bottom: 1px solid #444;
+    }
+
+    body.dark-mode #favoritePokemonDisplay span {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .profile-left a,
+    body.dark-mode .profile-right a {
+      color: #90caf9;
+    }
+
+    body.dark-mode .profile-left a:hover,
+    body.dark-mode .profile-right a:hover {
+      color: #64b5f6;
+      text-decoration: underline;
+    }
+
+    body.dark-mode #publicFavoritesList a {
+      color: #80d8ff;
     }
 
   </style>

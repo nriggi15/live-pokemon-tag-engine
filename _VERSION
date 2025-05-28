@@ -1,17 +1,18 @@
 General Updates:
--bulk approval reworked
+-local database
+-cards page reworked
 
 Features Added:
 -
 
 Technical Updates:
--reworked the bulk approval system in tag moderation
+-Trying to optimize that /card page - this page loads ALOT of resourceses from outside the server and we are evaluating how to boost overall load times
+-Reworked the More From This Set
+-Reworked /card details, now loads data from local server, if that card's details are not yet stored, load from pokemonAPI AND save locally
 
 Bugs Discovered:
--Discord bot not working?
--CardPopup stacks instead of replacing, leading to crash errors if too many stack
 
 Bug Fixes:
--
+-dark mode fixed on profile
 
-v2.0.4 - Small features and fixes
+v2.0.5 - Small features and fixes

@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loginBtn?.classList.add('hidden');
             
             const myProfileBtn = document.getElementById('myProfileBtn');
-            console.log('👀 Looking for #myProfileBtn:', myProfileBtn);
+            //console.log('👀 Looking for #myProfileBtn:', myProfileBtn);
             
             if (myProfileBtn) {
               fetch(`/api/user-profile/${data.userId}`)
@@ -1453,33 +1453,45 @@ popup.addEventListener('click', (e) => {
     //
     //
   // ✅ Add tag functionality ADD NEW TAG
+let pendingTagName = ''; // Store the tag waiting for confirmation
 const addTagButton = popup.querySelector('#add-tag-button');
 if (addTagButton) {
   const newAddTagButton = addTagButton.cloneNode(true);
   addTagButton.parentNode.replaceChild(newAddTagButton, addTagButton);
 
   newAddTagButton.addEventListener('click', async () => {
-    let tagName = popup.querySelector('#tag-input')?.value?.trim().toLowerCase();
-    const whoami = await fetch('/api/whoami').then(res => res.json());
+
+    const tagInput = popup.querySelector('#tag-input');
     const tagMessage = popup.querySelector('#tag-message');
+    if (!tagInput || !tagMessage) return;
+
+    let tagName = tagInput.value.trim().toLowerCase();
+    const whoami = await fetch('/api/whoami').then(res => res.json());
+
     if (!whoami?.userId) {
-      if (tagMessage) tagMessage.textContent = '❌ You must be logged in to submit tags.';
+      tagMessage.textContent = '❌ You must be logged in to submit tags.';
       return;
     }
 
-    tagName = tagName.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+    tagName = tagName.replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
 
     if (!tagName) return alert('Please enter a valid tag.');
     if (tagName.length > 20) return alert('Tags must be 20 characters or fewer.');
     if (bannedWords.some(word => tagName.includes(word))) return alert('Inappropriate tags are not allowed.');
 
     pendingTagName = tagName;
-    tagConfirmMessage.textContent = `Please confirm tag entry for card ${card.id}: "${tagName}"`;
-    tagConfirmPopup.classList.remove('hidden');
+
+    const tagConfirmMessage = document.getElementById('tagConfirmMessage');
+    const tagConfirmPopup = document.getElementById('tagConfirmPopup');
+    if (tagConfirmMessage && tagConfirmPopup) {
+      tagConfirmMessage.textContent = `Please confirm tag entry for card ${card.id}: "${tagName}"`;
+      tagConfirmPopup.classList.remove('hidden');
+    }
   });
 } else {
   console.warn('❌ #add-tag-button not found in popup — skipping tag handler.');
 }
+
 
 
 
@@ -1490,7 +1502,7 @@ if (addTagButton) {
   confirmTagSubmit.parentNode.replaceChild(newConfirmTagSubmit, confirmTagSubmit);
   const cancelTagSubmit = document.getElementById('cancelTagSubmit');
   
-  let pendingTagName = ''; // Store the tag waiting for confirmation
+  
 
   
 
