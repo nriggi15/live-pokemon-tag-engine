@@ -137,7 +137,7 @@ app.get('/register', (req, res) => {
   });
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', redirectIfLoggedIn, (req, res) => {
   res.render('login', {
     page: 'login',
     layout: 'layouts/main',
@@ -163,7 +163,12 @@ app.get('/terms', (req, res) => {
   })
 });
 
-
+function redirectIfLoggedIn(req, res, next) {
+  if (req.session.userId) {
+    return res.redirect('/dashboard');
+  }
+  next();
+}
 
 
 // ✅ MongoDB Connection

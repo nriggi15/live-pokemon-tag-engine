@@ -8,6 +8,7 @@ Features Added:
 -Footer
 -Pulse infinite scroll
 -Pulse back to top button
+-redirect login page if already logged in
 
 Technical Updates:
 -FAQs created
@@ -19,4 +20,4 @@ Bugs Discovered:
 Bug Fixes:
 -
 
-v2.0.71 - Footer & FAQs
+v2.0.72 - Footer & FAQs

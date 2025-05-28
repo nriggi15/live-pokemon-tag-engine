@@ -9,13 +9,21 @@
     }
 
     body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
       font-family: sans-serif;
-      padding: 2rem;
       background-color: #f2f4f8;
+      padding: 2rem;
+      margin: 0;
     }
+
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
 
     input {
       width: 100%;
@@ -35,7 +43,8 @@
 </head>
 <body>
 
-  <div class="login-container">
+  <div class="login-container" id="login-container">
+
   <h2>🔐 Login</h2>
   <form id="loginForm" action="/api/login" method="POST">
     <input type="email" id="email" name="email" placeholder="Email" required />
