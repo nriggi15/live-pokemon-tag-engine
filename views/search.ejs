@@ -161,13 +161,13 @@
 
     @media (max-width: 768px) {
       #filterPanel {
-        display: none; /* or auto-collapse it */
-        display: none !important;
+        display: none; /* default state, but toggleable */
       }
       #results-container {
         grid-template-columns: repeat(2, 1fr);
       }
     }
+
 
 
 
@@ -191,6 +191,15 @@
       overflow-x: hidden;
     }
 
+    #filterPanel {
+      display: none;
+    }
+
+    #filterPanel.show {
+      display: block !important;
+    }
+
+
 
   </style>
 
@@ -206,7 +215,7 @@
       <button id="filterBtn" class="filter-toggle">Filters</button>
     </div>
 
-    <div id="filterPanel" style="display: none; margin-bottom: 1rem;">
+    <div id="filterPanel" class="filter-panel" style="display: none; margin-bottom: 1rem;">
       <h3>Search Filters</h3>
 
       <div style="display: flex; flex-wrap: wrap; gap: 1rem;">

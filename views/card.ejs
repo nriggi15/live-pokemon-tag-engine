@@ -300,17 +300,25 @@
     background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeLoginModal()">
   </div>
 
-  <script>
-    function goBackToSearch() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const from = urlParams.get('from');
-      if (from) {
-        window.location.href = decodeURIComponent(from);
-      } else {
-        window.location.href = '/search';
-      }
+<script>
+function goBackToSearch() {
+  console.log('🔙 Back to:', decodeURIComponent("<%= from %>"));
+
+  const from = "<%= from %>";
+  if (from && from !== '') {
+    window.location.href = decodeURIComponent(from);
+  } else {
+    const setName = "<%= card.set.name %>";
+    if (setName) {
+      const setParam = setName.replace(/\s+/g, '+');
+      window.location.href = `/search?set=${setParam}&page=1`;
+    } else {
+      window.location.href = '/search';
     }
-  </script>
+  }
+}
+</script>
+
 
 
   <script>
