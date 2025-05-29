@@ -1,6 +1,5 @@
 General Updates:
--Updated footer layout
--Fixed card page bug
+-Updated footer 
 
 Features Added:
 -
@@ -14,4 +13,4 @@ Bugs Discovered:
 Bug Fixes:
 -Fixed card page tag submission, updated to send correct cardId
 
-v2.0.73 - Footer & FAQs
+v2.0.731 - Blog Update

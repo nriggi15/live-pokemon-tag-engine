@@ -2,42 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bottom Nav Test</title>
-  <link rel="stylesheet" href="/css/bottom-nav.css">
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    .nav-panel {
-      position: fixed;
-      bottom: 60px;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid #ccc;
-      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
-      display: none;
-      flex-direction: column;
-      z-index: 9999;
-    }
-    .nav-panel a, .nav-panel button {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      background: none;
-      border: none;
-      font-size: 1rem;
-      width: 100%;
-    }
-    .nav-panel a:hover, .nav-panel button:hover {
-      background-color: #f2f2f2;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardVerse - Pokémon Card Tagger</title>
+  <link rel="icon" href="/img/cardverse-logo.png" type="image/png">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32">
+  <!-- Mobile App Icon -->
+  <link rel="apple-touch-icon" href="/img/app-icon-512.png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/css/bottom-nav.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+
 </head>
 <body>
 
-<h1>Pokémon Card Tagger</h1>
-<h2>Explore by Tag</h2> 
+  <div id="introPopup" class="popup hidden">
+    <div class="popup-content">
+        <h2>👋 Welcome to CardVerse!</h2>
+        <p>Explore Pokémon cards by tags like <b>cute</b>, <b>colorful</b>, <b>SIR</b>, and more.</p>
+        <p>Search by Pokémon name, browse tag categories, or contribute your own tags.</p>
+        <p>Create an account to add tags, save favorites, create and share collections, and more!</p>
+        <hr />
+        <h3>❗ STILL TESTING - PLEASE SUBMIT FEEDBACK ❗</h3>
+        <p>Constant updates and new features are being added, please use the 'report a bug' button in the top of this home page if found.</p>
+        <p>Got feedback? Ideas? Found a bug? Tagging questions? Join our Discord to help us grow or just hang out!</p>
+        <!-- <img src="/img/discord-server-preview.png" alt="Discord server preview" style="max-width: 100%; border-radius: 8px; margin: 10px 0;" /> -->
+        <p><a href="https://discord.gg/h8ha9489tr" target="_blank" style="font-weight: bold; color: #5865F2;">👉 Join the Discord Server</a></p>
+        <p><a href="https://github.com/nriggi15/live-pokemon-tag-engine" target="_blank" style="font-weight: bold; color: #5865F2;">👉 Follow the project on Github</a></p>
+        <hr />
+        <h3>🛠️ Current Features</h3>
+        <ul style="text-align: left; padding-left: 20px;">
+          <li><b><u><a href="/register">Register an Account:</a></u></b> Access tagging, collections, and favorites. Help the community grow!</li>
+          <li><b>Explore Page:</b> Browse curated tag categories to discover unique and fun card themes. Checkout the new Leaderboards!</li>
+          <li><b>Card Database:</b> Find cards by name, type, rarity, set, custom tags, and more with advanced filtering.</li>
+          <li><b>Tagging Center:</b> Swipe through cards and help the community by suggesting relevant tags.</li>
+          <li><b>User Profiles:</b> Track your tagged cards, favorites, and collections with your own public profile. <a href="/user/admin">Check out a user profile!</a></li>
+          <li><b>Collections:</b> Organize and showcase your favorite cards. Make them public or keep them private.</li>
+        </ul>
+        <label>
+          <input type="checkbox" id="dontShowAgainCheckbox" />
+          Don’t show this again
+        </label>
+        <br /><br />
+        <button id="closeIntroPopup">Got it!</button>
+    </div>
+</div>
+
+<div id="indexContainer">
+  <!-- Centered Header Titles -->
+  <div style="text-align: center; margin-top: 20px;">
+  <h1 style="margin-bottom: 0;">Pokémon Card Tagger</h1>
+  <h2 style="margin-top: 0;">Explore by Tag</h2>
+  </div>
+
 
   <!-- Tag Usage Stats POPUP ONLY, button is in #sidebar -->
   <div id="tagStatsPopup" class="popup hidden">
@@ -48,46 +65,67 @@
     </div>
   </div>
 
+
   <!-- TAG CLOUD -->
-  <div id="tagCloud"></div>
+    <div id="tagCloud"></div>
 
-  <div id="topControls">
-    <button id="refreshBtn">🔄 Refresh / Clear Search</button>
+    <div id="setsPopup" class="popup hidden">
+    <div class="popup-content">
+      <span class="close-button" id="closeSetsPopup">&times;</span>
+      <h2>All Pokémon Card Sets</h2>
+      <ul id="setsList"></ul>
+    </div>
   </div>
-  
-  <div id="favoriteSearchControls" style="margin-bottom: 1rem;"></div>
 
-  <div id="searchContainer">
-    <div class="search-group">
-      <label for="tagSearchInput">Search by Custom Tags</label>
-      <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
-      <button id="tagSearchBtn">Tag Search</button>
+
+    <div id="topControls">
+      <button id="refreshBtn">🔄 Refresh / Clear Search</button>
     </div>
+    
+    <div id="favoriteSearchControls" style="margin-bottom: 1rem;"></div>
 
-    <div class="search-group">
-      <label for="searchInput">Search by Pokémon or Keyword</label>
-      <input type="text" id="searchInput" placeholder="Search by name..." />
-      <button id="searchBtn">Search</button>
-    </div>
 
-    <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
-      <h3>🔎 Advanced Tag Search (currently 50% working)</h3>
-      <div id="queryTagList" style="margin-bottom: 0.5rem;"></div>
-      <div>
-        <label><input type="radio" name="queryMode" value="AND" checked /> AND</label>
-        <label style="margin-left: 1rem;"><input type="radio" name="queryMode" value="OR" /> OR</label>
+    <div id="searchContainer">
+      <div class="search-group">
+        <label for="tagSearchInput">Search by Custom Tags</label>
+        <input type="text" id="tagSearchInput" placeholder='e.g., full art, purple' />
+        <!-- <button id="tagSearchBtn" onclick="trackEvent('search_click', { tag: 'Tag Search' })">Tag Search</button> -->
+        <button id="tagSearchBtn">Tag Search</button>
       </div>
-      <p id="queryPreview" style="margin: 0.5rem 0; font-style: italic; color: #555;"></p>
-      <button id="runQueryBtn">Search</button>
+
+      <div class="search-group">
+        <label for="searchInput">Search by Pokémon or Keyword</label>
+        <input type="text" id="searchInput" placeholder="Search by name..." />
+        <!-- <button id="searchBtn" onclick="trackEvent('search_click', { tag: 'Pokemon API Search' })">Search</button> -->
+        <button id="searchBtn">Search</button>
+      </div>
+
+      <div id="advancedQueryBuilder" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
+        <h3>🔎 Advanced Tag Search (currently 50% working)</h3>
+        <div id="queryTagList" style="margin-bottom: 0.5rem;"></div>
+        <div>
+          <label><input type="radio" name="queryMode" value="AND" checked /> AND</label>
+          <label style="margin-left: 1rem;"><input type="radio" name="queryMode" value="OR" /> OR</label>
+        </div>
+        <p id="queryPreview" style="margin: 0.5rem 0; font-style: italic; color: #555;"></p>
+        <button id="runQueryBtn">Search</button>
+      </div>
+
     </div>
-  </div>
 
-  <div id="resultsCount" class="hidden"></div>
-  <div id="loadingSpinner" class="hidden">Loading...</div>
-  <div id="cardResults"></div>
-  <div id="loadMoreContainer"></div>
+    <div id="resultsCount" class="hidden"></div>
+    <div id="loadingSpinner" class="hidden">Loading...</div>
+    <div id="cardResults"></div>
+    <div id="loadMoreContainer"></div>
 
-  <!-- Card Detail Popup -->
+    <!--Pagination Controls-->
+  <!--   <div id="paginationControls" class="hidden">
+      <button id="prevPageBtn">⬅ Previous</button>
+      <span id="pageIndicator">Page 1</span>
+      <button id="nextPageBtn">Next ➡</button>
+    </div> -->
+
+    <!-- Card Detail Popup -->
   <div id="card-popup" class="popup hidden">
     <div class="popup-content">
       <span id="popup-close">&times;</span>
@@ -100,68 +138,65 @@
     </div>
   </div>
 
+  <div id="tagConfirmPopup" class="popup hidden">
+    <div class="popup-content">
+      <p id="tagConfirmMessage"></p>
+      <div class="confirm-buttons">
+        <button id="confirmTagSubmit">✅ Submit</button>
+        <button id="cancelTagSubmit">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <button id="backToTopBtn" class="hidden">⬆️ Back to Top</button>
 
-
-<nav class="bottom-nav">
-  <a href="/tags" class="nav-item" title="Tags">
-    <i class="fas fa-tags"></i>
-  </a>
-  <a href="#" class="nav-item" title="Account" onclick="togglePanel('accountPanel')">
-    <i class="fas fa-user"></i>
-  </a>
-  <a href="/bottom-nav-test" class="nav-item" title="Home">
-    <i class="fas fa-home"></i>
-  </a>
-  <a href="/explore" class="nav-item" title="Explore">
-    <i class="fas fa-compass"></i>
-  </a>
-  <a href="#" class="nav-item" title="More" onclick="togglePanel('morePanel')">
-    <i class="fas fa-ellipsis-h"></i>
-  </a>
-</nav>
-
-<!-- Account Panel -->
-<div class="nav-panel" id="accountPanel">
-  <% if (isLoggedIn) { %>
-    <a href="/dashboard">Dashboard</a>
-    <a href="#" id="myProfileBtn">My Profile</a>
-    <% if (role === 'moderator' || role === 'admin') { %>
-      <a href="/moderator-hub" id="modLink">Moderator Hub</a>
-    <% } %>
-    <% if (role === 'admin') { %>
-      <a href="/admin-panel" id="adminLink">Admin Panel</a>
-    <% } %>
-    <button id="logoutBtn">Logout</button>
-  <% } else { %>
-    <a href="/login" id="loginBtn">🔐 Login</a>
-  <% } %>
+<!-- END OF INDEX CONTAINER -->
 </div>
 
 
-<!-- More Panel -->
-<div class="nav-panel" id="morePanel">
-  <button id="toggleDarkModeBtn">🌓 Toggle Dark Mode</button>
-  <button id="openTagStats">📊 View Tag Usage</button>
-</div>
+  <!-- User Role Identifier -->
+  <script>
+    fetch('/api/whoami')
+      .then(res => res.json())
+      .then(data => {
+        if (data.role === 'admin') {
+          document.getElementById('adminLink').style.display = 'block';
+        }
+      })
+      .catch(err => {
+        console.error('Could not check user role:', err);
+      });
+  </script> 
+  
+  <script>
+    // Toggle bug modal
+    const reportBugBtn = document.getElementById('reportBugBtn');
+    const bugFormModal = document.getElementById('bugFormModal');
 
-<form id="logoutForm" action="" method="GET" style="display: none;"></form>
+    reportBugBtn?.addEventListener('click', () => {
+      bugFormModal.style.display = 'block';
+    });
 
-<script>
-  function togglePanel(id) {
-    const panels = document.querySelectorAll('.nav-panel');
-    panels.forEach(p => p.style.display = 'none');
-    const panel = document.getElementById(id);
-    panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-  }
+    // Close modal on outside click
+    document.addEventListener('click', function (event) {
+      const isClickInside = bugFormModal.contains(event.target) || reportBugBtn.contains(event.target);
 
-  // 🧠 Wire up logout button
-  document.getElementById('logoutBtn')?.addEventListener('click', function () {
-    document.getElementById('logoutForm').submit();
-  });
-</script>
-  <script src="/js/search.js"></script>
+      if (!isClickInside) {
+        bugFormModal.style.display = 'none';
+      }
+    });
+  </script> 
+
+  <script>
+    window.API_KEY = "<%= process.env.POKEMON_API_KEY %>";
+  </script>
+
+
+  <!-- Run the JS Script file, put most things above this -->
+  <script type="module" src="/js/search.js"></script>
+  <!-- Shared utilities like sidebar, dark mode, back to top -->
   <script type="module" src="/js/script.js"></script>
+  
 
 </body>
 </html>
