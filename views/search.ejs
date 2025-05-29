@@ -192,11 +192,11 @@
     }
 
     #filterPanel {
-      display: none;
+      display: block;
     }
 
-    #filterPanel.show {
-      display: block !important;
+    #filterPanel:not(.show) {
+      display: none !important;
     }
 
 
@@ -215,7 +215,7 @@
       <button id="filterBtn" class="filter-toggle">Filters</button>
     </div>
 
-    <div id="filterPanel" class="filter-panel" style="display: none; margin-bottom: 1rem;">
+    <div id="filterPanel" class="filter-panel show" style="margin-bottom: 1rem;">
       <h3>Search Filters</h3>
 
       <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
@@ -282,6 +282,10 @@
             <option value="">Any</option>
             <!-- Dynamically filled -->
           </select>
+
+          <button id="clearFiltersBtn" class="filter-toggle" style="background-color: #777; margin-left: 15px;">
+            Reset Filters
+          </button>
         </div>
 
       </div>
@@ -289,17 +293,14 @@
       <div>
         <label><strong>Sort By</strong></label><br>
         <select id="sortSelect">
-          <option value="">Default</option>
+          <option value="number" selected>Card Number (Low to High)</option>
+          <option value="-number">Card Number (High to Low)</option>
           <option value="name">Name (A–Z)</option>
           <option value="hp">HP (High to Low)</option>
           <option value="released">Release Date (Newest First)</option>
           <option value="price">Market Price (High to Low)</option>
-
         </select>
       </div>
-
-
-
 
     </div>
 

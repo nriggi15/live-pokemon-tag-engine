@@ -1,18 +1,21 @@
 General Updates:
--Updated footer 
--blog added to footer and new post added
--fixed profile view on mobile
+-Blog post 5/29/2025
 
 Features Added:
--blog revealed, ALPHA STATE - GUYS ITS NOT GREAT YET. (but its there)
+-/search reset botton
 
 Technical Updates:
--
+-/search Updates:
+--outside directs finally work
+---You can now use /search?set=Evolving+Skies to instantly load into any search parameters!
+--updated sort list to persist last sort preference 
+--reset button added
+--updated the scroll load mroe sensitivity
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
 
 Bug Fixes:
--Fixed card page tag submission, updated to send correct cardId
+-
 
-v2.0.731 - Blog Update
+v2.0.732 - General Update
