@@ -12,7 +12,7 @@ h1 {
 }
 
 a {
-  color: #222 !important;
+  color: #222;
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -512,7 +512,7 @@ body.dark-mode .dashboard-grid a:hover {
 
 .explore-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
   gap: 2rem;
   max-width: 1400px;
   margin: 2rem auto;
@@ -654,7 +654,7 @@ display: none !important;
 }
 
 body.dark-mode {
-  background-color: #121212;
+  background-color: #232323;
   color: #f0f0f0;
 }
 
@@ -1203,11 +1203,11 @@ body.dark .tooltip a {
   }
 }
 
-/* body.dark-mode a {
-  color: #90caf9;
+body.dark-mode a {
+  color: #c2c2c2;
 }
 
-body.dark-mode .pulse-container {
+/* body.dark-mode .pulse-container {
   background-color: #1e1e1e;
   border-radius: 10px;
   padding: 1rem;

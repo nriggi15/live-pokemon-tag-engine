@@ -58,6 +58,7 @@ router.get('/', requireLogin, async (req, res) => {
       role: req.session.role || 'guest',
       currentUser: req.session.userId || null,
       username: req.session.username || '',
+      isDarkMode: req.session?.darkMode || false,
     });
   } catch (err) {
     console.error('Error loading PokéPulse:', err);

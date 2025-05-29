@@ -334,6 +334,8 @@ router.get('/card/:id', async (req, res) => {
       }
     }
 
+    
+
     let setCards = [];
 
     if (nearbyIds.length > 0) {
@@ -344,6 +346,16 @@ router.get('/card/:id', async (req, res) => {
 
       const nearbyData = await nearbyRes.json();
       setCards = nearbyData.data || [];
+
+      if (!setCards.find(c => c.id === card.cardId)) {
+        setCards.push({
+          id: card.cardId,
+          images: card.images,
+          name: card.name
+        });
+      }
+
+
     }
 
 

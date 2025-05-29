@@ -82,7 +82,9 @@
         
         <div style="display: flex; justify-content: center; position: relative;">
           <div style="position: relative; display: inline-block;">
-            <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
+            <a href="#" onclick="openShadowbox('<%= card.images.large || card.images.small %>')">
+              <img src="<%= card.images.large || card.images.small %>" class="card-image" alt="<%= card.name %>">
+            </a>
           </div>
         </div>
 
@@ -300,6 +302,12 @@
     background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeLoginModal()">
   </div>
 
+  <!-- Shadowbox Modal -->
+  <div id="imageShadowbox" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center;">
+    <img id="shadowboxImage" src="" alt="Magnified card" style="max-width:90vw; max-height:90vh; border-radius:10px; box-shadow:0 0 20px rgba(255,255,255,0.3);" />
+  </div>
+
+
 <script>
 function goBackToSearch() {
   console.log('🔙 Back to:', decodeURIComponent("<%= from %>"));
@@ -317,11 +325,7 @@ function goBackToSearch() {
     }
   }
 }
-</script>
 
-
-
-  <script>
   const tagStatus = document.getElementById('tag-status');
   if (tagStatus) {
     setTimeout(() => {
@@ -339,10 +343,7 @@ function goBackToSearch() {
       }, 500);
     }, 3000);
   }
-</script>
 
-
-  <script>
   function openLoginModal() {
     document.getElementById('loginModal').style.display = 'block';
     document.getElementById('overlay').style.display = 'block';
@@ -379,9 +380,7 @@ function goBackToSearch() {
       document.getElementById('loginPopupError').textContent = 'Unexpected error during login';
     }
   });
-</script>
 
-<script>
   const loadedCollections = new Set();
 
 /*   document.querySelectorAll('.collection-preview').forEach(async (container) => {
@@ -406,9 +405,7 @@ function goBackToSearch() {
       }
     }
   }); */
-</script>
 
-<script>
   if (tagStatus) {
     setTimeout(() => {
       tagStatus.style.transition = 'opacity 0.5s ease';
@@ -443,9 +440,7 @@ function goBackToSearch() {
       }
     });
   }
-</script>
 
-<script>
   function trackEvent(name, params = {}) {
     if (typeof gtag === 'function') {
       gtag('event', name, {
@@ -458,9 +453,7 @@ function goBackToSearch() {
       console.log('📦 Simulated GA event:', name, params);
     }
   }
-</script>
 
-<script>
   const tcgplayerLink = document.getElementById("tcgplayerLink");
   if (tcgplayerLink) {
     tcgplayerLink.addEventListener("click", () => {
@@ -473,6 +466,21 @@ function goBackToSearch() {
       });
     });
   }
+
+  function openShadowbox(src) {
+    const modal = document.getElementById('imageShadowbox');
+    const img = document.getElementById('shadowboxImage');
+    img.src = src;
+    modal.style.display = 'flex';
+  }
+
+  // Click outside the image to close
+  document.getElementById('imageShadowbox').addEventListener('click', (e) => {
+    if (e.target.id === 'imageShadowbox') {
+      e.target.style.display = 'none';
+    }
+  });
+
 </script>
 
 </body>
