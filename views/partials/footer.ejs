@@ -1,13 +1,50 @@
 <footer style="margin-top: 4rem; padding: 2rem; font-size: 0.85rem;">
-  <div style="max-width: 1000px; margin: 0 auto;">
-    <div style="margin-bottom: 2rem;">
-        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Explore</h3>
-        <ul style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 1.5rem;">
-            <li><a href="/faq#tagsubmissionguidelines" style="color: #000; text-decoration: none;">Tag Submission Guidelines</a></li>
-            <li><a href="/faq#community" style="color: #000; text-decoration: none;">Community Guidelines</a></li>
-            <li><a href="/faq" style="color: #000; text-decoration: none;">View Full FAQ</a></li>
-        </ul>
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem;">
+
+    <!-- FAQ Column -->
+    <div>
+      <h3 style="text-transform: lowercase; font-weight: bold;">faq</h3>
+      <ul style="list-style: none; padding: 0; line-height: 1.8;">
+        <li>🧠 <a href="/faq#tagsubmissionguidelines">Tag Submission Guidelines</a></li>
+        <li>👥 <a href="/faq#community">Community Guidelines</a></li>
+        <li>📖 <a href="/faq">Full FAQ</a></li>
+      </ul>
     </div>
+
+    <!-- Explore Column -->
+    <div>
+      <h3 style="text-transform: lowercase; font-weight: bold;">explore</h3>
+      <ul style="list-style: none; padding: 0; line-height: 1.8;">
+        <li>🧭 <a href="/explore">Discover</a></li>
+        <li>🃏 <a href="/search">Card Search</a></li>
+        <li>🏷️ <a href="/tagging-center">Tagging Center</a></li>
+      </ul>
+    </div>
+
+    <!-- Connect Column -->
+    <div>
+      <h3 style="text-transform: lowercase; font-weight: bold;">connect</h3>
+      <ul style="list-style: none; padding: 0; line-height: 1.8;">
+        <li>📘 <a href="/about">About</a></li>
+        <li>🧑‍💻 <a href="https://github.com/nriggi15/live-pokemon-tag-engine/" target="_blank">GitHub</a></li>
+        <li>📡 <a href="https://discord.gg/h8ha9489tr" target="_blank">Join Discord</a></li>
+      </ul>
+    </div>
+
+    <!-- Legal Column -->
+    <div>
+      <h3 style="text-transform: lowercase; font-weight: bold;">legal</h3>
+      <ul style="list-style: none; padding: 0; line-height: 1.8;">
+        <li>🔐 <a href="/terms">Privacy Policy</a></li>
+        <li>📄 <a href="/terms">Terms of Service</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Divider -->
+  <hr style="margin: 2rem 0; border-color: #ddd;" />
+
 <% if (!isLoggedIn) { %>
     <section style="background: #8f8f8f; padding: 2.5rem 1rem; text-align: center; border-radius: 1rem; margin: 3rem auto; max-width: 900px;">
         <h2 style="font-size: 2rem; margin-bottom: 1rem;">Join the CardVerse Community</h2>
@@ -20,16 +57,17 @@
         </div>
     </section>
 <% } %>
-    <div style ="color: #777777;">
-        <p style="line-height: 1.5;">
-        The literal and graphical information presented on this website about the Pokémon Trading Card Game, including card images and text, are ©1995–2025 Nintendo, The Pokémon Company International, Game Freak, Creatures Inc., and/or Wizards of the Coast. This website is fan-made and is not produced by, endorsed by, supported by, or affiliated with any of these entities.
-        </p>
-        <p style="margin-top: 1rem; line-height: 1.5;">
-        Card prices shown on this site reflect public market data or affiliate feeds and may not be accurate at all times. Please verify prices with each vendor. As a TCGplayer affiliate, CardVerse earns from qualifying purchases.
-        </p>
-        <p style="margin-top: 1rem;">
-        All original content, site logic, design, and user-generated data are © 2025 CardVerse. All rights reserved. ✌️
-        </p>
-    </div>
+
+  <!-- Legal Disclaimer -->
+  <div style="max-width: 1000px; margin: 0 auto; color: #777;">
+    <p style="line-height: 1.5;">
+      The literal and graphical information presented on this website about the Pokémon Trading Card Game, including card images and text, are ©1995–2025 Nintendo, The Pokémon Company International, Game Freak, Creatures Inc., and/or Wizards of the Coast. This website is fan-made and is not produced by, endorsed by, supported by, or affiliated with any of these entities.
+    </p>
+    <p style="margin-top: 1rem; line-height: 1.5;">
+      Card prices shown on this site reflect public market data or affiliate feeds and may not be accurate at all times. Please verify prices with each vendor. As a TCGplayer affiliate, CardVerse earns from qualifying purchases.
+    </p>
+    <p style="margin-top: 1rem;">
+      All original content, site logic, design, and user-generated data are © 2025 CardVerse. All rights reserved. ✌️
+    </p>
   </div>
 </footer>

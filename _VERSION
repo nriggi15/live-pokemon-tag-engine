@@ -1,23 +1,17 @@
 General Updates:
--added FAQs page
--footer added to layout
--disclaimer added to footer
--Register page styling updated
+-Updated footer layout
+-Fixed card page bug
 
 Features Added:
--Footer
--Pulse infinite scroll
--Pulse back to top button
--redirect login page if already logged in
+-
 
 Technical Updates:
--FAQs created
--Footed created and added to layout
+-
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
 
 Bug Fixes:
--
+-Fixed card page tag submission, updated to send correct cardId
 
-v2.0.72 - Footer & FAQs
+v2.0.73 - Footer & FAQs

@@ -11,6 +11,18 @@ h1 {
   margin-bottom: 20px;
 }
 
+a {
+  color: #222 !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #007bff; /* or any accent color you prefer */
+  text-decoration: underline;
+}
+
+
 /* BEGIN SIDE BAR */
 #sidebar {
   position: fixed;
