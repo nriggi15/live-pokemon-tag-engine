@@ -112,16 +112,28 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1200px) {
       .profile-grid {
+        display: grid;
         grid-template-columns: 1fr;
         grid-template-areas:
           "header"
           "left"
           "center"
           "right";
+        padding: 1rem;
+        gap: 1.5rem;
+      }
+
+      .profile-header,
+      .profile-left,
+      .profile-center,
+      .profile-right {
+        width: 100%;
+        box-sizing: border-box;
       }
     }
+
 
     body.dark-mode .main-container {
       background-color: #1e1e1e;
