@@ -1,7 +1,7 @@
 import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("🧠 dashboard.js is running ✅");
+    // console.log("🧠 dashboard.js is running ✅");
 
     // ✅ Load user info
         (async () => {
@@ -118,11 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ✅ Load tag submissions table
     const tableBody = document.querySelector('#user-submissions-table tbody');
     if (tableBody) {
-      console.log("📄 Tag submission table found — loading data...");
+      // console.log("📄 Tag submission table found — loading data...");
       fetch('/api/user-submissions')
         .then(res => res.json())
         .then(submissions => {
-          console.log("📄 Received submissions:", submissions);
+          // console.log("📄 Received submissions:", submissions);
 
           const stats = {
             approved: 0,

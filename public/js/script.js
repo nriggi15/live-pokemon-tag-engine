@@ -29,14 +29,14 @@ async function loadApprovedTags() {
     const res = await fetch('/api/tag-stats');
     const stats = await res.json();
     approvedTagsSet = new Set(stats.map(entry => entry.tag.toLowerCase()));
-    console.log('✅ Loaded approved tags:', approvedTagsSet.size);
+    // console.log('✅ Loaded approved tags:', approvedTagsSet.size);
   } catch (err) {
     console.error('❌ Failed to load tag stats:', err);
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("🚀 script.js is running");
+  // console.log("🚀 script.js is running");
 
   
   // Auto-enable dark mode for /pulse (or detect from user prefs if you prefer)

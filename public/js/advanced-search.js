@@ -376,7 +376,7 @@ window.addEventListener('scroll', () => {
   const scrollPos = window.scrollY + window.innerHeight;
   const docHeight = document.body.offsetHeight;
 
-  console.log(`📏 Scroll: ${scrollPos} / ${docHeight}`);
+  // console.log(`📏 Scroll: ${scrollPos} / ${docHeight}`);
 
   if (scrollPos >= docHeight * 0.6 && !isLoading) {
     console.log('🔄 Loading next page...');

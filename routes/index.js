@@ -149,17 +149,20 @@ router.get('/adv-search', async (req, res) => {
   let apiUrl = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(queryString)}&pageSize=${pageSize}&page=${page}`;
 
   // ✅ Add deterministic ordering to avoid duplicate pages
-  if (sort === 'name') {
-    apiUrl += `&orderBy=name`;
-  } else if (sort === 'hp') {
-    apiUrl += `&orderBy=-hp`;
-  } else if (sort === 'released') {
-    apiUrl += `&orderBy=-set.releaseDate`;
-  } else if (!sort) {
-    apiUrl += `&orderBy=id`; // ✅ Guarantees consistent pagination
-  } else if (sort !== 'price') {
-    return res.status(400).json({ error: 'Unsupported sort option.' });
-  }
+if (sort === 'name') {
+  apiUrl += `&orderBy=name`;
+} else if (sort === 'hp') {
+  apiUrl += `&orderBy=-hp`;
+} else if (sort === 'released') {
+  apiUrl += `&orderBy=-set.releaseDate`;
+} else if (sort === 'number') {
+  apiUrl += `&orderBy=number`;
+} else if (!sort) {
+  apiUrl += `&orderBy=id`;
+} else if (sort !== 'price') {
+  return res.status(400).json({ error: 'Unsupported sort option.' });
+}
+
 
   try {
     const response = await fetch(apiUrl, {

@@ -18,8 +18,10 @@ Technical Updates:
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
+-search not loading cards
 
 Bug Fixes:
 -cardPopup clone fixed on index
+-fixed search not loading cards
 
-v2.0.74 - General Update
+v2.0.741 - General Fixes

@@ -22,7 +22,7 @@ async function createTagCloud() {
     console.warn('❌ tagCloud element not found!');
     return;
   }
-  console.log('✅ Creating tag cloud...');
+  // console.log('✅ Creating tag cloud...');
 
   tagCloud.innerHTML = '';
   
@@ -172,7 +172,7 @@ async function createTagCloud() {
 
 
 function initSearchPage() {
-  console.log('🔍 Initializing search page...');
+  // console.log('🔍 Initializing search page...');
 
   document.getElementById('searchBtn')?.addEventListener('click', () => {
     const val = searchInput.value.trim();
@@ -351,7 +351,7 @@ async function loadRandomCards() {
 // Ensure the tag cloud is built on page load
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📌 DOM loaded in search.js');
+  // console.log('📌 DOM loaded in search.js');
 
 
   document.getElementById('searchBtn')?.addEventListener('click', () => {
