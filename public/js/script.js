@@ -8,6 +8,8 @@ import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 let currentQuery = null;
 let currentPage = 1;
 let searchMode = null;
+let popupLock = false;
+
 const bannedWords = ['cock', 'ass', 'cunt', 'slavery', 'NSFS', 'nazi', 'fuck', 'shit', 'bitch', 'slur'];
 // Load More Button
 const loadMoreBtn = document.createElement('button');
@@ -246,11 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      document.querySelectorAll('.popup').forEach(popup => {
-        if (!popup.classList.contains('hidden')) {
-          popup.classList.add('hidden');
+      document.querySelectorAll('.popup').forEach(p => {
+        if (!p.id || !['tagConfirmPopup', 'introPopup'].includes(p.id)) {
+          if (p !== document.getElementById('card-popup')) {
+            p.remove();
+          }
         }
       });
+
     }
   });
   
@@ -673,11 +678,36 @@ function showCards(cards, append = false) {
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('card');
     cardDiv.dataset.card = JSON.stringify(card);
-    cardDiv.innerHTML = `
-      <img src="${card.images.small}" alt="${card.name}" />
-      <p>${card.name}</p>
-      <p><strong>Set:</strong> ${card.set.name}</p>
-    `;
+const img = document.createElement('img');
+img.src = card.images.small;
+img.alt = card.name;
+
+img.onload = () => {
+  // Skip color extraction for cross-origin images
+  if (img.src.startsWith(window.location.origin)) {
+    if (window.ColorThief) {
+      try {
+        const colorThief = new ColorThief();
+        const dominantColor = colorThief.getColor(img);
+        cardDiv.style.borderColor = `rgb(${dominantColor.join(',')})`;
+      } catch (err) {
+        console.warn('🎨 ColorThief failed:', err);
+      }
+    }
+  }
+};
+
+
+const name = document.createElement('p');
+name.textContent = card.name;
+
+const set = document.createElement('p');
+set.innerHTML = `<strong>Set:</strong> ${card.set.name}`;
+
+cardDiv.appendChild(img);
+cardDiv.appendChild(name);
+cardDiv.appendChild(set);
+
     cardDiv.addEventListener('click', () => {
         trackEvent('card_click', {
           card_id: card.id,
@@ -979,6 +1009,12 @@ document.querySelectorAll('.popup-content a').forEach(link => {
 //
 
 async function openCardPopup(card, { mode = 'edit' } = {}) {
+  if (popupLock) return;
+  popupLock = true;
+
+  try {
+
+
   
   trackEvent('card_popup_open', {
     cardId: card.id,
@@ -990,14 +1026,15 @@ async function openCardPopup(card, { mode = 'edit' } = {}) {
 
   storeRecentlyViewedCard(card);
 
-  // 🔁 Remove any existing popup before creating a new one
-  const existingPopup = document.querySelector('.popup');
-  if (existingPopup) {
-    existingPopup.remove();
-    document.body.classList.remove('popup-open');
-    // Wait briefly to prevent stacked DOM mutations
-    await new Promise(r => setTimeout(r, 10));
+document.querySelectorAll('.popup').forEach(p => {
+  if (!['tagConfirmPopup', 'introPopup'].includes(p.id)) {
+    p.remove();
   }
+});
+document.body.classList.remove('popup-open');
+await new Promise(r => setTimeout(r, 50));
+
+
 
 
   
@@ -1402,6 +1439,7 @@ popup.addEventListener('click', (e) => {
     // 🔄 Load user collections
     try {
       const res = await fetch('/api/collections/me');
+      if (!res.ok) throw new Error(`Failed to load collections: ${res.status}`);
       const collections = await res.json();
 
       collectionDropdown.innerHTML = '';
@@ -1416,11 +1454,23 @@ popup.addEventListener('click', (e) => {
           collectionDropdown.appendChild(option);
         });
       }
+
     } catch (err) {
-      console.error('❌ Failed to load collections in popup:', err);
-      collectionDropdown.innerHTML = '<option disabled>Error loading collections</option>';
-      addBtn.disabled = true;
+      if (err.message.includes('403')) {
+        console.warn('🔒 Not logged in – skipping collections.');
+      } else {
+        console.error('❌ Failed to load collections in popup:', err);
+      }
+
+      const collectionSection = popup.querySelector('.collection-container');
+      if (collectionSection) {
+        collectionSection.innerHTML = `
+          <h3>➕ Add to Collection</h3>
+          <p style="color: #555;"><a href="/login">Log in</a> to manage collections</p>
+        `;
+      }
     }
+
 
     // ➕ Add to collection handler
     addBtn.addEventListener('click', async () => {
@@ -1570,7 +1620,13 @@ if (addTagButton) {
         document.body.classList.remove('popup-open');
       }
     });
+
+  } catch (err) {
+    console.error('❌ Failed to render popup:', err);
+  } finally {
+    popupLock = false;
   }
+}
 
   //END CARD POPUP
 

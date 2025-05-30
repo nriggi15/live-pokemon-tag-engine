@@ -1,11 +1,13 @@
 General Updates:
 -Blog post 5/29/2025
+-CARDPOPUP FINALLY FIXED (I'm so excited about this one)
 
 Features Added:
 -/search reset botton
 -/search magnify card
 
 Technical Updates:
+-cardPopup clone is FIXED and no longer stacks
 -/search Updates:
 --outside directs finally work
 ---You can now use /search?set=Evolving+Skies to instantly load into any search parameters!
@@ -18,6 +20,6 @@ Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
 
 Bug Fixes:
--
+-cardPopup clone fixed on index
 
-v2.0.733 - General Update
+v2.0.74 - General Update

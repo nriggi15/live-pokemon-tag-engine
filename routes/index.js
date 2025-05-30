@@ -155,17 +155,11 @@ router.get('/adv-search', async (req, res) => {
     apiUrl += `&orderBy=-hp`;
   } else if (sort === 'released') {
     apiUrl += `&orderBy=-set.releaseDate`;
-  } else if (sort === 'number') {
-    apiUrl += `&orderBy=number`;
-  } else if (sort === '-number') {
-    apiUrl += `&orderBy=-number`;
   } else if (!sort) {
-    apiUrl += `&orderBy=id`; // fallback if no sort selected
+    apiUrl += `&orderBy=id`; // ✅ Guarantees consistent pagination
   } else if (sort !== 'price') {
     return res.status(400).json({ error: 'Unsupported sort option.' });
   }
-  
-
 
   try {
     const response = await fetch(apiUrl, {
@@ -334,8 +328,6 @@ router.get('/card/:id', async (req, res) => {
       }
     }
 
-    
-
     let setCards = [];
 
     if (nearbyIds.length > 0) {
@@ -346,16 +338,6 @@ router.get('/card/:id', async (req, res) => {
 
       const nearbyData = await nearbyRes.json();
       setCards = nearbyData.data || [];
-
-      if (!setCards.find(c => c.id === card.cardId)) {
-        setCards.push({
-          id: card.cardId,
-          images: card.images,
-          name: card.name
-        });
-      }
-
-
     }
 
 

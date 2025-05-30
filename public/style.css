@@ -620,13 +620,13 @@ border-radius: 10px;
 }
 
 .popup-content a {
-  color: #007bff; /* or whatever you prefer */
+  color: auto; /* or whatever you prefer */
   text-decoration: none;
   text-decoration: underline !important;
 }
 
 .popup-content a:visited {
-  color: #007bff; /* match unvisited color */
+  color: auto; /* match unvisited color */
 }
 
 .popup-content a:hover {
