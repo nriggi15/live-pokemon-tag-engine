@@ -15,6 +15,7 @@ Technical Updates:
 --reset button added
 --updated the scroll load mroe sensitivity
 --card shadowbox (magnify)
+-moved tag usage button to tagcloud
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
@@ -24,4 +25,4 @@ Bug Fixes:
 -cardPopup clone fixed on index
 -fixed search not loading cards
 
-v2.0.741 - General Fixes
+v2.0.742 - General Fixes

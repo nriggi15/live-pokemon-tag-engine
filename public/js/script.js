@@ -58,10 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeSetsPopup = document.getElementById('closeSetsPopup');
   const setsList = document.getElementById('setsList');
 
-  const tagStatsLink = document.getElementById('openTagStats');
-  const tagStatsPopup = document.getElementById('tagStatsPopup');
-  const tagStatsList = document.getElementById('tagStatsList');
-  const closeStatsBtn = tagStatsPopup?.querySelector('.close-button');
 
   loadApprovedTags();
 
@@ -121,112 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  if (tagStatsLink && tagStatsPopup && tagStatsList) {
-    tagStatsLink.addEventListener('click', async () => {
-      console.log('📊 Tag stats button clicked');
-      tagStatsList.innerHTML = '<li>Loading...</li>';
-      tagStatsPopup.classList.remove('hidden');
-  
-      try {
-        const res = await fetch('/api/tag-stats');
-        const stats = await res.json();
-  
-        tagStatsList.innerHTML = '';
-        if (stats.length === 0) {
-          tagStatsList.innerHTML = '<li>No tags found yet.</li>';
-        } else {
-          stats.forEach(entry => {
-            const li = document.createElement('li');
-  
-            const tagLink = document.createElement('a');
-            tagLink.href = '#';
-            tagLink.textContent = entry.tag;
-            tagLink.addEventListener('click', (e) => {
-              e.preventDefault();
-              searchInput.value = entry.tag;
-              searchCustomTags(entry.tag);
-              tagStatsPopup.classList.add('hidden');
-            });
-  
-            const countText = document.createTextNode(` – ${entry.count} card${entry.count > 1 ? 's' : ''}`);
-            li.appendChild(tagLink);
-            li.appendChild(countText);
-            tagStatsList.appendChild(li);
-          });
-        }
-  
-      } catch (err) {
-        console.error('Error fetching tag stats:', err);
-        tagStatsList.innerHTML = '<li>Error loading tag stats.</li>';
-      }
-    });
-  
-    tagStatsPopup.addEventListener('click', (e) => {
-      if (e.target === tagStatsPopup) {
-        tagStatsPopup.classList.add('hidden');
-      }
-    });
-  
-    closeStatsBtn?.addEventListener('click', () => {
-      tagStatsPopup.classList.add('hidden');
-    });
-  }
-  
-/*   fetch('/api/whoami')
-  .then(res => res.json())
-  .then(data => {
-    const { userId, role } = data;
-
-    const registerBtn = document.getElementById('registerBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const dashboardBtn = document.getElementById('dashboardBtn');
-    const adminLink = document.getElementById('adminLink');
-    const modLink = document.getElementById('modLink');
-
-    if (userId) {
-
-      const myProfileBtn = document.getElementById('myProfileBtn');
-      if (myProfileBtn) {
-        fetch(`/api/user-profile/${userId}`)
-          .then(res => res.json())
-          .then(profile => {
-            if (profile?.username) {
-              myProfileBtn.href = `/user/${profile.username}`;
-              myProfileBtn.classList.remove('hidden');
-            }
-          })
-          .catch(() => {
-            myProfileBtn.style.display = 'none';
-          });
-      }
-
-
-      registerBtn?.classList.add('hidden');
-      loginBtn?.classList.add('hidden');
-      logoutBtn?.classList.remove('hidden');
-      dashboardBtn?.classList.remove('hidden');
-
-      if (role === 'admin') {
-        adminLink?.classList.remove('hidden');
-        modLink?.classList.remove('hidden');
-      } else if (role === 'moderator') {
-        modLink?.classList.remove('hidden');
-      }
-
-    } else {
-      registerBtn?.classList.remove('hidden');
-      loginBtn?.classList.remove('hidden');
-      logoutBtn?.classList.add('hidden');
-      dashboardBtn?.classList.add('hidden');
-      adminLink?.classList.add('hidden');
-      modLink?.classList.add('hidden');
-    }
-  })
-  .catch(err => {
-    console.error('Failed to fetch user role:', err);
-  }); */
-
   // First load Popup on index
   const popup = document.getElementById("introPopup");
   const closeBtn = document.getElementById("closeIntroPopup");
@@ -840,10 +730,10 @@ async function searchCustomTags(tag) {
         }
       });
 
-      console.log('🧪 Input Parts:', inputParts);
-      console.log('✅ Approved Tags Set:', [...approvedTagsSet]);
+      // console.log('🧪 Input Parts:', inputParts);
+      // console.log('✅ Approved Tags Set:', [...approvedTagsSet]);
       inputParts.forEach(part => {
-        console.log(`Is "${part}" a valid tag?`, approvedTagsSet.has(part));
+        // console.log(`Is "${part}" a valid tag?`, approvedTagsSet.has(part));
       });
 
       if (realTags.length === 0) {
@@ -860,7 +750,7 @@ async function searchCustomTags(tag) {
     const res = await fetch(`/api/search?tags=${encodeURIComponent(tagQueryParam)}&mode=${queryMode}`);
 
     const text = await res.text();
-    console.log('🔎 Raw /search response:', text);
+    // console.log('🔎 Raw /search response:', text);
 
     let ids;
     try {
@@ -904,7 +794,7 @@ async function searchCustomTags(tag) {
     }
 
 
-      console.log('📦 Card data:', cardData.map(c => `${c.name} → ${c.rarity}`));
+      // console.log('📦 Card data:', cardData.map(c => `${c.name} → ${c.rarity}`));
 
       // If fallback terms exist, filter by name match
       let filteredCards = cardData;

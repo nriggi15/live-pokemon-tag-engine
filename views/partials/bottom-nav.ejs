@@ -44,9 +44,9 @@
 <!-- More Panel -->
 <div class="nav-panel" id="morePanel">
   <button id="toggleDarkModeBtn">🌓 Toggle Dark Mode</button>
-    <% if (page === 'index') { %>
+<!--     <% if (page === 'index') { %>
       <button id="openTagStats">📊 View Tag Usage</button>
-    <% } %>
+    <% } %> -->
   <a href="https://discord.gg/h8ha9489tr" target="blank">📡 Join our Discord!</a>
   <a href="/about">📘 About CardVerse</a>
 
@@ -58,7 +58,7 @@
   <a href="/explore">🧭 Discover</a>
 </div>
 
-<form id="logoutFormBottom" action="/api/logout" method="GET" style="display: none;"></form>
+<form id="logoutFormBottomNav" action="/api/logout" method="GET" style="display: none;"></form>
 
 
 
@@ -67,7 +67,7 @@
 <div id="loginModal" style="display: none; position: fixed; top: 20vh; left: 50%; transform: translateX(-50%);
   background: white; border-radius: 10px; padding: 1rem; z-index: 9999; width: 300px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
   <h3 style="margin-top: 0;">🔐 Login</h3>
-  <form id="loginPopupForm">
+  <form id="loginPopupFormBottom">
     <input type="email" name="email" placeholder="Email" required style="width: 100%; margin-bottom: 0.5rem;" />
     <input type="password" name="password" placeholder="Password" required style="width: 100%; margin-bottom: 0.5rem;" />
     <button type="submit" style="width: 100%; padding: 6px 0;">Log In</button>
@@ -87,6 +87,12 @@
 <script>
   var openPanelId = null;
 
+  document.querySelectorAll('.nav-panel a, .nav-panel button').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.nav-panel').forEach(panel => panel.style.display = 'none');
+      openPanelId = null;
+    });
+  });
 
 
   function togglePanel(id) {
@@ -122,7 +128,7 @@
   });
 
   document.getElementById('logoutBtn')?.addEventListener('click', function () {
-    document.getElementById('logoutForm').submit();
+    document.getElementById('logoutFormBottomNav').submit();
   });
 
 
@@ -149,7 +155,7 @@
   });
 
 
-  document.getElementById('loginPopupForm')?.addEventListener('submit', async (e) => {
+  document.getElementById('loginPopupFormBottom')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value.trim();

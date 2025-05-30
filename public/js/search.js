@@ -96,6 +96,71 @@ async function createTagCloud() {
     viewSetsBtn.style.marginLeft = '0.5rem';
     rarityRow.appendChild(chaseBtn);
     rarityRow.appendChild(viewSetsBtn);
+
+    const viewTagStatsBtn = document.createElement('button');
+    viewTagStatsBtn.id = 'openTagStats';
+    viewTagStatsBtn.textContent = '📊 View All Tags';
+    viewTagStatsBtn.classList.add('rarity-button');
+    viewTagStatsBtn.style.marginLeft = '0.5rem';
+    rarityRow.appendChild(viewTagStatsBtn);
+
+    viewTagStatsBtn.addEventListener('click', async () => {
+      const tagStatsPopup = document.getElementById('tagStatsPopup');
+      const tagStatsList = document.getElementById('tagStatsList');
+      const searchInput = document.getElementById('searchInput');
+      const closeStatsBtn = document.getElementById('closeStatsBtn');
+
+      if (!tagStatsPopup || !tagStatsList || !searchInput) return;
+
+      tagStatsList.innerHTML = '<li>Loading...</li>';
+      tagStatsPopup.classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/tag-stats');
+        const stats = await res.json();
+
+        tagStatsList.innerHTML = '';
+        if (stats.length === 0) {
+          tagStatsList.innerHTML = '<li>No tags found yet.</li>';
+        } else {
+          stats.forEach(entry => {
+            const li = document.createElement('li');
+
+            const tagLink = document.createElement('a');
+            tagLink.href = '#';
+            tagLink.textContent = entry.tag;
+            tagLink.addEventListener('click', (e) => {
+              e.preventDefault();
+              searchInput.value = entry.tag;
+              searchCustomTags(entry.tag);
+              tagStatsPopup.classList.add('hidden');
+            });
+
+            const countText = document.createTextNode(` – ${entry.count} card${entry.count > 1 ? 's' : ''}`);
+            li.appendChild(tagLink);
+            li.appendChild(countText);
+            tagStatsList.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching tag stats:', err);
+        tagStatsList.innerHTML = '<li>Error loading tag stats.</li>';
+      }
+
+      // Optional: close popup on background click or close button
+      tagStatsPopup.addEventListener('click', (e) => {
+        if (e.target === tagStatsPopup) {
+          tagStatsPopup.classList.add('hidden');
+        }
+      });
+
+      closeStatsBtn?.addEventListener('click', () => {
+        tagStatsPopup.classList.add('hidden');
+      });
+    });
+
+
+
     tagCloud.appendChild(rarityRow);
 
     viewSetsBtn.addEventListener('click', async () => {
