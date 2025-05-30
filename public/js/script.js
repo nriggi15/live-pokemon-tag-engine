@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('DOMContentLoaded', () => {
     const reportBugBtn = document.getElementById('reportBugBtn');
     const bugFormModal = document.getElementById('bugFormModal');
+    
 
     if (reportBugBtn && bugFormModal) {
       reportBugBtn.addEventListener('click', () => {
@@ -340,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
+
   });
 
 
@@ -348,6 +350,16 @@ document.addEventListener('DOMContentLoaded', () => {
 //
 //
 //
+
+    const encyclopediaCards = document.querySelectorAll('.card-click');
+    encyclopediaCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const cardId = card.dataset.cardId;
+        if (cardId) {
+          openCardPopup(cardId);
+        }
+      });
+    });
 
 });
 

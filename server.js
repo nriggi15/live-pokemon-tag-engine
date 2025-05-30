@@ -19,8 +19,18 @@ import favoritesRouter from './routes/favorites.js';
 import githubWebhookHandler from './middleware/githubWebhook.js';
 import pulseRoutes from './routes/pulse.js';
 import expressLayouts from 'express-ejs-layouts';
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
 const port = process.env.PORT || 3000;
-
+///////////COOKIE SESSION BEGINS HERE! ALL REQUIRELOGIN GOES BELOW
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
+///////////BELOW GO DOWN DOWN DOWN
 app.use(expressLayouts);
 app.set('layout', 'layout');
 app.set('trust proxy', 1);
@@ -83,6 +93,7 @@ import indexRoutes from './routes/index.js';
 import tagsRoutes from './routes/tags.js';
 import leaderboardsRouter from './routes/leaderboards.js';
 import sessionVars from './middleware/sessionVars.js';
+import encyclopediaRoutes from './routes/encyclopedia.js';
 
 app.use(sessionVars);
 app.use(expressLayouts);
@@ -112,6 +123,8 @@ app.use('/api', usersRouter);
 import tagsRouter from './routes/tags.js';
 app.use('/api', tagsRouter);
 app.use('/', userProfilesRoute);
+app.use('/encyclopedia', encyclopediaRoutes);
+
 
 // ✅ Auth-Protected Route (now truly secure)
 app.get('/admin-panel', requireAdmin, (req, res) => {
