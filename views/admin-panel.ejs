@@ -94,6 +94,9 @@
 
 <h3>🔖 Tag Management</h3>
 <button id="loadTagManagerBtn">🔖 Manage Tags</button>
+<br><br>
+<button id="loadTagInsightsBtn">🧠 Tag Insights</button>
+
 
 
   <br>
@@ -641,6 +644,96 @@ loadMonitorBtn?.addEventListener('click', () => {
     } catch (err) {
       alert('Error deleting tag.');
       console.error(err);
+    }
+  });
+</script>
+
+<script>
+  const loadTagInsightsBtn = document.getElementById('loadTagInsightsBtn');
+
+  loadTagInsightsBtn?.addEventListener('click', async () => {
+    adminWorkspace.innerHTML = '<p>🔄 Loading Tag Insights...</p>';
+
+    try {
+      const res = await fetch('/admin/tag-insights', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch tag insights.');
+      const data = await res.json();
+
+      adminWorkspace.innerHTML = `
+        <h3>🧠 Tag Insights</h3>
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+          <div>
+            <h4>📊 All-Time</h4>
+            <ul>
+              <li><strong>Total Tags:</strong> ${data.total}</li>
+              <li><strong>Approved:</strong> ${data.approved}</li>
+              <li><strong>Pending:</strong> ${data.pending}</li>
+              <li><strong>Denied:</strong> ${data.denied}</li>
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              <li><strong>Total Tags:</strong> ${data.last7Stats.total}</li>
+              <li><strong>Approved:</strong> ${data.last7Stats.approved}</li>
+              <li><strong>Pending:</strong> ${data.last7Stats.pending}</li>
+              <li><strong>Denied:</strong> ${data.last7Stats.denied}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem;">
+          <!-- Top Submitters -->
+          <div>
+            <h4>👥 Top Submitters</h4>
+            <ul>
+              ${data.topSubmitters.map(user => `<li>${user.username}: ${user.count} tags</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topSubmitters7.map(user => `<li>${user.username}: ${user.count} tags</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+          <!-- Most Tagged Cards -->
+          <div>
+            <h4>📌 Most Tagged Cards</h4>
+            <ul>
+              ${data.topCards.map(card => `<li>${card.cardId}: ${card.count} tags</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topCards7.map(card => `<li>${card.cardId}: ${card.count} tags</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+          <!-- Most Frequent Tags -->
+          <div>
+            <h4>🔥 Most Frequent Tags</h4>
+            <ul>
+              ${data.topTags.map(tag => `<li>${tag.tag}: ${tag.count} uses</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topTags7.map(tag => `<li>${tag.tag}: ${tag.count} uses</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+      `;
+    } catch (err) {
+      console.error('❌ Error loading tag insights:', err);
+      adminWorkspace.innerHTML = '<p>❌ Failed to load tag insights.</p>';
     }
   });
 </script>
