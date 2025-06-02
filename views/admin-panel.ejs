@@ -102,6 +102,9 @@
 <h3>👥 User Management</h3>
 <button id="loadUsersBtn">👥 Manage Users</button>
 
+<h3>🧠 DB Monitor</h3>
+<button id="loadMonitorBtn">📊 View Card Fix Progress</button>
+
 
 <h3>🕓 Tagging Queue</h3>
 <button id="loadTagQueueBtn">📝 Review Tag Submissions</button>
@@ -192,6 +195,67 @@
 </script>
 
 <script>
+  const loadMonitorBtn = document.getElementById('loadMonitorBtn');
+
+loadMonitorBtn?.addEventListener('click', () => {
+  adminWorkspace.innerHTML = `
+    <h3>🧠 DB Monitor</h3>
+    <p>Monitoring how many cards still need fixing...</p>
+    <p><strong>Cards Remaining:</strong> <span id="remainingCount">Loading...</span></p>
+    <p><strong>Last Updated:</strong> <span id="lastUpdated">—</span></p>
+
+    <hr>
+
+    <h3>🧪 Card Integrity Check</h3>
+    <button id="checkIntegrityBtn" class="admin-button">Check Card Integrity</button>
+    <p id="integrityResult">Waiting for check...</p>
+  `;
+
+  // Fetch & display remaining count
+  async function fetchRemaining() {
+    try {
+      const res = await fetch('/api/admin/stats/cards-missing-fields', {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      document.getElementById('remainingCount').textContent = data.remaining;
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    } catch (err) {
+      document.getElementById('remainingCount').textContent = 'Error';
+    }
+  }
+
+  fetchRemaining();
+  window.dbMonitorInterval = setInterval(fetchRemaining, 5000);
+
+  // 🧪 Hook up integrity button after rendering
+  setTimeout(() => {
+    const checkBtn = document.getElementById('checkIntegrityBtn');
+    const resultEl = document.getElementById('integrityResult');
+
+    checkBtn?.addEventListener('click', async () => {
+      resultEl.textContent = '🔄 Checking...';
+      try {
+        const res = await fetch('/admin/card-integrity');
+        const data = await res.json();
+        if (data.ok) {
+          resultEl.textContent = `✅ ${data.totalChecked} cards checked. ❌ ${data.issues} cards with issues.`;
+        } else {
+          resultEl.textContent = '❌ Check failed.';
+        }
+      } catch (err) {
+        resultEl.textContent = '❌ Error during check.';
+        console.error(err);
+      }
+    });
+  }, 100);
+});
+
+</script>
+
+
+<script>
   const loadTagStatsBtn = document.getElementById('loadTagStatsBtn');
 
   loadTagStatsBtn?.addEventListener('click', async () => {
@@ -213,6 +277,47 @@
       console.error('Failed to load tags:', err);
     }
   });
+
+
+  async function fetchRemaining() {
+    try {
+      const res = await fetch('/api/admin/stats/cards-missing-fields', {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      document.getElementById('remainingCount').textContent = data.remaining;
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    } catch (err) {
+      document.getElementById('remainingCount').textContent = 'Error';
+    }
+  }
+
+  fetchRemaining();
+  window.dbMonitorInterval = setInterval(fetchRemaining, 5000);
+
+  // 🧪 Hook up integrity button
+  setTimeout(() => {
+    const checkBtn = document.getElementById('checkIntegrityBtn');
+    const resultEl = document.getElementById('integrityResult');
+
+    checkBtn?.addEventListener('click', async () => {
+      resultEl.textContent = '🔄 Checking...';
+      try {
+        const res = await fetch('/admin/card-integrity');
+        const data = await res.json();
+        if (data.ok) {
+          resultEl.textContent = `✅ ${data.totalChecked} cards checked. ❌ ${data.issues} cards with issues.`;
+        } else {
+          resultEl.textContent = '❌ Check failed.';
+        }
+      } catch (err) {
+        resultEl.textContent = '❌ Error during check.';
+        console.error(err);
+      }
+    });
+  }, 100); // slight delay to ensure DOM is rendered
+
 </script>
 
 <script>

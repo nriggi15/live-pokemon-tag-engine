@@ -23,7 +23,9 @@ const cardSchema = new mongoose.Schema({
   attacks: [
     {
       name: { type: String },
-      text: { type: String }
+      text: { type: String },
+      damage: { type: String },
+      cost: [{ type: String }]
     }
   ],
   rules: [{ type: String }],

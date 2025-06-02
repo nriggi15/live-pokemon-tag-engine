@@ -66,6 +66,91 @@
   .green { color: green; }
   .red { color: red; }
 
+  .card-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    font-size: 0.95rem;
+  }
+
+  .card-stat-grid > div {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .dark-mode .card-stat-grid > div {
+    background: #1f1f1f;
+    color: #ddd;
+    box-shadow: 0 2px 10px rgba(255,255,255,0.05);
+  }
+
+  .card-stat-grid strong {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-stat-grid span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .dark-mode .card-stat-grid span {
+    color: #eee;
+  }
+
+  .card-ability-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    margin-top: 1rem;
+  }
+
+  .attack-card {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dark-mode .attack-card {
+    background: #1d1d1d;
+    color: #eee;
+    box-shadow: 0 2px 6px rgba(255,255,255,0.05);
+  }
+
+  .attack-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  .attack-cost {
+    font-size: 0.9rem;
+    color: #777;
+  }
+
+  .dark-mode .attack-cost {
+    color: #bbb;
+  }
+
+  .attack-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
 
   </style>
 </head>
@@ -91,17 +176,20 @@
 
         <div style="margin-top: 0.75rem; text-align: center;">
             <% if (tags.length) { %>
-            <% tags.forEach(t => { %>
-                <span style="
-                display: inline-block;
-                background: #eee;
-                color: #222;
-                padding: 5px 10px;
-                border-radius: 15px;
-                font-size: 0.85rem;
-                margin: 3px;
-                "><%= t.tag %></span>
-            <% }) %>
+              <% tags.forEach(t => { %>
+                <a href="/encyclopedia/<%= encodeURIComponent(t.tag) %>" style="
+                  display: inline-block;
+                  background: #eee;
+                  color: #222;
+                  padding: 5px 10px;
+                  border-radius: 15px;
+                  font-size: 0.85rem;
+                  margin: 3px;
+                  text-decoration: none;
+                ">
+                  <%= t.tag %>
+                </a>
+              <% }) %>
             <% } else { %>
             <p style="font-size: 0.85rem; color: #888;">No tags yet.</p>
             <% } %>
@@ -149,85 +237,101 @@
     </div>
 
 
-      <div class="card-info">
-        <h1><%= card.name %></h1>
-        <p><strong>Set:</strong> <%= card.set.name %> (<%= card.set.id %>)</p>
-        <p><strong>Card Number:</strong> <%= card.number %></p>
-        <p><strong>Supertype:</strong> <%= card.supertype %></p>
-        <% if (card.subtypes) { %><p><strong>Subtypes:</strong> <%= card.subtypes.join(', ') %></p><% } %>
-        <% if (card.level) { %><p><strong>Level:</strong> <%= card.level %></p><% } %>
-        <% if (card.hp) { %><p><strong>HP:</strong> <%= card.hp %></p><% } %>
-        <% if (card.types) { %><p><strong>Types:</strong> <%= card.types.join(', ') %></p><% } %>
-        <% if (card.evolvesFrom) { %><p><strong>Evolves From:</strong> <%= card.evolvesFrom %></p><% } %>
+    <div class="card-info">
+      <h1 style="margin-bottom: 1rem;"><%= card.name %></h1>
+
+      <div class="card-stat-grid">
+        <div><strong>Set</strong><span><%= card.set.name %></span></div>
+        <div><strong>Card #</strong><span><%= card.number %></span></div>
+        <div><strong>Supertype</strong><span><%= card.supertype %></span></div>
+        <% if (card.subtypes) { %><div><strong>Subtypes</strong><span><%= card.subtypes.join(', ') %></span></div><% } %>
+        <% if (card.level) { %><div><strong>Level</strong><span><%= card.level %></span></div><% } %>
+        <% if (card.hp) { %><div><strong>HP</strong><span><%= card.hp %></span></div><% } %>
+        <% if (card.types) { %><div><strong>Types</strong><span><%= card.types.join(', ') %></span></div><% } %>
+        <% if (card.evolvesFrom) { %><div><strong>Evolves From</strong><span><%= card.evolvesFrom %></span></div><% } %>
         <% if (card.weaknesses) { %>
-          <p><strong>Weaknesses:</strong>
-            <%= card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ') %>
-          </p>
+          <div><strong>Weaknesses</strong><span><%= card.weaknesses.map(w => `${w.type} ×${w.value}`).join(', ') %></span></div>
         <% } %>
         <% if (card.resistances) { %>
-          <p><strong>Resistances:</strong>
-            <%= card.resistances.map(r => `${r.type} ${r.value}`).join(', ') %>
-          </p>
+          <div><strong>Resistances</strong><span><%= card.resistances.map(r => `${r.type} ${r.value}`).join(', ') %></span></div>
         <% } %>
-        <% if (card.rarity) { %><p><strong>Rarity:</strong> <%= card.rarity %></p><% } %>
-        <% if (card.artist) { %><p><strong>Artist:</strong> <%= card.artist %></p><% } %>
+        <% if (card.rarity) { %><div><strong>Rarity</strong><span><%= card.rarity %></span></div><% } %>
+        <% if (card.artist) { %><div><strong>Artist</strong><span><%= card.artist %></span></div><% } %>
+      </div>
 
-        <div style="margin-top: 1rem;">
-          <strong>🛒 Shop:</strong>
-          <a href="<%= ebayFinal %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
-          <span style="margin: 0 6px;">|</span>
-          <% if (card.tcgplayer?.url) { 
-              const encodedUrl = encodeURIComponent(card.tcgplayer.url);
-          %>
-          <a 
-            href="https://partner.tcgplayer.com/c/6242559/1830156/21018?u=<%= encodedUrl %>" 
-            target="_blank" 
-            class="link" 
-            id="tcgplayerLink"
-          >
-            Find on TCGPlayer
-          </a>
-
-          <% } else { %>
-            <span style="opacity: 0.6; pointer-events: none;">Find on TCGPlayer</span>
-          <% } %>
-        </div>
-      </br>
-        <% if (marketPrice) { %>
-          <div class="market-price">
-            💰 Market Price: $<%= marketPrice.toFixed(2) %>
-          </div>
+      <div class="card-info-shop">
+        <strong>🛒 Shop:</strong>
+        <a href="<%= ebayFinal %>" target="_blank" class="link" style="margin-left: 0.5rem;">Search on eBay</a>
+        <span style="margin: 0 6px;">|</span>
+        <% if (card.tcgplayer?.url) { 
+            const encodedUrl = encodeURIComponent(card.tcgplayer.url);
+        %>
+        <a href="https://partner.tcgplayer.com/c/6242559/1830156/21018?u=<%= encodedUrl %>" 
+          target="_blank" 
+          class="link" 
+          id="tcgplayerLink">
+          Find on TCGPlayer
+        </a>
         <% } else { %>
-          <div class="market-price">
-            💰 Market Price: Not Available
-          </div>
+          <span style="opacity: 0.6; pointer-events: none;">Find on TCGPlayer</span>
         <% } %>
+      </div>
 
+      <div style="margin-top: 0.75rem;">
+        <% if (marketPrice) { %>
+          💰 <strong>Market Price:</strong> $<%= marketPrice.toFixed(2) %>
+        <% } else { %>
+          💰 <strong>Market Price:</strong> Not Available
+        <% } %>
       </div>
     </div>
+
+    
+
+    </div>
+
+    <% if (card.rules?.length) { %>
+      <div class="card-section">
+        <h2>📘 Card Rule</h2>
+        <p style="margin: 0.5rem 0; font-size: 0.95rem; line-height: 1.4;">
+          <%= card.rules.join('<br>') %>
+        </p>
+      </div>
+    <% } %>
 
 
     <% if (card.attacks?.length) { %>
       <div class="card-section">
-        <h2>Attacks</h2>
-        <ul>
-          <% card.attacks.forEach(a => { %>
-            <li><strong><%= a.name %></strong>: <%= a.text || 'No description' %></li>
+        <h2>🗡️ Attacks</h2>
+        <div class="card-ability-grid">
+          <% card.attacks.forEach(attack => { %>
+            <div class="attack-card">
+              <div class="attack-header">
+                <strong><%= attack.name %></strong>
+                <span><%= attack.damage?.trim() ? attack.damage : '—' %> DMG</span>
+              </div>
+              <div class="attack-cost">
+                <em>Cost:</em>
+                <% if (attack.cost?.length) { %>
+                  <% attack.cost.forEach(type => { %>
+                    <img src="/img/inc/energy<%= type %>.png"
+                        alt="<%= type %>"
+                        title="<%= type %>"
+                        style="height: 20px; vertical-align: middle; margin-right: 2px;">
+                  <% }) %>
+                <% } else { %>
+                  —
+                <% } %>
+              </div>
+              <div class="attack-text">
+                <%= attack.text || 'No description.' %>
+              </div>
+            </div>
           <% }) %>
-        </ul>
+        </div>
       </div>
     <% } %>
 
-    <% if (card.rules?.length) { %>
-      <div class="card-section">
-        <h2>Rules</h2>
-        <ul>
-          <% card.rules.forEach(rule => { %>
-            <li><%= rule %></li>
-          <% }) %>
-        </ul>
-      </div>
-    <% } %>
 
     <div class="card-section">
       <h2>Similar Cards</h2>

@@ -8,7 +8,7 @@ import Card from '../models/Cards.js'; // Adjust path if needed
 // GET /encyclopedia/:tag
 router.get('/:tag', async (req, res) => {
   const rawTag = req.params.tag.toLowerCase();
-  
+  const tagName = req.params.tag;
   try {
     console.log('🔍 Requested tag:', rawTag);
     const tagDocs = await NewTag.find({ tag: rawTag, status: 'approved' });
@@ -53,18 +53,26 @@ router.get('/:tag', async (req, res) => {
     }
 
     const cards = [...existingCards, ...fetchedCards];
-
-
-    console.log('✅ Found matching cards:', cards.length);
+    const uniqueCards = new Set(cards.map(c => c.id)).size;
+    console.log('🪵 Final render payload:', {
+      cardsLength: cards?.length,
+      uniqueCardCount: new Set(cards.map(c => c.cardId)).size
+    });
 
 
     res.render('encyclopedia-tag', {
-    tag: rawTag,
-    count: tagDocs.length,
-    uniqueCards: cardIds.length,
-    cards: cards
-
+      layout: 'layouts/main',
+      tagName,
+      cards,
+      count: cards.length,
+      uniqueCardCount: new Set(cards.map(c => c.cardId)).size,
+      username: req.session.username || '',
+      isLoggedIn: !!req.session.userId,
+      isDarkMode: req.session?.darkMode || false,
     });
+
+
+
 
   } catch (err) {
     console.error('❌ Error loading tag encyclopedia:', err);

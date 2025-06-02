@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-
+import Card from '../models/Cards.js';
 import { requireAdmin } from '../middleware/auth.js';
 import User from '../models/User.js';
 import NewTag from '../models/NewTag.js'; // Or NewTag if this was intended to be NewTag.js
@@ -97,6 +97,68 @@ router.get('/admin/users', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to load users' });
   }
 });
+
+// 📊 Cards still missing required fields
+router.get('/admin/stats/cards-missing-fields', requireAdmin, async (req, res) => {
+  try {
+    const count = await Card.countDocuments({
+      supertype: 'Pokémon',
+      $or: [
+        { 'attacks': { $exists: true, $ne: [] } },
+        { 'attacks.damage': { $exists: false } },
+        { 'attacks.cost': { $exists: false } },
+        { 'types.0': { $exists: false } }
+      ]
+    });
+    res.json({ remaining: count });
+  } catch (err) {
+    console.error('Error counting broken cards:', err);
+    res.status(500).json({ error: 'Failed to count broken cards' });
+  }
+});
+
+// ✅ Live Integrity Check (admin panel)
+router.get('/admin/card-integrity', requireAdmin, async (req, res) => {
+  try {
+    const cards = await Card.find({ supertype: 'Pokémon' });
+    let badCount = 0;
+
+    for (const card of cards) {
+      if (
+        !card.types?.length ||
+        (card.attacks?.length && card.attacks.some(a => !a.damage || !a.cost?.length))
+      ) {
+        badCount++;
+      }
+    }
+
+    res.json({ ok: true, totalChecked: cards.length, issues: badCount });
+  } catch (err) {
+    console.error('Integrity check failed:', err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// 🔍 Monitor for how many Pokémon cards are missing required fields
+router.get('/api/admin/stats/cards-missing-fields', requireAdmin, async (req, res) => {
+  try {
+    const brokenCount = await Card.countDocuments({
+      'attacks': { $exists: true, $ne: [] },
+      $or: [
+        { 'attacks.cost': { $exists: false } },
+        { 'attacks.cost': { $size: 0 } },
+        { 'attacks.damage': { $exists: false } },
+        { 'types.0': { $exists: false } }
+      ]
+    });
+
+    res.json({ remaining: brokenCount, timestamp: new Date() });
+  } catch (err) {
+    console.error('❌ Failed to fetch card fix stats:', err);
+    res.status(500).json({ error: 'Failed to fetch fix stats' });
+  }
+});
+
 
 
 export default router;

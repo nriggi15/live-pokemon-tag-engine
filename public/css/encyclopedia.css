@@ -44,6 +44,17 @@
   transition: transform 0.2s ease;
 }
 
+.dark-mode .card-tile {
+  background: #1f1f1f;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+  color: #eee;
+}
+
+.dark-mode .card-tile p {
+  color: #ccc;
+}
+
+
 .card-tile:hover {
   transform: scale(1.05);
 }

@@ -7,6 +7,47 @@
   <link rel="stylesheet" href="/css/bottom-nav.css" />
 
   <style>
+    .card-loading-overlay {
+      position: fixed;
+      z-index: 9999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #3f3f3f;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 0 30px rgba(59, 59, 59, 0.6);
+      max-width: 90vw;
+      width: 320px;
+      align-items: center;
+      justify-content: center;
+      display: none; /* hidden by default */
+      flex-direction: column;
+    }
+
+    #loading-dots {
+      display: inline-block;
+      width: 1.5ch; /* enough space for up to 3 dots */
+      text-align: left;
+    }
+    
+    .card-loading-overlay.show {
+      display: flex;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+
+    #overlay-pokemon.breathing {
+      animation: breathe 1.8s ease-in-out infinite;
+    }
+
     .search-controls {
       display: flex;
       align-items: center;
@@ -325,10 +366,23 @@
 
   </div>
 
+  <!-- 🔲 Card Loading Popup -->
+  <div id="card-loading-overlay" class="card-loading-overlay hidden">
+    <div style="height: 20px;"></div> <!-- Head space -->
+    <img id="overlay-pokeball" src="/img/inc/pokeball.png" alt="Loading..." style="width: 60px; height: 60px; margin-bottom: 1rem;" />
+    <div style="margin-bottom: 1rem;">
+      <span class="loading-msg">Catching your card, please hold</span><span id="loading-dots" style="display: inline-block; width: 1ch;">.</span>
+    </div>
+    <img id="overlay-pokemon" src="" alt="Pokemon" style="max-width: 220px; max-height: 220px; display: block; margin: 0 auto;" />
+  </div>
+
+
+  
+
       <!-- Bottom Navigation Bar -->
 
   <script type="module" src="/js/script.js"></script>
-  <script src="/js/advanced-search.js"></script>
+  <script type="module" src="/js/advanced-search.js"></script>
   <!-- <script type="module" src="/js/react/assets/main-U_irmcaW.js"></script> -->
 
 <script>
@@ -348,6 +402,27 @@
   });
 </script>
 
+<script>
+  // Animate the loading dots
+  let dotStep = 0;
+  let dotInterval = null;
+
+  function startDotAnimation() {
+    const dotEl = document.getElementById('loading-dots');
+    dotInterval = setInterval(() => {
+      dotStep = (dotStep + 1) % 4;
+      dotEl.textContent = '.'.repeat(dotStep || 1);
+    }, 400);
+  }
+
+  function stopDotAnimation() {
+    clearInterval(dotInterval);
+  }
+
+  // If using this overlay elsewhere, export controls:
+  window.startDotAnimation = startDotAnimation;
+  window.stopDotAnimation = stopDotAnimation;
+</script>
 
 
 </body>

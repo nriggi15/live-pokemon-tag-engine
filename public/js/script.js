@@ -1,7 +1,7 @@
   //Import Image Maps
   // public/js/script.js (or wherever your frontend logic lives)
 import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
-import { largeImageMap } from '/img/pokemonLarge/largeImageMap.js';
+import { largeImageMap } from './largeImageMap.js';
 import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 
 

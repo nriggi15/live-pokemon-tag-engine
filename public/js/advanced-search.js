@@ -1,4 +1,5 @@
 // public/js/advanced-search.js
+import { largeImageMap } from './largeImageMap.js';
 let currentPage = 1;
 let isLoading = false;
 let lastQuery = '';
@@ -95,11 +96,43 @@ async function fetchCards(query, append = false) {
 
 
       // On click, go to the card page
+      // CARD POPUP IMG INC
       cardEl.addEventListener('click', () => {
         const lastSearch = window.location.href;
         localStorage.setItem('lastSearchURL', lastSearch);
+
+        const overlay = document.getElementById('card-loading-overlay');
+        const pokeImg = document.getElementById('overlay-pokemon');
+
+        // ✨ Normalize name (remove suffixes like GX, EX, V, VMAX, etc.)
+        const cleanName = card.name
+          .replace(/ VMAX| VSTAR| V-UNION| V| GX| EX| Lv\.X| δ| ✨| [\(\[].*?[\)\]]/g, '')
+          .trim();
+
+        const fallbackName = cleanName.split(' ')[0]; // fallback to first word
+        const imgList = largeImageMap[cleanName] || largeImageMap[fallbackName];
+        const chosenImg = imgList?.[imgList.length - 1];
+
+        if (chosenImg) {
+          pokeImg.src = `/img/pokemonLarge/${chosenImg}`;
+          pokeImg.classList.add('breathing');
+
+          pokeImg.style.display = 'block';
+        } else {
+          pokeImg.src = '';
+          pokeImg.style.display = 'none'; // hide image if nothing found
+          pokeImg.classList.remove('breathing'); // ✨ remove animation if image not found
+        }
+
+        overlay.classList.add('show');
+        overlay.classList.remove('hidden');
+        startDotAnimation();
+
         window.location.href = `/card/${card.id}?from=${encodeURIComponent(lastSearch)}`;
+
       });
+
+
 
 
         // ⬇️ Add this to mirror preview if too close to screen edge

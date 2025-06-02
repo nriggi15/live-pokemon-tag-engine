@@ -94,7 +94,9 @@ import tagsRoutes from './routes/tags.js';
 import leaderboardsRouter from './routes/leaderboards.js';
 import sessionVars from './middleware/sessionVars.js';
 import encyclopediaRoutes from './routes/encyclopedia.js';
+import adminRoutes from './routes/admin.js';
 
+app.use('/', adminRoutes); // or another base path if you're using one
 app.use(sessionVars);
 app.use(expressLayouts);
 app.set('layout', 'layouts/main'); // uses views/layouts/main.ejs
@@ -137,9 +139,6 @@ app.get('/admin-panel', requireAdmin, (req, res) => {
     role: req.session.role,page: 'search',
   });
 });
-import adminRoutes from './routes/admin.js';
-app.use('/api', adminRoutes);
-
 
 // ✅ Public Routes (not protected)
 app.get('/register', (req, res) => {
