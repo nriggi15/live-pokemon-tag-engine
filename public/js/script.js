@@ -1297,7 +1297,8 @@ popup.addEventListener('click', (e) => {
             tagSearchInput.value = tag.tag;
             popup.remove();
             document.body.classList.remove('popup-open');
-            searchCustomTags(tag.tag);
+            searchCustomTags(tag.tag); 
+            // window.location.href = `/encyclopedia/${encodeURIComponent(tag.tag)}`;
           });
 
           tagWrapper.appendChild(tagLink);
