@@ -1,0 +1,34 @@
+<!-- views/encyclopedia-tag.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= tagName.charAt(0).toUpperCase() + tagName.slice(1) %> Pokémon Cards – Tag Encyclopedia</title>
+  <meta name="description" content="Explore all Pokémon cards tagged with '<%= tagName %>'. Browse our dynamic tag encyclopedia to discover the best <%= tagName %> cards.">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/css/encyclopedia.css"> <!-- optional new file -->
+</head>
+<body>
+  <main class="encyclopedia-wrapper">
+    <section class="encyclopedia-hero">
+      <h1><%= tagName.charAt(0).toUpperCase() + tagName.slice(1) %> Pokémon Cards</h1>
+      <p class="encyclopedia-subtext">These cards have been tagged by users as "<strong><%= tagName %></strong>".</p>
+
+    </section>
+
+    <section class="encyclopedia-summary">
+      <p><%= cards.length %> total uses of this tag across <%= uniqueCardCount %> unique cards.</p>
+
+
+    </section>
+
+    <section class="encyclopedia-card-grid">
+      <% cards.forEach(card => { %>
+        <a href="/card/<%= card.id %>" class="card-tile" style="text-decoration: none;">
+          <img src="<%= card.images?.small || card.images?.large || '/img/no-image.png' %>" alt="<%= card.name %>">
+          <p><%= card.name %></p>
+        </a>
+      <% }) %>
+    </section>
+  </main>
+</body>
+</html>

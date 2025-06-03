@@ -197,8 +197,80 @@ router.get('/card/:id', async (req, res) => {
 
     // Get data from MongoDB, else load from API then save to DB
     let card = await Card.findOne({ cardId });
+    
+    if (!card) {
+      const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
+        headers: { 'X-Api-Key': process.env.POKEMONTCG_API_KEY }
+      });
 
-    const needsRefresh = !card || !card.images?.large || !card.set?.id || !card.types?.length;
+      if (!apiRes.ok) {
+        console.error(`❌ Failed to fetch ${cardId}:`, apiRes.status);
+        return res.status(500).render('error', { message: 'Failed to load card.' });
+      }
+
+      const cardData = await apiRes.json();
+      const apiCard = cardData.data || {};
+
+      // 🛠️ Defensive patching
+      apiCard.attacks = Array.isArray(apiCard.attacks) ? apiCard.attacks : [];
+
+      console.log('🌐 Card not in DB:', cardId);
+      console.log('🧪 DEBUG card.attacks (from API):', apiCard.attacks);
+
+      await Card.create({
+        cardId: apiCard.id,
+        name: apiCard.name,
+        set: {
+          id: apiCard.set?.id || '',
+          name: apiCard.set?.name || '',
+          printedTotal: apiCard.set?.printedTotal || null
+        },
+        number: apiCard.number || '',
+        images: {
+          small: apiCard.images?.small || '',
+          large: apiCard.images?.large || ''
+        },
+        supertype: apiCard.supertype || '',
+        subtypes: apiCard.subtypes || [],
+        level: apiCard.level || '',
+        hp: apiCard.hp || '',
+        types: apiCard.types || [],
+        evolvesFrom: apiCard.evolvesFrom || '',
+        attacks: apiCard.attacks?.map(a => ({
+          name: a.name,
+          text: a.text || '',
+          damage: a.damage || '',
+          cost: a.cost || []
+        })) || [],
+        rules: apiCard.rules || [],
+        weaknesses: apiCard.weaknesses || [],
+        resistances: apiCard.resistances || [],
+        rarity: apiCard.rarity || '',
+        artist: apiCard.artist || '',
+        lastUpdated: new Date()
+      });
+
+      card = await Card.findOne({ cardId });
+
+
+    }
+
+
+    if (card) {
+      console.log(`📦 Loaded from DB: ${cardId}`);
+    } else {
+      console.log(`🌐 Card not in DB: ${cardId}`);
+    }
+    console.log('🧪 DEBUG card.attacks:', card.attacks);
+
+    const needsRefresh =
+      !card ||
+      !card.images?.large ||
+      !card.set?.id ||
+      !card.types?.length ||
+      !card.attacks?.some(a => typeof a.damage === 'string' && a.damage.trim());
+
+
 
     if (!card || needsRefresh) {
       const apiRes = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
@@ -208,7 +280,13 @@ router.get('/card/:id', async (req, res) => {
       });
 
       const cardData = await apiRes.json();
-      const apiCard = cardData.data;
+      const apiCard = cardData.data || {};
+
+      // ✅ Patch empty/null attack arrays
+      apiCard.attacks = Array.isArray(apiCard.attacks) ? apiCard.attacks : [];
+
+      console.log('🌐 Card not in DB:', cardId);
+      console.log('🧪 DEBUG card.attacks (from API):', apiCard.attacks);
 
       if (!apiCard) {
         return res.status(404).render('404');
@@ -235,8 +313,10 @@ router.get('/card/:id', async (req, res) => {
         evolvesFrom: apiCard.evolvesFrom || '',
         attacks: apiCard.attacks?.map(a => ({
           name: a.name,
-          text: a.text || ''
+          text: a.text || '',
+          damage: a.damage || ''
         })) || [],
+
         rules: apiCard.rules || [],
         weaknesses: apiCard.weaknesses || [],
         resistances: apiCard.resistances || [],

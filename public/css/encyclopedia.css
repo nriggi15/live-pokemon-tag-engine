@@ -1,0 +1,71 @@
+/* public/css/encyclopedia.css */
+
+.encyclopedia-wrapper {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.encyclopedia-hero {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.encyclopedia-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.encyclopedia-subtext {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.encyclopedia-summary {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.encyclopedia-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.card-tile {
+  text-align: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.5rem;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.dark-mode .card-tile {
+  background: #1f1f1f;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+  color: #eee;
+}
+
+.dark-mode .card-tile p {
+  color: #ccc;
+}
+
+
+.card-tile:hover {
+  transform: scale(1.05);
+}
+
+.card-tile img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.card-tile p {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}

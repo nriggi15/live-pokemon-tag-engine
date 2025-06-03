@@ -1,7 +1,7 @@
   //Import Image Maps
   // public/js/script.js (or wherever your frontend logic lives)
 import { pixelImageMap } from '/img/151pixels/pixelImageMap.js';
-import { largeImageMap } from '/img/pokemonLarge/largeImageMap.js';
+import { largeImageMap } from './largeImageMap.js';
 import { avatarImageMap } from '/img/avatars/avatarImageMap.js';
 
 
@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('DOMContentLoaded', () => {
     const reportBugBtn = document.getElementById('reportBugBtn');
     const bugFormModal = document.getElementById('bugFormModal');
+    
 
     if (reportBugBtn && bugFormModal) {
       reportBugBtn.addEventListener('click', () => {
@@ -340,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
+
   });
 
 
@@ -348,6 +350,16 @@ document.addEventListener('DOMContentLoaded', () => {
 //
 //
 //
+
+    const encyclopediaCards = document.querySelectorAll('.card-click');
+    encyclopediaCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const cardId = card.dataset.cardId;
+        if (cardId) {
+          openCardPopup(cardId);
+        }
+      });
+    });
 
 });
 
@@ -1285,7 +1297,8 @@ popup.addEventListener('click', (e) => {
             tagSearchInput.value = tag.tag;
             popup.remove();
             document.body.classList.remove('popup-open');
-            searchCustomTags(tag.tag);
+            searchCustomTags(tag.tag); 
+            // window.location.href = `/encyclopedia/${encodeURIComponent(tag.tag)}`;
           });
 
           tagWrapper.appendChild(tagLink);

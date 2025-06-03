@@ -94,6 +94,9 @@
 
 <h3>🔖 Tag Management</h3>
 <button id="loadTagManagerBtn">🔖 Manage Tags</button>
+<br><br>
+<button id="loadTagInsightsBtn">🧠 Tag Insights</button>
+
 
 
   <br>
@@ -101,6 +104,9 @@
 <!-- 👥 Trigger Button -->
 <h3>👥 User Management</h3>
 <button id="loadUsersBtn">👥 Manage Users</button>
+
+<h3>🧠 DB Monitor</h3>
+<button id="loadMonitorBtn">📊 View Card Fix Progress</button>
 
 
 <h3>🕓 Tagging Queue</h3>
@@ -192,6 +198,67 @@
 </script>
 
 <script>
+  const loadMonitorBtn = document.getElementById('loadMonitorBtn');
+
+loadMonitorBtn?.addEventListener('click', () => {
+  adminWorkspace.innerHTML = `
+    <h3>🧠 DB Monitor</h3>
+    <p>Monitoring how many cards still need fixing...</p>
+    <p><strong>Cards Remaining:</strong> <span id="remainingCount">Loading...</span></p>
+    <p><strong>Last Updated:</strong> <span id="lastUpdated">—</span></p>
+
+    <hr>
+
+    <h3>🧪 Card Integrity Check</h3>
+    <button id="checkIntegrityBtn" class="admin-button">Check Card Integrity</button>
+    <p id="integrityResult">Waiting for check...</p>
+  `;
+
+  // Fetch & display remaining count
+  async function fetchRemaining() {
+    try {
+      const res = await fetch('/api/admin/stats/cards-missing-fields', {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      document.getElementById('remainingCount').textContent = data.remaining;
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    } catch (err) {
+      document.getElementById('remainingCount').textContent = 'Error';
+    }
+  }
+
+  fetchRemaining();
+  window.dbMonitorInterval = setInterval(fetchRemaining, 5000);
+
+  // 🧪 Hook up integrity button after rendering
+  setTimeout(() => {
+    const checkBtn = document.getElementById('checkIntegrityBtn');
+    const resultEl = document.getElementById('integrityResult');
+
+    checkBtn?.addEventListener('click', async () => {
+      resultEl.textContent = '🔄 Checking...';
+      try {
+        const res = await fetch('/admin/card-integrity');
+        const data = await res.json();
+        if (data.ok) {
+          resultEl.textContent = `✅ ${data.totalChecked} cards checked. ❌ ${data.issues} cards with issues.`;
+        } else {
+          resultEl.textContent = '❌ Check failed.';
+        }
+      } catch (err) {
+        resultEl.textContent = '❌ Error during check.';
+        console.error(err);
+      }
+    });
+  }, 100);
+});
+
+</script>
+
+
+<script>
   const loadTagStatsBtn = document.getElementById('loadTagStatsBtn');
 
   loadTagStatsBtn?.addEventListener('click', async () => {
@@ -213,6 +280,47 @@
       console.error('Failed to load tags:', err);
     }
   });
+
+
+  async function fetchRemaining() {
+    try {
+      const res = await fetch('/api/admin/stats/cards-missing-fields', {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      document.getElementById('remainingCount').textContent = data.remaining;
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    } catch (err) {
+      document.getElementById('remainingCount').textContent = 'Error';
+    }
+  }
+
+  fetchRemaining();
+  window.dbMonitorInterval = setInterval(fetchRemaining, 5000);
+
+  // 🧪 Hook up integrity button
+  setTimeout(() => {
+    const checkBtn = document.getElementById('checkIntegrityBtn');
+    const resultEl = document.getElementById('integrityResult');
+
+    checkBtn?.addEventListener('click', async () => {
+      resultEl.textContent = '🔄 Checking...';
+      try {
+        const res = await fetch('/admin/card-integrity');
+        const data = await res.json();
+        if (data.ok) {
+          resultEl.textContent = `✅ ${data.totalChecked} cards checked. ❌ ${data.issues} cards with issues.`;
+        } else {
+          resultEl.textContent = '❌ Check failed.';
+        }
+      } catch (err) {
+        resultEl.textContent = '❌ Error during check.';
+        console.error(err);
+      }
+    });
+  }, 100); // slight delay to ensure DOM is rendered
+
 </script>
 
 <script>
@@ -536,6 +644,96 @@
     } catch (err) {
       alert('Error deleting tag.');
       console.error(err);
+    }
+  });
+</script>
+
+<script>
+  const loadTagInsightsBtn = document.getElementById('loadTagInsightsBtn');
+
+  loadTagInsightsBtn?.addEventListener('click', async () => {
+    adminWorkspace.innerHTML = '<p>🔄 Loading Tag Insights...</p>';
+
+    try {
+      const res = await fetch('/admin/tag-insights', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch tag insights.');
+      const data = await res.json();
+
+      adminWorkspace.innerHTML = `
+        <h3>🧠 Tag Insights</h3>
+        <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+          <div>
+            <h4>📊 All-Time</h4>
+            <ul>
+              <li><strong>Total Tags:</strong> ${data.total}</li>
+              <li><strong>Approved:</strong> ${data.approved}</li>
+              <li><strong>Pending:</strong> ${data.pending}</li>
+              <li><strong>Denied:</strong> ${data.denied}</li>
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              <li><strong>Total Tags:</strong> ${data.last7Stats.total}</li>
+              <li><strong>Approved:</strong> ${data.last7Stats.approved}</li>
+              <li><strong>Pending:</strong> ${data.last7Stats.pending}</li>
+              <li><strong>Denied:</strong> ${data.last7Stats.denied}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem;">
+          <!-- Top Submitters -->
+          <div>
+            <h4>👥 Top Submitters</h4>
+            <ul>
+              ${data.topSubmitters.map(user => `<li>${user.username}: ${user.count} tags</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topSubmitters7.map(user => `<li>${user.username}: ${user.count} tags</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+          <!-- Most Tagged Cards -->
+          <div>
+            <h4>📌 Most Tagged Cards</h4>
+            <ul>
+              ${data.topCards.map(card => `<li>${card.cardId}: ${card.count} tags</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topCards7.map(card => `<li>${card.cardId}: ${card.count} tags</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+          <!-- Most Frequent Tags -->
+          <div>
+            <h4>🔥 Most Frequent Tags</h4>
+            <ul>
+              ${data.topTags.map(tag => `<li>${tag.tag}: ${tag.count} uses</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4>🕓 Last 7 Days</h4>
+            <ul>
+              ${data.topTags7.map(tag => `<li>${tag.tag}: ${tag.count} uses</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+      `;
+    } catch (err) {
+      console.error('❌ Error loading tag insights:', err);
+      adminWorkspace.innerHTML = '<p>❌ Failed to load tag insights.</p>';
     }
   });
 </script>
