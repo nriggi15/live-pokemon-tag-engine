@@ -20,6 +20,7 @@ Technical Updates:
 --card shadowbox (magnify)
 -moved tag usage button to tagcloud
 -admin tag insights added
+-added home button to blog
 
 Bugs Discovered:
 -Back to search button doesn't always work as intended, but gets it right most of the time
