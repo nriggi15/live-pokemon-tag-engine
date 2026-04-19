@@ -1,35 +1,7 @@
 General Updates:
 
 4/18/2026 - Service turned back on. Some lagging and connection errors are expected until full service is restored.
+4/18/2026 11pm - All services are restored and most systems tested to be fully functional.
 
--CARDPOPUP FINALLY FIXED (I'm so excited about this one)
--Encyclopedia test
 
-Features Added:
--/search reset botton
--/search magnify card
--/search page card loading
--/card page tag clicks now lead to Encyclopedia
-
-Technical Updates:
--cardPopup clone is FIXED and no longer stacks
--/search Updates:
---outside directs finally work
----You can now use /search?set=Evolving+Skies to instantly load into any search parameters!
---updated sort list to persist last sort preference 
---reset button added
---updated the scroll load mroe sensitivity
---card shadowbox (magnify)
--moved tag usage button to tagcloud
--admin tag insights added
--added home button to blog
-
-Bugs Discovered:
--Back to search button doesn't always work as intended, but gets it right most of the time
--search not loading cards
-
-Bug Fixes:
--cardPopup clone fixed on index
--fixed search not loading cards
-
-v2.0.750 - SERVICE RESTARTED
+v2.0.751 - SERVICE RETURNED!

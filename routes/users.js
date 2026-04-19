@@ -152,13 +152,12 @@ router.post('/login', loginLimiter, async (req, res) => {
     console.log('User found?', !!user);
     console.log('Password valid?', isValid);
 
-    if (!user.verified) {
-      return res.status(403).json({ message: 'Please verify your email before logging in.' });
-    }
-
-
     if (!user || !isValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    if (!user.verified) {
+      return res.status(403).json({ message: 'Please verify your email before logging in.' });
     }
 
     if (user.banned) {
@@ -216,6 +215,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     console.error('❌ Login error:', err);
     res.status(500).json({ message: 'Server error during login' });
   }
+
 });
 
 
